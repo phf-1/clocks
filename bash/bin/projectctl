@@ -484,6 +484,12 @@ if [[ "${MSG}" == ",start-emacs" ]]; then
   exit 0
 fi
 
+# ,ec
+#   Start Emacs as fast as possible for quick edits
+if [[ "${MSG}" == ",ec" ]]; then
+  exec emacs -Q -nw --init-directory="${EMACSD}" "$@"
+fi
+
 # ,print-env
 #   Print environment variables, sorted alphabetically
 if [[ "${MSG}" == ",print-env" ]]; then
