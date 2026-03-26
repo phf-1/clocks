@@ -1,34 +1,48 @@
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+# Specification
+
+# [[id:0df8eed0-403a-422a-8fce-ec37f9acae62]]
+#
+# dir_check "something" ⇒ log an error and exit 1 if "something" is not a directory.
+# …
+
+# Implementation
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-# Specification
-
-# dir_check "something" ⇒ log an error and exit 1 if "something" is not a directory.
-# …
-
-# Context
-
-ROOT_DIR="$(readlink -f "${BASH_SOURCE[0]%/*}/..")"
-LIB_DIR="$ROOT_DIR/lib"
-
-# shellcheck source=bash/lib/log.bash
-source "$LIB_DIR/log.bash"
+[[ -v _LIB_CHECK ]] && return
+_LIB_CHECK=1
 
 # Interface
 
+failed_check() {
+  local msg="$1"
+  shift
+  error "$msg" "$@"
+  exit 1
+}
+
+not_implemented() {
+  failed_check "Not implemented"
+}
+
 dir_check() {
   if [[ ! -d "$1" ]]; then
-    error "dir is not a directory" "dir=$1"
-    exit 1
+    failed_check "value is not a directory" "value=$1"
   fi
 }
 
 file_check() {
   if [[ ! -f "$1" ]]; then
-    error "file is not a regular file." "file=$1"
-    exit 1
+    failed_check "value is not a regular file" "value=$1"
+  fi
+}
+
+exist_check() {
+  if [[ ! -e "$1" ]]; then
+    failed_check "path is not in the filesystem" "path=$1"
   fi
 }
 
@@ -41,6 +55,42 @@ value_in_check() {
     [[ "$value" == "$v" ]] && return 0
   done
 
-  error "value not in allowed set" "value=$value" "allowed=${allowed[*]}"
-  exit 1
+  failed_check "value is not allowed" "value=$value" "allowed=${allowed[*]}"
+}
+
+nat_check() {
+  # TODO(3a16): should not start by 0.
+  if [[ ! "$1" =~ ^[0-9]+$ ]]; then
+    failed_check "value does not represent a ℕ" "value=$value"
+  fi
+}
+
+cmd_check() {
+  local cmd="$1"
+  if ! command -v "$cmd" &>/dev/null; then
+    failed_check "vaue is not a command" "value=$cmd"
+  fi
+}
+
+# TODO(0484): extract previous predicates, use them there
+file_in_dir_pred() {
+  local file
+  file="$(realpath "$1")"
+  if [[ ! -e "$file" ]]; then return 1; fi
+  local dir
+  dir="$(realpath "$2")"
+  if [[ ! -d "$dir" ]]; then return 1; fi
+  if [[ "$file" == "$dir/"* ]]; then return 0; else return 1; fi
+}
+
+file_in_dir_check() {
+  local file
+  file="$(realpath "$1")"
+  exist_check "$file"
+  local dir
+  dir="$(realpath "$2")"
+  dir_check "$dir"
+  if ! file_in_dir_pred "$file" "$dir"; then
+    failed_check "file ∉ dir" "file=$file" "dir=$dir"
+  fi
 }

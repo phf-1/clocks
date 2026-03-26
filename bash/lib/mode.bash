@@ -1,21 +1,26 @@
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+# Specification
+
+# [[id:9498f31c-91da-4a26-85a7-e0fad70bedff][Mode]]
+#
+# m : Mode represents the category of users using the application
+# dev means developers
+# test means automated systems for testing purposes
+# prod means paying clients
+
+# Implementation
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-# Specification
+[[ -v _LIB_MODE ]] && return
+_LIB_MODE=1
 
-# Implementation
+_MODES=(dev test prod)
 
-mode_dev() { echo dev; }
-mode_test() { echo test; }
-mode_prod() { echo prod; }
-mapfile -t _MODES < <(
-  mode_dev
-  mode_test
-  mode_prod
-)
+# Interface
+
 mode_check() {
-  local mode="$1"
-  value_in_check "$mode" "${_MODES[@]}"
+  value_in_check "$1" "${_MODES[@]}"
 }

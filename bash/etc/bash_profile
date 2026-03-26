@@ -1,10 +1,11 @@
-export PATH="$PWD/bash/bin:$PATH"
+export PATH="$PWD/python/bin:$PATH"
 export CC=gcc
 export SSL_CERT_DIR="$GUIX_ENVIRONMENT/etc/ssl/certs"
 export SSL_CERT_FILE="$GUIX_ENVIRONMENT/etc/ssl/certs/ca-certificates.crt"
 export GIT_SSL_CAINFO="$SSL_CERT_FILE"
-export MIX_HOME="$PWD/phoenix/_mix"
-export HEX_HOME="$PWD/phoenix/_hex"
+export MIX_HOME="$PWD/backend/_mix"
+export HEX_HOME="$PWD/backend/_hex"
+export PYTHONPATH="$GUIX_PYTHONPATH:$PWD/python/lib"
 mkdir -p ~/.ssh
 chmod 755 ~
 chmod 700 ~/.ssh
@@ -18,3 +19,4 @@ Host github.com
     UserKnownHostsFile ~/.ssh/known_hosts
 EOF
 chmod 600 ~/.ssh/config
+export GUILE_LOAD_PATH="$GUILE_LOAD_PATH:$PWD/scheme"

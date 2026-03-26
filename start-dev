@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+# [[id:b80c22c9-2eed-4eea-a469-136e7666ea96][start-dev]]
+#
+# Given that Bash and Guix are installed on the current system, this script starts
+# the development environment.
+#
+# The development environment is a container with network access that packs all
+# necessary available resources for developping the current application, not matter
+# the underlying system.
+#
+# This guarantees reproducible development environment for all developpers.
+#
+# For more information, see the on-boarding guide: team/architect/on-boarding.org
+
+# VERBOSE = true → xtrace
+[[ "${VERBOSE:-false}" == "true" ]] && { export VERBOSE; set -x; }
+
+# Strict mode
+set -euo pipefail
+IFS=$'\n\t'
+
+main() {
+  if [[ -v GUIX_ENVIRONMENT ]]; then
+    echo "INFO | The development environment is active."
+    exit 0
+  else
+    # Read secret environment variables
+    # Default values are provided.
+    if [[ -f .env.gpg ]]; then
+      set +xv
+      set -a
+      eval "$(gpg --quiet --batch --yes --decrypt .env.gpg 2>/dev/null)"
+      set +a
+    fi
+    : "${XAI_API_KEY:=sk-0000}"; export XAI_API_KEY
+    : "${SECRET_KEY_BASE:=""}"; export SECRET_KEY_BASE
+
+    # LOCAL = true → Not not use external APIs (e.g. xAI).
+    : "${LOCAL:=true}"; export LOCAL
+
+    : "${MIX_ENV:=dev}"; export MIX_ENV
+
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+
+    # The shell inside the dev environment
+    local cmd="bash --init-file bash/etc/bashrc -i"
+
+    if ! ssh-add -l &>/dev/null; then
+      echo "ERROR | The SSH agent is necessary to connect to a VPS"
+      exit 1
+    fi
+
+    ETC_GUIX="/etc/guix"
+    if [[ ! -f "$ETC_GUIX/signing-key.pub" ]]; then
+      set -x
+      sudo -k guix archive --generate-key
+      set +x
+      ls -l "$ETC_GUIX"
+    fi
+
+    # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
+    guix time-machine -C scheme/app/env/channels.scm -- shell \
+         -C \
+         -W \
+         -S /usr/bin=bin \
+         -S /etc/ssl/certs/ca-certificates.crt=etc/ssl/certs/ca-certificates.crt \
+         -E ^XAI_API_KEY \
+         -E ^SECRET_KEY_BASE \
+         -E ^LC_ALL \
+         -E ^LANG \
+         -E ^LOCAL \
+         -E ^MIX_ENV \
+         -E ^TERM \
+         -E ^SSH_AUTH_SOCK \
+         --share="${SSH_AUTH_SOCK:-}" \
+         --expose="$ETC_GUIX" \
+         --share=/tmp \
+         -N \
+         -m scheme/app/env/manifest.scm \
+         -- bash -c "source bash/etc/bash_profile; projectctl; ${cmd}"
+    exit 0
+  fi
+}
+
+# Interface
+
+main

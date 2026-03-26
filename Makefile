@@ -9,9 +9,6 @@ MAKEFLAGS += --no-print-directory
 .ONESHELL:
 .SILENT:
 
-# The directory where the Phoenix application lives.
-PHOENIX=phoenix
-
 # make dev-env LOCAL=(true|false)
 #   build a reproducible development environment. If LOCAL=true, then do not use
 #   external APIs like xAI. Secrets are read from .env.gpg.
@@ -48,12 +45,13 @@ dev-env:
 	  : $${SECRET_KEY_BASE:=""}
 
 	  # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
-	  guix time-machine -C guix/channels.scm -- shell \
+	  guix time-machine -C scheme/app/env/channels.scm -- shell \
 		     -C \
+		     -W \
 		     -S /usr/bin=bin \
 		     -S /etc/ssl/certs/ca-certificates.crt=etc/ssl/certs/ca-certificates.crt \
 		     -E ^XAI_API_KEY \
-	             -E ^SECRET_KEY_BASE \
+		     -E ^SECRET_KEY_BASE \
 		     -E ^LC_ALL \
 		     -E ^LANG \
 		     -E ^LOCAL \
@@ -61,13 +59,13 @@ dev-env:
 		     -E ^TERM \
 		     -E ^DISPLAY \
 		     -E ^XAUTHORITY \
-	             -E ^SSH_AUTH_SOCK \
-	             --share=$$SSH_AUTH_SOCK \
+		     -E ^SSH_AUTH_SOCK \
+		     --share=$$SSH_AUTH_SOCK \
 		     --expose="${XAUTHORITY}" \
 		     --expose=/tmp/.X11-unix \
+		     --expose=/etc/guix \
 		     --share=/tmp \
 		     -N \
-		     -m guix/manifest.scm \
+		     -m scheme/app/env/manifest.scm \
 		     -- bash -c "source bash/etc/bash_profile; projectctl; $${CMD}"
 	fi
-

@@ -4,59 +4,65 @@
 :END:
 
 ** Development environment
-*** Install Guix
+*** Guix
 
-To make the development environment fully reproducible, we use Guix. Install Guix
-following these guides:
+To make the development environment fully reproducible, we use Guix.
 
-1. https://guix.gnu.org/manual/devel/en/guix.html#Binary-Installation
-2. https://guix.gnu.org/manual/devel/en/guix.html#Name-Service-Switch-1
-3. https://guix.gnu.org/manual/1.5.0/en/html_node/Upgrading-Guix.html
+**** Install a name server
 
-It is a good idea to update the guix daemon using an automatic job. If using systemd,
-then why not:
+We need Guix binaries to be able to find values associated to some names on the host
+system. To that end, a name server should be installed.
 
-=/etc/systemd/system/guix-update.service=
-
-#+begin_src conf
-[Unit]
-Description=Update Guix Daemon
-Wants=network-online.target
-After=network-online.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/guix pull
-ExecStart=/usr/bin/systemctl restart guix-daemon.service
-#+end_src
-
-=/etc/systemd/system/guix-update.timer=
-
-#+begin_src conf
-[Unit]
-Description=Run Guix daemon update weekly
-
-[Timer]
-OnCalendar=weekly
-Persistent=true
-RandomizedDelaySec=1h
-
-[Install]
-WantedBy=timers.target
-#+end_src
-
-Then:
+***** If apt is used, then install nscd
 
 #+begin_src bash :eval no
-systemctl daemon-reload
-systemctl enable --now guix-update.timer
+sudo apt install nscd
+sudo systemctl status nscd
+#+end_src
+
+***** If dnf is used, then install nsncd
+
+#+begin_src bash :eval no
+sudo dnf copr enable kanata/nsncd -y
+sudo dnf install nsncd -y
+sudo systemctl enable --now nsncd
+sudo systemctl status nsncd.service
+#+end_src
+
+**** Install Guix
+
+#+begin_src bash :eval no
+cd /tmp
+wget https://guix.gnu.org/guix-install.sh
+chmod +x guix-install.sh
+sudo ./guix-install.sh
+#+end_src
+
+**** Configure the system
+
+Use appropriate file, ~.bash_profile~ or whatever suits your setup.
+
+#+begin_src bash :eval no
+cat <<'EOF' >> "$HOME/.bash_profile"
+export GUIX_PROFILE="$HOME/.guix-profile"
+source "$GUIX_PROFILE/etc/profile"
+EOF
 #+end_src
 
 *** Fork the repo
 
-- Fork the repository,
+- Fork the repository: https://github.com/phf-1/clocks
 - clone it locally, for instance under =~/src/clocks/=,
 - then =cd ~/src/clocks=.
+
+cd *** Add a frontend
+
+A frontend is an application that uses the Vite, a Web build tool (e.g. Lovable
+application). For instance:
+
+#+begin_src bash :eval no
+git clone git@github.com:phf-1/my-lovely-tasks.git frontend
+#+end_src
 
 *** Secrets
 
@@ -102,24 +108,77 @@ rm .env
 Start the development environment:
 
 #+begin_src bash :eval no
-make dev-env
-#+end_src
-
-To verify everything works, clone a test Lovable project under =frontend/=:
-
-#+begin_src bash :eval no
-git clone https://github.com/phf-1/my-lovely-tasks frontend
+./start-dev
 #+end_src
 
 Then start a REPL:
 
 #+begin_src bash :eval no
-,start-repl
+,app-repl
 #+end_src
 
 The application should now be live.
 
-** Authenticated commits
+** Deployment
+
+The objective is to simulate a production deployment.
+
+Once the application reaches some satisfactory state, it is necessary to deploy it
+for customers to benefit from it. Customers connect to a server through their
+browsers, so we simulate a production server with a VM, and a deployment to that
+server.
+
+*** Virtual machine capabilities
+
+The objective is to ensure that the current system can run virtual machines. We need
+QEMU and KVM.
+
+**** Fedora 43
+
+Minimal QEMU installation:
+
+#+begin_src bash :eval no
+sudo dnf update
+sudo dnf install qemu-system-x86
+#+end_src
+
+
+
+*** Initial server image
+
+The objective is to build an initial server image.
+
+Within the container, build a server image using:
+
+#+begin_src bash :eval no
+,vm-init-image-build
+#+end_src
+
+*** Initial server vm
+
+The objective is to start an initial server vm.
+
+Start a new terminal outside the container and in the same directory.
+
+Add the project binaries to the PATH:
+
+#+begin_src bash :eval no
+export PATH="$PATH:$PWD/python/bin"
+#+end_src
+
+Choose a port:
+
+#+begin_src bash :eval no
+PORT=2222
+#+end_src
+
+Start an initial VM using:
+
+#+begin_src bash :eval no
+,vm-init-start $PORT
+#+end_src
+
+** TODO Authenticated commits
 *** Generate a keypair
 
 If you do not already have one, generate a GPG keypair. This is used to sign and
@@ -127,16 +186,15 @@ identify your commits:
 
 #+begin_src bash :eval no
 gpg --batch --full-generate-key <<EOF
+Name-Real: "$NAME"
+Name-Email: "$EMAIL"
 Key-Type: eddsa
 Key-Curve: ed25519
 Key-Usage: cert
 Subkey-Type: eddsa
 Subkey-Curve: ed25519
 Subkey-Usage: sign
-Name-Real: YOUR NAME
-Name-Email: YOUR@EMAIL.COM
-Expire-Date: 2y
-Passphrase: YOUR-STRONG-PASSPHRASE-HERE
+Subkey-Expire-Date: 2y
 %commit
 EOF
 #+end_src
@@ -196,7 +254,7 @@ Once your PR is merged, the [[ref:87e740ec-6036-4154-968d-625196f90ee4][architec
 platform to accept commits signed by you. Your contributions will then be
 authenticated by a chain of trust.
 
-** Next steps
+** TODO Next steps
 
 - To learn what the application does and how it works, see [[ref:94a78f42-9098-4796-90c1-725e20a07fbd][Architecture]].
 - To run tests, format code, and similar tasks, see the [[ref:b80c22c9-2eed-4eea-a469-136e7666ea96][Makefile]].

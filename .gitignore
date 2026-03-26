@@ -11,3 +11,15 @@ discussion.org
 # Emacs generated directories.
 emacs.d/auto-save-list/
 emacs.d/org-persist/
+
+# Ignore disk images
+/image
+
+# Ignore generated assets
+phoenix/priv/static/
+
+*.dump
+
+.venv
+
+/backend/priv/static/*
