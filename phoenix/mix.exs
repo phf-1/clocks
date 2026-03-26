@@ -44,44 +44,67 @@ defmodule Clocks.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.21"},
-      {:phoenix_ecto, "~> 4.5"},
-      {:ecto_sql, "~> 3.10"},
-      {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 4.1"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 1.0"},
-      {:floki, ">= 0.30.0", only: :test},
+      # ── Web framework ────────────────────────────────────────────────────────
+      {:phoenix,                "~> 1.7.21"},
+      {:phoenix_ecto,           "~> 4.5"},
+      {:phoenix_html,           "~> 4.1"},
+      {:phoenix_live_view,      "~> 1.0"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+
+      # ── Database ─────────────────────────────────────────────────────────────
+      {:ecto_sql, "~> 3.10"},
+      {:postgrex,  ">= 0.0.0"},
+
+      # ── HTTP & networking ─────────────────────────────────────────────────────
+      {:bandit, "~> 1.5"},
+      {:finch, "~> 0.13"},
+      {:req,   "~> 0.5.17"},
+
+      # ── Email ─────────────────────────────────────────────────────────────────
+      {:swoosh, "~> 1.5"},
+
+      # ── Auth & crypto ─────────────────────────────────────────────────────────
+      {:bcrypt_elixir, "~> 3.3"},
+      {:jose,          "~> 1.11"},
+
+      # ── Serialisation & data ──────────────────────────────────────────────────
+      {:jason,   "~> 1.2"},
+      {:decimal, "~> 2.3"},     # [[ref:a5d375d7-a3ee-4c89-92fb-1cc4d5c0387e]]
+
+      # ── Media ─────────────────────────────────────────────────────────────────
+      {:image, "~> 0.63.0"},    # [[ref:c496ad7d-4178-46c8-955c-584e0fe568f1]]
+
+      # ── Observability ─────────────────────────────────────────────────────────
+      {:telemetry_metrics, "~> 1.0"},
+      {:telemetry_poller,  "~> 1.0"},
+
+      # ── Internationalisation ──────────────────────────────────────────────────
+      {:gettext, "~> 0.26"},
+
+      # ── Clustering ────────────────────────────────────────────────────────────
+      {:dns_cluster, "~> 0.1.1"},
+
+      # ── Assets (compiled into prod, only start in dev) ────────────────────────
+      {:esbuild,  "~> 0.8",   runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:heroicons,
-       github: "tailwindlabs/heroicons",
-       tag: "v2.1.1",
-       sparse: "optimized",
-       app: false,
+       github:  "tailwindlabs/heroicons",
+       tag:     "v2.1.1",
+       sparse:  "optimized",
+       app:     false,
        compile: false,
-       depth: 1},
-      {:swoosh, "~> 1.5"},
-      {:finch, "~> 0.13"},
-      {:telemetry_metrics, "~> 1.0"},
-      {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.26"},
-      {:jason, "~> 1.2"},
-      {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"},
-      {:req, "~> 0.5.17"},
+       depth:   1},
 
-      # [[ref:a5d375d7-a3ee-4c89-92fb-1cc4d5c0387e]]
-      {:decimal, "~> 2.3"},
+      # ── Dev ───────────────────────────────────────────────────────────────────
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
 
-      # [[ref:c496ad7d-4178-46c8-955c-584e0fe568f1]]
-      {:image, "~> 0.63.0"},
-      {:bcrypt_elixir, "~> 3.3"},
-      {:jose, "~> 1.11"},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:sobelow, "~> 0.14", only: [:dev, :test], runtime: false, warn_if_outdated: true}
+      # ── Dev + test ────────────────────────────────────────────────────────────
+      {:credo,    "~> 1.7",  only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4",  only: [:dev, :test], runtime: false},
+      {:sobelow,  "~> 0.14", only: [:dev, :test], runtime: false, warn_if_outdated: true},
+
+      # ── Test ──────────────────────────────────────────────────────────────────
+      {:floki, ">= 0.30.0", only: :test},
     ]
   end
 

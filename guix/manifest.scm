@@ -11,78 +11,88 @@
              (gnu packages erlang)
              (gnu packages elixir))
 
-;; Erlang must also carry debug_info — Dialyzer builds its PLT from
-;; Erlang's own .beam files (OTP stdlib, kernel, etc.) and needs the
-;; abstract_code chunk there too.
+;; Erlang must carry debug_info — Dialyzer builds its PLT from
+;; Erlang's own .beam files and needs the abstract_code chunk there.
 (define erlang-with-debug-info
   (package
-    (inherit erlang)
-    (name "erlang-with-debug-info")
-    (arguments
-     (substitute-keyword-arguments (package-arguments erlang)
-       ;; Keep native binaries unstripped (separate concern, harmless to set).
-       ((#:strip-binaries? _ #t) #f)
-       ((#:phases phases '%standard-phases)
-        #~(modify-phases #$phases
-            (add-before 'build 'enable-debug-info
-              (lambda _
-                ;; erlc respects ERL_COMPILER_OPTIONS.
-                ;; debug_info tells it to embed abstract_code in every
-                ;; .beam it produces — exactly what Dialyzer requires.
-                (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
+   (inherit erlang)
+   (name "erlang-with-debug-info")
+   (arguments
+    (substitute-keyword-arguments
+     (package-arguments erlang)
+     ((#:strip-binaries? _ #t) #f)
+     ((#:phases phases '%standard-phases)
+      #~(modify-phases #$phases
+                       (add-before 'build 'enable-debug-info
+                                   (lambda _
+                                     (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
 
 (define elixir-with-debug-info
   (package
-    (inherit elixir)
-    (name "elixir-with-debug-info")
-    ;; Override the erlang input to use our debug-info-enabled build.
-    (inputs
-     (modify-inputs (package-inputs elixir)
-       (replace "erlang" erlang-with-debug-info)))
-    (arguments
-     (substitute-keyword-arguments (package-arguments elixir)
-       ((#:strip-binaries? _ #t) #f)
-       ((#:phases phases '%standard-phases)
-        #~(modify-phases #$phases
-            (add-before 'build 'enable-debug-info
-              (lambda _
-                ;; Elixir's own Makefile compiles its .beam files via erlc.
-                ;; Setting this env var ensures elixir_erl_compiler.beam
-                ;; and all other stdlib .beam files get abstract_code chunks,
-                ;; which Dialyzer requires to build a usable PLT.
-                (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
+   (inherit elixir)
+   (name "elixir-with-debug-info")
+   (inputs
+    (modify-inputs (package-inputs elixir)
+                   (replace "erlang" erlang-with-debug-info)))
+   (arguments
+    (substitute-keyword-arguments
+     (package-arguments elixir)
+     ((#:strip-binaries? _ #t) #f)
+     ((#:phases phases '%standard-phases)
+      #~(modify-phases #$phases
+                       (add-before 'build 'enable-debug-info
+                                   (lambda _
+                                     (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
 
 (concatenate-manifests
  (list
+
+  ;; ── Runtime ────────────────────────────────────────────────────────────────
   (packages->manifest
    (list
-    c-utf8-locales
     erlang-with-debug-info
     elixir-with-debug-info))
 
   (specifications->manifest
-   '("nss-certs"
+   '(;; TLS / certs
+     "nss-certs"
+
+     ;; Core shell environment
      "bash"
      "coreutils"
      "make"
-     "gnupg"
+     "gawk"
+     "grep"
+     "sed"
+     "which"
+
+     ;; Version control & deployment
      "git"
+     "gnupg"
+     "openssh"
+     "rsync"
+
+     ;; Database
      "postgresql"
-     "inotify-tools"
+
+     ;; Build toolchain
+     "gcc-toolchain"
+     "node"
+
+     ;; System libraries
+     "fontconfig"
+     "util-linux"
+
+     ;; Dev tooling
+     "inotify-tools"   
      "ripgrep"
      "fd"
      "tree"
-     "sed"
      "emacs"
      "emacs-pcre2el"
-     "openssh"
-     "node"
-     "rsync"
-     "gcc-toolchain"
-     "fontconfig"
-     "util-linux"
-     "gawk"
-     "grep"
      "shellcheck"
      "shfmt"
-     "which"))))
+     ))
+
+  (packages->manifest
+   (list c-utf8-locales))))

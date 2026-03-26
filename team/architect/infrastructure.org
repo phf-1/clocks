@@ -1,0 +1,25 @@
+* Infrastructure
+:PROPERTIES:
+:ID:       18351049-22e2-4f4e-ab27-50de6c76ca66
+:END:
+
+** TODO projectctl
+:PROPERTIES:
+:ID:       67e45c70-590e-4b86-9ebc-8410d34a6a7d
+:END:
+
+*** ,deploy
+:PROPERTIES:
+:ID:       21eda3b4-f219-4599-abf9-5554f57d3e8b
+:END:
+
+
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:

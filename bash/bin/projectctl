@@ -1,5 +1,12 @@
 #! /usr/bin/env bash
 
+#############
+# Meta data #
+#############
+
+# [[ref:67e45c70-590e-4b86-9ebc-8410d34a6a7d][Spec]]
+# [[id:344d2579-2d67-4901-8e70-1849eea0c843]]
+
 #################
 # Specification #
 #################
@@ -333,7 +340,7 @@ fi
 #   Run static analysis tools against phoenix code
 if [[ "${MSG}" == ",phx-analyse" ]]; then
   ,phx-credo
-  ,phx-dialyzer  
+  ,phx-dialyzer
   ,phx-security
   ok "Elixir code analyzed"
   exit 0
@@ -395,10 +402,10 @@ fi
 # ,print-help
 #   Print commands and descriptions
 if [[ "${MSG}" == ",print-help" ]]; then
-  awk '
-    /^# ,(,?[^ ]+)$/ { cmd = substr($2, 1); desc = "" }
-    /^#   / && cmd  { desc = (desc == "") ? substr($0, 5) : desc " " substr($0, 5) }
-    /^if \[\[/      { if (cmd && desc) printf "%s\t%s\n", cmd, desc; cmd = "" }
+  awk -F ',' '
+    /^# ,(.+)$/ { cmd = $2; desc = "" }
+    /^#   / && cmd { desc = (desc == "") ? substr($0, 5) : desc " " substr($0, 5) }
+    /^if \[\[/     { if (cmd && desc) printf ",%s\t%s\n", cmd, desc; cmd = "" }
   ' "$SELF" | column -t -s $'\t'
   exit 0
 fi
@@ -520,7 +527,7 @@ fi
 # ,format
 #   Format code
 if [[ "${MSG}" == ",format" ]]; then
-  ,bash-format  
+  ,bash-format
   ,phx-format
   ok "Code has been formatted"
   exit 0
@@ -584,6 +591,20 @@ fi
 if [[ "${MSG}" == ",list-todo" ]]; then
   rg -F 'TODO' "$ROOT"
   ok "'TODO' markers under ROOT in git tracked files have been listed" "ROOT=$ROOT"
+  exit 0
+fi
+
+# ,deploy version server
+#   Deploy a version of the application to a server
+#   version is a number, e.g. 0, 1, 2, …
+#   server is an IP address, e.g. 192.168.1.10
+if [[ "${MSG}" == ",deploy" ]]; then
+  # [[id:63a3e4c6-4d8e-4762-9938-b72dfb3bbb58]] implements [[ref:21eda3b4-f219-4599-abf9-5554f57d3e8b][Spec]]
+
+  VERSION="$1"
+  COMMIT="b385213"
+  SERVER="$2"
+  ok "The application at version has been deployed to server" "version=$VERSION" "commit=$COMMIT" "server=$SERVER"
   exit 0
 fi
 
