@@ -11,3 +11,6 @@ discussion.org
 # Emacs generated directories.
 emacs.d/auto-save-list/
 emacs.d/org-persist/
+
+# Ignore vm images
+/vm

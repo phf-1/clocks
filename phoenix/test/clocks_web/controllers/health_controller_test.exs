@@ -5,12 +5,14 @@ defmodule Clocks.HealthControllerTest do
 
   use ClocksWeb.ConnCase, async: true
 
+  @version Application.spec(:clocks, :vsn) |> to_string()
+
   describe "GET /api/health" do
     @describetag id: "8e6f93c1"
 
     test "80fe", %{conn: conn} do
       conn = get(conn, ~p"/api/health")
-      assert json_response(conn, 200) == %{"health" => "ok"}
+      assert json_response(conn, 200) == %{"health" => @version}
     end
   end
 end

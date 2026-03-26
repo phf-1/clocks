@@ -50,6 +50,7 @@ dev-env:
 	  # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
 	  guix time-machine -C guix/channels.scm -- shell \
 		     -C \
+	             -W \
 		     -S /usr/bin=bin \
 		     -S /etc/ssl/certs/ca-certificates.crt=etc/ssl/certs/ca-certificates.crt \
 		     -E ^XAI_API_KEY \
