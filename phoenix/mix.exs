@@ -14,20 +14,9 @@ defmodule Clocks.MixProject do
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
         plt_add_apps: [
           :mix,
-          :ex_unit,
           :eex,
-          :elixir,
           :logger,
-          :iex,
-          :kernel,
-          :stdlib,
-          :ecto,
-          :ecto_sql,
-          :swoosh,
-          :jason,
-          :phoenix,
-          :plug,
-          :telemetry
+          :iex
         ],
         plt_add_deps: :app_tree,
         no_native: true,
