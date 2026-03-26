@@ -1,6 +1,6 @@
 defmodule Clocks.Generic.Pdf do
   @moduledoc """
-  [[id:42442de1-907e-48b6-8100-9fee11e1a2b3][Id]] implements [[ref:0975ffbf-0375-4760-ac27-2ab30b8d21a7][Spec]]. TODO(7d6f): tests
+  [[id:42442de1-907e-48b6-8100-9fee11e1a2b3][Id]] implements [[ref:0975ffbf-0375-4760-ac27-2ab30b8d21a7][Spec]]
   """
 
   alias Clocks.Generic.Path

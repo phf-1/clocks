@@ -1,6 +1,6 @@
 defmodule Clocks.Generic.Id do
   @moduledoc """
-  [[id:2320cb24-3933-4b90-bcd4-4a62f91574a5][Id]] implements [[ref:6c22b7a9-40f5-4340-a966-bd099f7ebeae][Spec]]. TODO(b337): test
+  [[id:2320cb24-3933-4b90-bcd4-4a62f91574a5][Id]] implements [[ref:6c22b7a9-40f5-4340-a966-bd099f7ebeae][Spec]].
   """
 
   alias Clocks.Generic.Base64

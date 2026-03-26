@@ -573,6 +573,14 @@ if [[ "${MSG}" == ",commit" ]]; then
   exit 0
 fi
 
+# ,list-todo
+#   List todos under root
+if [[ "${MSG}" == ",list-todo" ]]; then
+  rg -F 'TODO' "$ROOT"
+  ok "'TODO' markers under ROOT in git tracked files have been listed" "ROOT=$ROOT"
+  exit 0
+fi
+
 # ,clean
 #   Clean generated files
 if [[ "${MSG}" == ",clean" ]]; then

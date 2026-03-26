@@ -10,7 +10,6 @@ defmodule Clocks.Generic.Path do
   defstruct [:value]
 
   def path(value) when is_binary(value) do
-    # TODO(471c): refine that.
     %__MODULE__{value: value} |> Result.ok()
   end
 

@@ -45,7 +45,7 @@ dev-env:
 	  : $${XAI_API_KEY:="sk-0000"}
 	  : $${LOCAL:=true}
 	  : $${MIX_ENV:=dev}
-	  : $${SECRET_KEY_BASE:="TODO"}
+	  : $${SECRET_KEY_BASE:=""}
 
 	  # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
 	  guix time-machine -C guix/channels.scm -- shell \

@@ -1,6 +1,6 @@
 defmodule Clocks.Generic.Error do
   @moduledoc """
-  [[id:26cfd632-d285-44b6-89d3-ddb6f45f4e5d]] implements [[ref:e5e0f065-208e-406f-a655-fbdadc842263][Spec]]. TODO(8c78): test
+  [[id:26cfd632-d285-44b6-89d3-ddb6f45f4e5d]] implements [[ref:e5e0f065-208e-406f-a655-fbdadc842263][Spec]].
       implements [[ref:42767f3e-de71-4a56-999a-5f00bc3b2722][Struct]]
   """
 

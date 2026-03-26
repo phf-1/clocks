@@ -1,6 +1,6 @@
 defmodule Clocks.Generic.Sha256 do
   @moduledoc """
-  [[id:9231628b-c890-4a7f-aa04-92a8d62293be][Id]] implements TODO(f7bb). TODO(9c49): tests
+  [[id:9231628b-c890-4a7f-aa04-92a8d62293be][Id]] implements TODO(f7bb)
   """
 
   alias Clocks.Generic.Base64
