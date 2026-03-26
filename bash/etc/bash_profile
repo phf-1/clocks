@@ -1,0 +1,20 @@
+export PATH="$PWD/bash/bin:$PATH"
+export CC=gcc
+export SSL_CERT_DIR="$GUIX_ENVIRONMENT/etc/ssl/certs"
+export SSL_CERT_FILE="$GUIX_ENVIRONMENT/etc/ssl/certs/ca-certificates.crt"
+export GIT_SSL_CAINFO="$SSL_CERT_FILE"
+export MIX_HOME="$PWD/phoenix/_mix"
+export HEX_HOME="$PWD/phoenix/_hex"
+mkdir -p ~/.ssh
+chmod 755 ~
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/config      2>/dev/null || true
+chmod 600 ~/.ssh/id_*        2>/dev/null || true
+chmod 644 ~/.ssh/known_hosts 2>/dev/null || true
+chmod 644 ~/.ssh/*.pub       2>/dev/null || true
+cat > ~/.ssh/config <<'EOF'
+Host github.com
+    StrictHostKeyChecking accept-new
+    UserKnownHostsFile ~/.ssh/known_hosts
+EOF
+chmod 600 ~/.ssh/config

@@ -1,0 +1,19 @@
+#+OPTIONS: author:nil
+#+PROPERTY: header-args:bash :exports both :results output raw :wrap example
+
+* PHF
+:PROPERTIES:
+:ID:       1446c391-2c77-4290-be29-b4fa76a751c9
+:END:
+
+- [[ref:73a7c491-ef86-4523-bfad-f024fef4fa07][Identification]]
+- [[ref:e3eff8db-1d6e-4e93-8820-4e8168678ade][Iteration]]
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:

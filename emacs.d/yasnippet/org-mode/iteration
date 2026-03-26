@@ -1,0 +1,68 @@
+# key: iteration
+# name: iteration
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+${1:*} TODO ${2:🞎}$0
+:PROPERTIES:
+:ID: `(org-id-new)`
+:TYPE: d0305c80-3399-4e07-b4ba-ee8c22eacb19 Iteration
+:EFFORT: 0:00
+:END:
+
+*$1 Context
+
+- MAY define a list of materials or references to
+  materials that clarify the following content.
+
+*$1 Objective
+
+- MUST define WHAT we want.
+
+*$1 Test
+
+- SHOULD define new assertions to be verified,
+  provided the objective is claimed to be reached.
+
+*$1 Plan
+
+- MAY define steps — i.e. a tree of assertions — at
+  the end of which the objective is reached.
+
+*$1 Risks
+
+- MAY define a list of risks — i.e. assertions that
+  MUST NOT be verified.
+
+*$1 Log
+
+- MAY define a list of notable propositions discovered
+  during this iteration execution.
+
+*$1 Checklist
+
+- [ ] Stakeholders updated.
+- [ ] Time has been logged.
+
+*$1 Result
+
+- MUST provide a quick summary of the result and links
+  to artifacts, if any.
+
+*$1 Review
+
+- Demo is reproducible by the client
+- Feedback
+
+*$1 Sign-off
+
+- Client acceptance: [YES/NO]
+- If milestone → invoice issued
+- Next iteration planned
+
+*$1 Retrospective
+
+- Liked: what went well
+- Learned: new insights / techniques
+- Lacked: what was missing / painful
+- Longed for: what we wish we had
+- Action Items: what should be carried forward

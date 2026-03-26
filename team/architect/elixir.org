@@ -1,0 +1,232 @@
+* Elixir
+:PROPERTIES:
+:ID:       9f24d713-ff38-4659-aff9-d3eb36482109
+:END:
+
+** Module
+:PROPERTIES:
+:ID:       1e861b8d-cd9e-41a9-bdd8-4470db301d09
+:END:
+
+Given a module named =Clocks.Name=, it has the following form:
+
+#+begin_src elixir
+defmodule Clocks.Name do
+  @moduledoc """
+  [[id:e4698c38-f332-4905-adad-54feea46eb76][Id]] implements [[ref:7912297e-b1de-4999-9d3e-f2e5d6ca47c8][Spec]].
+      implements …
+  """
+
+  # Code
+end
+#+end_src
+
+The id of a module is used to reference it in documentation (/e.g./ architecture). It
+is a UUIDv4 so that once assigned, it never changes.
+
+A module represents code that has been written to /do something/. This something is
+described by a /specification/, which states /what/ the code should do.
+
+To be convinced that the code does what it is supposed to do, we can:
+- compare the code against the specification,
+- provide tests.
+
+Some well-known modules have an /implicit/ specification, such as [[https://hexdocs.pm/phoenix/Phoenix.Router.html][router.ex]].
+
+** Function
+
+The expression /f : A → B/ means that given /a/, an instance of /A/, /f(a)/ is an instance of
+/B/. This is the specification of /f/. In particular, /f/ is /pure/, /i.e./ it has no side
+effects. When implementing /f/ in Elixir, we write:
+
+#+begin_src elixir
+defmodule Module do
+  @moduledoc """
+  [[id:e4698c38-f332-4905-adad-54feea46eb76][Id]] implements [[ref:7912297e-b1de-4999-9d3e-f2e5d6ca47c8][Spec]]
+      implements …
+  """
+
+  def f(a) do
+    # …
+  end
+end
+#+end_src
+
+Then:
+
+#+begin_src elixir
+Module.f(x)
+#+end_src
+
+If =x= is not an instance of /A/, then =Module.f(x)= is not meaningful. In that case, we
+crash intentionally: this is a programming error, and failing fast is the correct
+response. If /A/ is modelled as a [[ref:42767f3e-de71-4a56-999a-5f00bc3b2722][struct]], we may use
+[[https://hexdocs.pm/elixir/pattern-matching.html][pattern matching]] and write:
+
+#+begin_src elixir
+def f(%A{} = a) do
+  # …
+end
+#+end_src
+
+Note that even a well-typed call to /f/ may not always produce a result: /f/ might crash
+due to a meaningless sub-expression (e.g. =1/0=), diverge, exhaust resources (memory or
+compute), or time out. Judgement is required.
+
+** Procedure
+
+A /procedure/ may be viewed as a function to which side effects have been added. These
+side effects must be documented in the associated specification.
+
+For instance, if /counter/ represents an actor that counts seconds and /plus_one/ is a
+program that sends a message incrementing the counter, then /plus_one/ is a procedure.
+Procedures often return =:ok= or ={:error, reason}= to signal success or failure rather
+than producing a meaningful value. Counter is incremented as a side-effect. For
+instance, =count= is a procedure:
+
+#+begin_src elixir
+defmodule Clocks.Counter do
+  @moduledoc """
+  [[id:6f2d85ac-6d4b-445f-a5e9-fec9b31dd6b6]] implements [[ref:9efc5f68-d7fb-4021-b9eb-621c7f8ff5b1][Spec]]
+  """
+
+  # Constructors
+
+  def start_link(_params), do: GenServer.start_link(__MODULE__.Server, :params)
+
+  # Interface
+
+  @timeout 500
+  def count(pid) when is_pid(pid) do
+    msg = :count
+
+    try do
+      GenServer.call(pid, msg, @timeout) |> Result.ok()
+    catch
+      :exit, reason ->
+        Result.error(
+          __ENV__.function,
+          "call to genserver with pid failed",
+          pid: pid, reason: reason, timeout: @timeout)
+    end
+  end
+end
+#+end_src
+
+** Test
+
+Modules should be tested. If a module claims to implement a specification, then this
+claim is tested. For instance:
+
+#+begin_src elixir
+defmodule Clocks.CounterTest do
+  @moduledoc """
+  [[id:e4698c38-f332-4905-adad-54feea46eb76][Id]] tests [[ref:e4698c38-f332-4905-adad-54feea46eb76][Module]]
+  """
+
+  use ExUnit.Case, async: true
+
+  describe "Result" do
+    @describetag id: "e4698c38"
+
+    test "a test", _state do
+      assert true
+    end
+  end
+end
+#+end_src
+
+** Struct
+:PROPERTIES:
+:ID:       42767f3e-de71-4a56-999a-5f00bc3b2722
+:END:
+
+A struct is defined by a [[ref:1e861b8d-cd9e-41a9-bdd8-4470db301d09][module]] where =# Code= has been replaced by:
+
+#+begin_src elixir
+defstruct # [field, field...]
+
+alias / require / import  …
+
+defp …
+
+# Constructor
+# How to build instances.
+
+# Eliminator
+# How to use instances.
+
+# Interface
+# Some uses of instances.
+
+# Protocol
+
+# Required.
+defimpl Inspect do
+  def inspect(…), do: …
+end
+#+end_src
+
+Examples:
+- [[ref:26cfd632-d285-44b6-89d3-ddb6f45f4e5d][Error]]
+- [[ref:f045754f-e6eb-4102-b2a1-251f209c3ac6][Result]]
+
+** Abstract Data Type and Struct
+
+An abstract data type is an immutable data structure that exposes only functions into
+and out of that type, such as [[ref:5dd2a34c-6f34-4b56-b9a7-449fcc7ca453][Result]]. [[ref:42767f3e-de71-4a56-999a-5f00bc3b2722][Structs]] are well suited to implement
+them. For instance:
+
+#+begin_src elixir
+defmodule Clocks.Nat do
+  @moduledoc """
+  [[id:1d10d5e5-c208-4f97-a645-151324ddaa7c][Id]] implements [[ref:42767f3e-de71-4a56-999a-5f00bc3b2722]]
+      implements [[ref:e1266dc7-b30a-4aa9-b8b8-a143270cea79][Nat]]
+  """
+
+  @enforce_keys [:int]
+  defstruct [:int]
+
+  alias Clocks.Generic.Result
+
+  # Constructor
+  def nat(int) when is_integer(int) and int >= 0 do
+    %__MODULE__{int: int} |> Result.ok()
+  end
+
+  def nat(param) do
+    Result.error(__ENV__.function, "A Nat cannot be built from param", param: param)
+  end
+
+  # Eliminator
+  def elim(func) when is_function(func, 1) do
+    fn %__MODULE__{int: int} -> func.(int) end
+  end
+
+  # Interface
+  def int(%__MODULE__{int: int}), do: int
+
+  def add(%__MODULE__{int: a}, %__MODULE__{int: b}), do: %__MODULE__{int: a + b}
+
+  # Protocol
+  defimpl Inspect do
+    def inspect(%@for{int: int}, _opts) do
+      "#Nat<int: #{inspect(int)}>"
+    end
+  end
+end
+#+end_src
+
+** GenServer
+
+Genservers are split in two: client and server implementations. For instance: [[ref:2192583f-fa5c-48b1-bc79-b5e92720362d]].
+
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:

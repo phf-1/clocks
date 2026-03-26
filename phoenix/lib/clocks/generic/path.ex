@@ -1,0 +1,24 @@
+defmodule Clocks.Generic.Path do
+  @moduledoc """
+  [[id:36d114fc-f3c2-442a-b935-6b91f1db4a45][Id]] implements TODO(409e)
+  """
+
+  alias Clocks.Generic.Result
+
+  # Constructor
+
+  defstruct [:value]
+
+  def path(value) when is_binary(value) do
+    # TODO(471c): refine that.
+    %__MODULE__{value: value} |> Result.ok()
+  end
+
+  # Eliminator
+
+  def elim(func), do: fn %__MODULE__{value: value} -> func.(value) end
+
+  # Interface
+
+  def string(%__MODULE__{value: value}), do: value
+end

@@ -1,0 +1,590 @@
+#! /usr/bin/env bash
+
+#################
+# Specification #
+#################
+
+read -r -d '' SPEC <<EOF
+What is the objective of this script?
+
+  Its objective is to minimize the cost of executing repetitive tasks. This script
+  makes this directory respond to commands, automating various tasks, like starting
+  the REPL, executing tests or formatting code.
+
+How to use this script?
+
+  if: $ ln -s this_script a_command,
+  then: $ a_command param is identical to invoking the script with <a_command, [param]>
+
+How to choose a new command name?
+
+  command_name :≡ "," (component "-")? verb ("-" param)*
+  example :≡ ,print-help
+  example :≡ ,phx-test
+
+  Commands start with a comma "," so that they are easy to differentiate from
+  non-project commands. For instance: ",print-help".
+
+  If the command is addressed to the project itself, then it starts with a verb. For
+  instance: ",print-help".
+
+  If the command is addressed to a part of the project, then it starts with the name
+  of that part and then a verb. For instance: ",phx-test".
+
+  To add a new command, just look at the implementation, copy/paste the simplest one,
+  start from there.
+
+How to add a new command?
+
+  To add a new command, just look at the implementation, copy/paste the simplest one,
+  start from there.
+
+How is this script structured?
+
+  Assume that cmd is the name of this script, then invoking this script must be
+  understood as follows:
+
+  $ ./cmd param1 param2 :≡
+    message :≡ <cmd, [param1 param2]>
+
+    case message
+      <a, []> ↦
+        # do something
+
+      <cmd, [x,y]> ↦
+        # do something
+
+      … ↦
+        # do something
+
+      _ ↦
+        error "unexpected message"
+
+What are the components of this project?
+
+  The project is formed by these components:
+    - A project
+    - A database
+    - A frontend
+    - A phoenix app
+EOF
+
+##################
+# Implementation #
+##################
+
+# $VERBOSE : Boolean that defaults to false
+# $VERBOSE = true ⇒ print commands before executing them
+: "${VERBOSE:=false}"
+[[ "${VERBOSE}" == "true" ]] && {
+  export VERBOSE
+  set -x
+}
+
+###############
+# Strict mode #
+###############
+
+set -euo pipefail
+IFS=$'\n\t'
+
+########
+# Self #
+########
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+SELF_NAME="${SELF##*/}"
+
+##########################
+# Root directory mapping #
+##########################
+
+ROOT="$(git rev-parse --show-toplevel)"
+EMACSD="$ROOT/emacs.d"
+BASH="$ROOT/bash"
+BASH_BIN="$BASH/bin"
+BASH_LIB="$BASH/lib"
+
+#############
+# Libraries #
+#############
+
+# shellcheck source=bash/lib/log.bash
+source "$BASH_LIB/log.bash"
+# shellcheck source=bash/lib/check.bash
+source "$BASH_LIB/check.bash"
+# shellcheck source=bash/lib/mode.bash
+source "$BASH_LIB/mode.bash"
+# shellcheck source=bash/lib/db.bash
+source "$BASH_LIB/db.bash"
+# shellcheck source=bash/lib/phx.bash
+source "$BASH_LIB/phx.bash"
+# shellcheck source=bash/lib/frontend.bash
+source "$BASH_LIB/frontend.bash"
+
+####################
+# Argument parsing #
+####################
+
+read -r MSG <<<"${0##*/}"
+PARAMS=("$@")
+PARAMS_LENGTH=${#PARAMS[@]}
+
+########
+# bash #
+########
+
+_BASH_FILES=("$BASH_BIN/projectctl" "$BASH_LIB"/*.bash)
+
+# ,bash-format
+#   Format bash code
+if [[ "${MSG}" == ",bash-format" ]]; then
+  shfmt -i 2 -w "${_BASH_FILES[@]}"
+  ok "Bash code formatted"
+  exit 0
+fi
+
+# ,bash-analyze
+#   Run static analysis on Bash code
+if [[ "${MSG}" == ",bash-analyze" ]]; then
+  shellcheck -x "${_BASH_FILES[@]}"
+  ok "Bash code analyzed"
+  exit 0
+fi
+
+######
+# db #
+######
+
+# ,db-init [dev|test|prod]
+#   Creates a directory where a PostgreSQL process will keep its state
+if [[ "${MSG}" == ",db-init" ]]; then
+  MODE="${1:-$(mode_dev)}"
+  mode_check "$MODE"
+  DB_DATA="$(db_mode_to_data "$MODE")"
+  if [[ ! -f "${DB_DATA}/PG_VERSION" ]]; then
+    mkdir -p "${DB_DATA}"
+    initdb -D "${DB_DATA}" --auth=trust --username=postgres --encoding=UTF8
+  fi
+  ok "The PostgreSQL cluster has been initialized" "MODE=$MODE" "DB_DATA=$DB_DATA"
+  exit 0
+fi
+
+# ,db-start [dev|test|prod]
+#   Start a PostgreSQL process
+if [[ "${MSG}" == ",db-start" ]]; then
+  MODE="${1:-$(mode_dev)}"
+  mode_check "$MODE"
+  ,db-init "$MODE"
+  DB_DATA="$(db_mode_to_data "$MODE")"
+  DB_LOG="$(db_mode_to_log "$MODE")"
+  DB_PORT="$(db_mode_to_port "$MODE")"
+  DB_PARAMS="DB_DATA=$DB_DATA DB_LOG=$DB_LOG DB_PORT=$DB_PORT"
+  if ! pg_ctl -D "${DB_DATA}" status >/dev/null 2>&1; then
+    if pg_ctl -D "${DB_DATA}" -l "${DB_LOG}" -o "-p ${DB_PORT} -k /tmp" start; then
+      :
+    else
+      error "Could not start PostgreSQL" "$DB_PARAMS"
+      debug "Last 30 lines of the log:"
+      tail -n 30 "${DB_LOG}" 2>/dev/null || true
+      echo ""
+      debug "Most common cause: stale process on port" "port=$DB_PORT"
+      debug "Run this cmd once and try again" "cmd=pkill -9 -f postgres && rm -f ${DB_DATA}/postmaster.pid"
+      exit 1
+    fi
+  fi
+  ok "The PostgreSQL instance is started" "$DB_PARAMS"
+  exit 0
+fi
+
+# ,db-clean
+#   Remove PostgreSQL directories
+if [[ "${MSG}" == ",db-clean" ]]; then
+  DB_ROOT="$(db_root)"
+  rm -rf "$DB_ROOT"
+  ok "DB cleaned" "DB_ROOT=$DB_ROOT"
+  exit 0
+fi
+
+############
+# frontend #
+############
+
+# ,frontend-update
+#   Update the frontend to the last version
+if [[ "${MSG}" == ",frontend-update" ]]; then
+  FRONTEND_ROOT="$(frontend_root)"
+  (cd "$FRONTEND_ROOT" && git pull)
+  version=$(cd "$FRONTEND_ROOT" && git rev-parse --short HEAD)
+  ok "The frontend has been updated" "FRONTEND_ROOT=$FRONTEND_ROOT" "version=$version"
+  exit 0
+fi
+
+# ,frontend-build [dev|test|prod]
+#   Build the frontend
+if [[ "${MSG}" == ",frontend-build" ]]; then
+  MODE="${1:-$(mode_dev)}"
+  mode_check "$MODE"
+  VITE_API_BASE_URL="http://localhost:$(phx_mode_to_port "$MODE")/api"
+  export VITE_API_BASE_URL
+  (cd "$(frontend_root)" && npm i && npm run build)
+  ok "The frontend has been built" "MODE=$MODE"
+  exit 0
+fi
+
+# ,frontend-clean
+#   Delete built files
+if [[ "${MSG}" == ",frontend-clean" ]]; then
+  FRONTEND_DIST="$(frontend_dist)"
+  rm -rf "${FRONTEND_DIST:?}/"*
+  ok "The frontend has been cleaned" "FRONTEND_DIST=$FRONTEND_DIST"
+  exit 0
+fi
+
+#######
+# phx #
+#######
+
+# ,phx-update-deps
+#   Update the phoenix dependencies
+if [[ "${MSG}" == ",phx-update-deps" ]]; then
+  (cd "$(phx_root)" && mix local.hex --force --if-missing && mix deps.get)
+  ok "The phoenix dependencies have been updated"
+  exit 0
+fi
+
+# ,phx-init-tables [dev|test|prod]
+#   Set up database tables
+if [[ "${MSG}" == ",phx-init-tables" ]]; then
+  MODE="${1:-$(mode_dev)}"
+  mode_check "$MODE"
+  ,db-start "$MODE"
+  DATABASE_URL="$(db_mode_to_url "$MODE")"
+  export DATABASE_URL
+  export MIX_ENV="$MODE"
+  (cd "$(phx_root)" && mix ecto.create)
+  ok "The database tables have been created" "MODE=$MODE"
+  exit 0
+fi
+
+# ,phx-migrate [dev|test|prod]
+#   Apply pending Ecto migrations to the database
+if [[ "${MSG}" == ",phx-migrate" ]]; then
+  MODE="${1:-$(mode_dev)}"
+  mode_check "$MODE"
+  ,phx-init-tables "$MODE"
+  DATABASE_URL="$(db_mode_to_url "$MODE")"
+  export DATABASE_URL
+  export MIX_ENV="$MODE"
+  (cd "$(phx_root)" && mix ecto.migrate)
+  ok "Ecto migration has been applied to the database" "MODE=$MODE"
+  exit 0
+fi
+
+# ,phx-test-only id
+#   Execute the specified phx tests
+if [[ "${MSG}" == ",phx-test-only" && -n "${1:-}" ]]; then
+  (cd "$(phx_root)" && mix test --only "$1")
+  ok "The phx tests identified by id have been executed" "id=$1"
+  exit 0
+fi
+
+# ,phx-test
+#   Execute the identified phx test(s)
+if [[ "${MSG}" == ",phx-test" ]]; then
+  (cd "$(phx_root)" && mix test)
+  ok "Phoenix tests executed"
+  exit 0
+fi
+
+# ,phx-format
+#   Format Phoenix code
+if [[ "${MSG}" == ",phx-format" ]]; then
+  (cd "$(phx_root)" && mix format)
+  ok "Phoenix code has been formatted"
+  exit 0
+fi
+
+# ,phx-credo
+#   Run Credo static code analysis
+if [[ "${MSG}" == ",phx-credo" ]]; then
+  (cd "$(phx_root)" && mix credo --strict)
+  ok "Credo analysis finished"
+  exit 0
+fi
+
+# ,phx-dialyzer
+#   Run Dialyzer type checking
+if [[ "${MSG}" == ",phx-dialyzer" ]]; then
+  (cd "$(phx_root)" && mix dialyzer --format short)
+  ok "Dialyzer finished"
+  exit 0
+fi
+
+# ,phx-security
+#   Run Sobelow security scan for Phoenix
+if [[ "${MSG}" == ",phx-security" ]]; then
+  (cd "$(phx_root)" && mix sobelow --config)
+  ok "Sobelow security scan finished"
+  exit 0
+fi
+
+# ,phx-analyse
+#   Run static analysis tools against phoenix code
+if [[ "${MSG}" == ",phx-analyse" ]]; then
+  ,phx-credo
+  ,phx-dialyzer  
+  ,phx-security
+  ok "Elixir code analyzed"
+  exit 0
+fi
+
+# ,phx-build
+#   Build the phoenix application for production
+if [[ "${MSG}" == ",phx-build" ]]; then
+  MODE="$(mode_prod)"
+  export MIX_ENV="$MODE"
+  (cd "$(phx_root)" &&
+    mix deps.get --only "$MODE" &&
+    mix compile &&
+    mix assets.deploy &&
+    mix phx.gen.release &&
+    mix release --overwrite)
+  ok "The phoenix application has been built" "path=$(phx_root)/_build/$MODE/rel/clocks"
+  exit 0
+fi
+
+# ,phx-clean
+#   Remove the Phoenix build artifacts and dependencies
+if [[ "${MSG}" == ",phx-clean" ]]; then
+  (cd "$(phx_root)" && mix clean && rm -rf _build deps)
+  ok "Phoenix directory cleaned" "PHX=$(phx_root)"
+  exit 0
+fi
+
+###########
+# project #
+###########
+
+# ,install-commands
+#   (Re)install all command symlinks in $BASH_BIN by scanning this file for
+#   lines matching '# ,cmd' and creating a symbolic link for each
+if [[ "${MSG}" == ",install-commands" ]]; then
+  SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+  SELF_NAME="${SELF##*/}"
+
+  cd "$BASH_BIN"
+
+  # Remove all existing symbolic links
+  rm -f ,*
+
+  # Store the list of commands i.e. lines that look like: # ,cmd
+  CMDS=$(rg -o -r '$1' -I -N '^ *# ,(\S+)' "$SELF" | sort -u)
+
+  # Build the commands
+  while IFS= read -r cmd; do
+    [[ -n "$cmd" ]] || continue
+    ln -sf "$SELF_NAME" ",$cmd"
+    ok ",$cmd"
+  done <<<"$CMDS"
+
+  ok "All command symlinks are up to date"
+  exit 0
+fi
+
+# ,print-help
+#   Print commands and descriptions
+if [[ "${MSG}" == ",print-help" ]]; then
+  awk '
+    /^# ,(,?[^ ]+)$/ { cmd = substr($2, 1); desc = "" }
+    /^#   / && cmd  { desc = (desc == "") ? substr($0, 5) : desc " " substr($0, 5) }
+    /^if \[\[/      { if (cmd && desc) printf "%s\t%s\n", cmd, desc; cmd = "" }
+  ' "$SELF" | column -t -s $'\t'
+  exit 0
+fi
+
+# ,update-deps
+#   Update dependencies not directly managed by Guix
+if [[ "${MSG}" == ",update-deps" ]]; then
+  ,phx-update-deps
+  ,frontend-update
+  ok "Dependencies not directly managed by Guix have been updated"
+  exit 0
+fi
+
+# Executing this script directly installs all commands, prints spec and help
+if [[ "${MSG}" == "${SELF_NAME}" ]]; then
+  (cd "${BASH_BIN}" && ln -sf "${SELF_NAME}" ,install-commands)
+  ,install-commands >/dev/null
+  ,update-deps >/dev/null
+  ,print-help
+  exit 0
+fi
+
+# ,print-spec
+#   Print the specification of this script
+if [[ "${MSG}" == ",print-spec" ]]; then
+  echo "$SPEC"
+  exit 0
+fi
+
+# ,print-path
+#   Break $PATH to newlines for debugging
+if [[ "${MSG}" == ",print-path" ]]; then
+  echo "$PATH" | tr ':' '\n'
+  exit 0
+fi
+
+# ,print-content
+#   Print the content of each given file enclosed in a <content> tag so that
+#   AI can ingest them. If a single directory is given, files under it are printed
+if [[ "${MSG}" == ",print-content" ]]; then
+
+  print_ai_guidance() {
+    echo "Each file content is enclosed in an XML tag of the form <content path=\"PATH\">CONTENT</content>"
+  }
+
+  print_file() {
+    local path="$1"
+    file_check "$path"
+    echo "<content path=\"$path\">"
+    cat "$path"
+    echo "</content>"
+    echo ""
+  }
+
+  if [[ $PARAMS_LENGTH -eq 1 && -d "$1" ]]; then
+    print_ai_guidance
+    echo ""
+    while IFS= read -r -d '' path; do
+      print_file "$path"
+    done < <(fd -t f --print0 . "$1")
+    exit 0
+  fi
+
+  print_ai_guidance
+  echo ""
+  for path in "${PARAMS[@]}"; do
+    print_file "$path"
+  done
+  exit 0
+fi
+
+# ,print-tree
+#   Print the directory tree of the given directory, respecting .gitignore
+if [[ "${MSG}" == ",print-tree" && -d "$1" ]]; then
+  tree --gitignore "$1"
+  exit 0
+fi
+
+# ,start-emacs
+#   Start Emacs using the project's Emacs configuration directory
+if [[ "${MSG}" == ",start-emacs" ]]; then
+  emacs --init-directory="$EMACSD" "$@"
+  exit 0
+fi
+
+# ,print-env
+#   Print environment variables, sorted alphabetically
+if [[ "${MSG}" == ",print-env" ]]; then
+  env | sort
+  exit 0
+fi
+
+# ,install-frontend
+#   Install the frontend in the phoenix app
+if [[ "${MSG}" == ",install-frontend" ]]; then
+  MODE="${1:-$(mode_dev)}"
+  mode_check "$MODE"
+  ,frontend-build "$MODE"
+  rsync -a --delete "$(frontend_dist)/" "$(phx_static)/"
+  ok "The frontend has been installed" "path=$(phx_static)"
+  exit 0
+fi
+
+# ,start-repl
+#   Start the application and drop into iex
+if [[ "${MSG}" == ",start-repl" ]]; then
+  ,phx-migrate
+  ,install-frontend
+  (cd "$(phx_root)" && iex --dbg pry -S mix phx.server)
+  exit 0
+fi
+
+# ,format
+#   Format code
+if [[ "${MSG}" == ",format" ]]; then
+  ,bash-format  
+  ,phx-format
+  ok "Code has been formatted"
+  exit 0
+fi
+
+# ,analyze
+#   Run static analysis tools on code
+if [[ "${MSG}" == ",analyze" ]]; then
+  ,bash-analyze
+  ,phx-analyse
+  ok "Code has been analyzed"
+  exit 0
+fi
+
+# ,test
+#   Execute tests
+if [[ "${MSG}" == ",test" ]]; then
+  ,phx-test
+  ok "Tests have been executed"
+  exit 0
+fi
+
+# ,build
+#   Build the application for production
+if [[ "${MSG}" == ",build" ]]; then
+  ,install-frontend "$(mode_prod)"
+  ,phx-build
+  exit 0
+fi
+
+# ,start
+#   Start the application in production mode
+if [[ "${MSG}" == ",start" ]]; then
+  MODE="$(mode_prod)"
+  ,phx-migrate "$MODE"
+  ,build
+  ,db-start "$MODE"
+  DATABASE_URL="$(db_mode_to_url "$MODE")"
+  export DATABASE_URL
+  export PHX_HOST=localhost
+  PORT="$(phx_mode_to_port "$MODE")"
+  export PORT
+  export PHX_SERVER=true
+  (cd "$(phx_root)" && "_build/$MODE/rel/clocks/bin/clocks" start)
+  exit 0
+fi
+
+# ,commit
+#   Build a commit intended to be merged into master
+if [[ "${MSG}" == ",commit" ]]; then
+  ,format
+  ,analyze
+  ,test
+  git add .
+  git commit
+  exit 0
+fi
+
+# ,clean
+#   Clean generated files
+if [[ "${MSG}" == ",clean" ]]; then
+  ,frontend-clean
+  ,db-clean
+  ,phx-clean
+  (cd "${ROOT}" && rm -rf _*)
+  ok "ROOT directory cleaned" "ROOT=$ROOT"
+  exit 0
+fi
+
+# All other cases
+error "Unexpected message" "MSG=${MSG[*]}" "PARAMS=${PARAMS[*]}"
+info "try: ,print-help"
+exit 1

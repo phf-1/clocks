@@ -1,0 +1,13 @@
+# Scratch and generated files.
+_*
+discussion.org
+
+# Secrets.
+*.gpg
+
+# Frontend build output (if present at root level).
+/frontend
+
+# Emacs generated directories.
+emacs.d/auto-save-list/
+emacs.d/org-persist/

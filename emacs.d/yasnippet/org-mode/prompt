@@ -1,0 +1,49 @@
+# key: prompt
+# name: prompt
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+* Prompt
+** Context
+
+- A list of materials or references to materials
+  that clarify the subsequent content.
+
+** Objective
+
+- Defines WHAT a solution should satisfy
+  (the anomaly or missing feature).
+
+** Tests
+
+- Any solution MUST satisfy these tests.
+  These act as the "novel predictions" our
+  tentative theory must successfully handle to
+  prove it is progressive. Tests must fail
+  before implementation begins.
+
+** Plan
+
+- Sketch the abstract steps that explain HOW
+  the solution will be reached.
+
+** Candidate
+
+- The candidate solution so far.
+  In practice, this section is replaced by a
+  $ git diff or equivalent.
+
+** Discussion
+
+- Merciless criticism: What flaws exist in this candidate?
+- *Record of Refutation:* If this candidate is rejected,
+  briefly note WHY here. This knowledge must be transferred
+  to =iterations.org= before the branch is merged.
+
+** Circuit Breaker
+
+Before executing the candidate, evaluate its structural impact:
+- [ ] This solution only requires implementation logic changes:
+      proceed.
+- [ ] This solution requires altering =architect.org=.
+      *HALT*: Suspend this prompt and initiate a broader
+      architectural iteration.

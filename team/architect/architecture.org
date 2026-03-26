@@ -1,0 +1,317 @@
+* Architecture
+:PROPERTIES:
+:ID: 94a78f42-9098-4796-90c1-725e20a07fbd
+:END:
+
+The architecture describes the [[ref:5c5ca183-a932-4744-b483-a5c419755639][clocks]] software. clocks exists to provide services
+needed by the [[ref:e1e52c89-31a6-4394-ad4c-ba8951dd80b3][Timerly]] business case. This description expresses /what/ clocks does and
+/how/ it does it.
+
+** Extending the architecture
+
+The architecture can be viewed as a graph of specifications. To extend the
+architecture is to remove, update or add specifications and/or how they are related.
+
+See the [[ref:a9be14e1-29bd-4858-9ac9-87a6480d6f34][Specification]] section to learn how to build a specification. Update the
+[[ref:94a78f42-9098-4796-90c1-725e20a07fbd][Architecture]] section to update the architecture.
+
+** clocks
+:PROPERTIES:
+:ID:       5c5ca183-a932-4744-b483-a5c419755639
+:END:
+
+We call /clocks/ the unix process started with /make start/. clocks listens for HTTP
+requests on localhost:4000 and satisfies this [[ref:9dff3c23-619d-45e5-be70-a00410129737][protocol]].
+
+1. [[ref:66e3c137-9013-46c3-b153-991434a69ad9][make process]] starts this [[ref:b47fa002-6ace-46bd-8821-1fdd5838d939][application]]
+2. which starts this [[ref:d229871a-95ee-4a49-8a40-44332fa8977d][endpoint]]
+3. which configures a [[ref:eb404cfc-7d96-4a09-bc36-d27597e937f1][Bandit]] web server
+4. which listens to HTTP traffic from localhost:4000 as [[ref:1228a3b7-6b81-4698-b046-cf657657d079][configured]] in [[ref:d4a51e4e-d5a1-403c-940e-07f520fc531c][dev mode]].
+5. which replies to HTTP queries using a [[ref:b95d3d95-cbf1-442c-bf52-0b049373a9fe][router]] that [[ref:30bce120-ef3c-45df-a736-efaf76bddbfe][satisfies]] the protocol.
+
+** protocol
+:PROPERTIES:
+:ID:       9dff3c23-619d-45e5-be70-a00410129737
+:END:
+
+- GET /api/health ↦ 200 { "health": "ok" }
+
+- GET / ↦ 302 /v0
+
+- GET /v0 ↦ 200 [[ref:db3920ac-d997-43a2-8e91-d3f83541034a][Root]]
+
+- POST /v0 pdf ↦
+  1. | 400 /v0 if pdf is not a PDF.
+  2. | 500 /v0 if a [[ref:e91dd873-5e94-412c-96b9-ae6d04976bb4][clock]] fails to start from pdf.
+  3. | 303 /v0/clock/id where id is the id of a clock built from
+     the pdf.
+
+- GET /v0/clock/id ↦
+  1. | a [[ref:1401a5d0-1e6f-49d7-a789-836d93c7b0b1][ClockLiveview]] for the matching [[ref:e91dd873-5e94-412c-96b9-ae6d04976bb4][clock]] if any.
+  2. | 200 /v0 otherwise.
+
+- ? _ ! 404 /v0
+
+** Root
+:PROPERTIES:
+:ID:       db3920ac-d997-43a2-8e91-d3f83541034a
+:END:
+
+A root is an HEEx template that offers the user the ability to upload a PDF to /v0. The PDF size
+must be under 10 MB.
+
+** Clock
+:PROPERTIES:
+:ID:       e91dd873-5e94-412c-96b9-ae6d04976bb4
+:END:
+
+Description
+- A Clock is an [[ref:94ec1e6c-fdcd-4737-8876-54c61137ac6f][actor]] that emits a [[ref:309fd88e-4408-4ea8-b221-e2d36ffc9170][signal]] every second that contains the
+  number of elapsed seconds for as long as it has been alive.
+
+Constructors
+- clock : [[ref:0975ffbf-0375-4760-ac27-2ab30b8d21a7][Pdf]] → [[ref:5dd2a34c-6f34-4b56-b9a7-449fcc7ca453][Result]](Clock)
+  - For a given PDF, there is at most one Clock.
+
+- clock : [[ref:6c22b7a9-40f5-4340-a966-bd099f7ebeae][Id]] → Result(Clock)
+
+Interface
+- field : Clock → Result(String)
+- id : Clock → Id
+
+Signals
+- [[ref:309fd88e-4408-4ea8-b221-e2d36ffc9170][Signal]]
+
+A Clock is supervised.
+
+*** Signal
+:PROPERTIES:
+:ID:       309fd88e-4408-4ea8-b221-e2d36ffc9170
+:END:
+
+Description
+- A signal represents a number of elapsed seconds.
+
+Constructor
+- signal : ℕ → Signal
+
+Eliminator
+- elim : (ℕ → C) → Signal → C
+
+Interface
+- nat : Signal → ℕ
+
+** ClockLiveview
+:PROPERTIES:
+:ID:       1401a5d0-1e6f-49d7-a789-836d93c7b0b1
+:END:
+
+Given ra : [[ref:e91dd873-5e94-412c-96b9-ae6d04976bb4][Clock]], then a ClockLiveview is a LiveView that displays
+the state of ra deduced from its signals.
+
+
+** Agent
+:PROPERTIES:
+:ID:       a9598120-2798-4d2e-a584-4c4d78d1c53f
+:END:
+
+An Agent is an [[ref:94ec1e6c-fdcd-4737-8876-54c61137ac6f][actor]] that attempts to reach an objective.
+
+** Actor
+:PROPERTIES:
+:ID:       94ec1e6c-fdcd-4737-8876-54c61137ac6f
+:END:
+
+See: [[https://phfrohring.com/d1b5724d-434c-40a0-86e9-dfc81012ae43/html][actor definition]]
+
+** Nothing
+
+Description
+- Represents the absence of some value.
+
+Constructors
+- nothing : Nothing
+
+Eliminator
+- elim : C → Nothing → C
+
+Interface
+- is? : Any → Boolean
+- check : Any → ∅
+
+** Just
+
+Description
+- Represents the existence of some value.
+
+Constructors
+- just : X → Just(X)
+
+Eliminator
+- elim : (X → C) → Just(X) → C
+
+Interface
+- is? : Any → Boolean
+- check : Any → ∅
+- value : Just(X) → X
+
+** Maybe
+
+Description
+- Represents a value that may or may not exist.
+
+Constructors
+- maybe : Maybe(X)
+- maybe : X → Maybe(X)
+
+Eliminator
+- elim : C (X → C) → Maybe(X) → C
+
+Interface
+- is? : Any → Boolean
+- check : Any → ∅
+
+** Error
+:PROPERTIES:
+:ID:       e5e0f065-208e-406f-a655-fbdadc842263
+:END:
+
+Description
+- Represents the result of a computation that failed. The reason why it failed, /i.e./
+  if we know the assertion that has been violated, then an informative error is
+  given.
+
+Context
+- Caller :≡ Name × Arity
+- Assertion :≡ String
+- Params :≡ KeywordList
+
+Constructors
+- error : Caller Assertion Params → Error
+
+Eliminator
+- elim : (Caller Assertion Params → C) → Error → C
+
+Interface
+- caller : Error → Caller
+- assertion : Error → Assertion
+- params : Error → params
+
+** Result
+:PROPERTIES:
+:ID:       5dd2a34c-6f34-4b56-b9a7-449fcc7ca453
+:END:
+
+Description
+- Represents the result of a computation that has succeeded or failed. In the
+  computation succeeded, then the value is accessible. If the computation failed for
+  some reason, then the reason is provided.
+
+Constructors
+- ok : X → Result(X)
+- error : Caller Assertion Params → Result(X)
+
+Eliminator
+- elim : (X → C) (Error → C) → Result → C
+
+Interface
+- pipe : X1 List(Xi → Result(Xi+1), f : Xn-1 → Xn) → Xn
+- pipe : X1 List(Xi → Result(Xi+1)) (Error → C) → Xn | C
+
+** Path
+
+Description
+- Represents a filesystem path.
+
+Constructors
+- path : Binary → Result(Path) :≡
+  - path ↦ check that path has the relevant form, /e.g./ a/b, or /a/b …
+
+Eliminator
+- elim : (Binary → C) → Path → C
+
+Interface
+- is? : Any → Boolean
+- check : Any → ∅
+- binary → Path → Binary
+- filename : Path → Binary
+- extension : Path → Binary
+
+** Content
+
+Description
+- Represents the content of a regular file.
+
+Constructors
+- content : Bitstring → Content
+- content : Stream → Content
+
+Eliminator
+- elim : ((Bitstring | Stream) → C) → Content → C
+
+Interface
+- is? : Any → Boolean
+- check : Any → ∅
+- bitstring → Content → Binary
+- sha256 : Content → Bitstring
+- stream : Content → Stream
+
+** Id
+:PROPERTIES:
+:ID:       6c22b7a9-40f5-4340-a966-bd099f7ebeae
+:END:
+
+Description
+- Represents a unique identifier.
+
+Constructors
+- id : Bits → Id
+
+Eliminator
+- elim : (Bits → C) → Id → C
+
+Interface
+- is? : Any → Boolean
+- check : Any → ∅
+- bits : Id → Bits
+- base64 : Id → Base64
+
+** Pdf
+:PROPERTIES:
+:ID:       0975ffbf-0375-4760-ac27-2ab30b8d21a7
+:END:
+
+Represents a PDF file.
+
+Context
+- Name :≡ String
+
+Constructors
+- pdf : Content Name → Pdf :≡
+  - content name ↦
+    - check that content starts with the magic bytes
+
+Eliminator
+- elim : (Name Content → C) → Pdf → C
+
+Interface
+- is? : Any → Boolean
+- check : Any → ∅
+- name : Pdf → Name
+- mime : Pdf → Mime
+- extension : Pdf → String
+- content : Pdf → Content
+- sha256 : Pdf → Bitstring
+
+** Bibliography
+
+#+print_bibliography:
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:

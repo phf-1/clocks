@@ -1,0 +1,23 @@
+# key: actor
+# name: actor
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+${1:*} ${2:Name}$0
+:PROPERTIES:
+:ID: `(org-id-new)`
+:TYPE: 0672475a-1dfa-4aa0-93d5-add1c1c995ad
+:END:
+
+<Informal: what does it represent? Why is it needed?>
+
+** Protocol
+
+<Clear description of accepted messages and responses.>
+
+** mk : 🞎 ⇢ Name
+
+<Constructor description.>
+
+** <msg> : Name Args ⇢ Reply
+
+<Message interface description.>

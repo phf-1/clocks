@@ -1,0 +1,31 @@
+ROOT="$(git rev-parse --show-toplevel)"
+source "$ROOT/bash/etc/bash_profile"
+
+# History
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoredups:erasedups
+shopt -s histappend
+
+# Navigation
+shopt -s autocd
+shopt -s cdspell
+shopt -s dirspell
+
+# Prompt
+PS1='\[\e[1;33m\][env]\[\e[0m\] \[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;36m\]\w\[\e[0m\]\$ '
+
+# Aliases — listing
+alias ls='ls --color=auto'
+alias ll='ls -lh'
+alias la='ls -lah'
+
+# Readline
+bind 'set completion-ignore-case on'
+bind 'set show-all-if-ambiguous on'
+bind 'set mark-symlinked-directories on'
+
+# Fontconfig
+fc-cache -rv >/dev/null
+
+export EDITOR=",start-emacs"

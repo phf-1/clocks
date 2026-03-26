@@ -1,0 +1,83 @@
+** Business case
+:PROPERTIES:
+:ID:       425ff468-c38a-43e6-9038-643f433eac7d
+:END:
+
+*** Timerly
+:PROPERTIES:
+:ID: e1e52c89-31a6-4394-ad4c-ba8951dd80b3
+:END:
+
+**** Need
+
+Jean-Paul needs on-line stopwathes.
+- Because.
+
+**** Market size
+
+There are 30 million persons that share the same need as Jean-Paul.
+- Because.
+
+**** Competitors
+
+There are no competitors.
+- Because.
+
+**** Opportunity
+
+30 million persons are desperate to use our stopwathes.
+- Because.
+
+**** Business Model
+
+They send us lots of money all the time.
+- Because.
+
+*** Peugeot 208
+**** Need
+
+Jean-Paul needs a car to go to work every morning.
+- The car needs to be small so that he can park easily.
+- The car needs to be optimized for short distances (about 25 km).
+- The car needs to be cheap to repair because of the many small impacts in town.
+- The car needs to be optimized to operate in the [-10, +35] C° range.
+- The car needs to be optimized for speed up to 130 Km/H, but mainly in the [30, 90] Km/H range.
+
+**** Market size
+
+There are 30 million persons that share the same need as Jean-Paul.
+- Reasons why this is true.
+
+**** Competitors
+
+There are many cars that compete on this market. Here are the market shares:
+- 10 million for X
+- 5 million for Y
+
+**** Opportunity
+
+This market is very sensitive to the energy price
+- Why this is true.
+
+Oil price today and for the foreseeable future is not stable.
+- Why this is true.
+
+Electricity price is stable.
+- Why this is true.
+
+We need a car powered by electricity.
+
+**** Business Model
+
+We make money through maintenance.
+
+See: [[https://bpifrance-creation.fr/moment-de-vie/business-model-canvas-outil-incontournable-createur][Business Model Canvas]]
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:

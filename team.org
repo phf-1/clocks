@@ -1,0 +1,22 @@
+* Team
+:PROPERTIES:
+:ID:       39b8e70c-317c-4617-8755-8fbd0de480e7
+:END:
+
+The team is formed by these main types of actors:
+- [[ref:c4a051f4-1b59-44ff-9252-82ce9867be56][Salesrep]] that generates revenue opportunities.
+
+- [[ref:87e740ec-6036-4154-968d-625196f90ee4][Architect]] that is responsible for designing software specifications so that
+  implementations satisfy these opportunities.
+
+- [[ref:b6f1f176-25ce-424f-9386-29a5115717e6][Developer]] that implements the software.
+  - If you are a new developer, check the [[file:team/architect/on-boarding.org][on-boarding]] guide.
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:

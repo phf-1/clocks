@@ -1,0 +1,30 @@
+* Salesrep
+:PROPERTIES:
+:ID:       c4a051f4-1b59-44ff-9252-82ce9867be56
+:END:
+
+The Sales Rep owns the *revenue generation*, *customer relationships*, and *market
+understanding* of the product while working closely with the Architect to ensure what
+is sold is technically feasible and profitable.
+
+- *Market and revenus*. Maintains deep knowledge of customer needs, competitors, market
+  trends, and buying motivations. Identifies opportunities, qualifies leads, pitches
+  the product, negotiates, and closes deals. See: [[ref:425ff468-c38a-43e6-9038-643f433eac7d][Business case]].
+
+- *Translates customer needs and feasibility*. Converts customer requests and feedback
+  into clear, actionable requirements for the technical team. Works with the
+  Architect to define what can be built, at what cost, and with what timeline. See:
+  [[ref:5d46d62c-d605-4a1c-88f5-20918274aa74][Backlog]].
+
+- *Customer relationships*. Builds long-term trust and manages the full sales
+  cycle from initial contact to renewal. Sets realistic expectations with customers regarding
+  features, timelines, and pricing. See: [[ref:5ac70b98-56af-4586-b785-3a6dcbc22a15][Customer]]
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:

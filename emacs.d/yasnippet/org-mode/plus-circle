@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: plus-circle
+# key: +
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+⊕

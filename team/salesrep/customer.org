@@ -1,0 +1,15 @@
+* Customer
+:PROPERTIES:
+:ID:       5ac70b98-56af-4586-b785-3a6dcbc22a15
+:END:
+
+** Le canon français
+
+* Local Variables                                                  :noexport:
+
+# Local Variables:
+# eval: (add-hook 'before-save-hook #'whitespace-cleanup nil t)
+# eval: (add-hook 'after-save-hook #'lar-reload nil t)
+# org-confirm-babel-evaluate: nil
+# fill-column: 85
+# End:
