@@ -374,8 +374,7 @@ fi
 ###########
 
 # ,install-commands
-#   (Re)install all command symlinks in $BASH_BIN by scanning this file for
-#   lines matching '# ,cmd' and creating a symbolic link for each
+#   (Re)install commands
 if [[ "${MSG}" == ",install-commands" ]]; then
   SELF="$(readlink -f "${BASH_SOURCE[0]}")"
   SELF_NAME="${SELF##*/}"
@@ -404,7 +403,7 @@ fi
 if [[ "${MSG}" == ",print-help" ]]; then
   awk -F ',' '
     /^# ,(.+)$/ { cmd = $2; desc = "" }
-    /^#   / && cmd { desc = (desc == "") ? substr($0, 5) : desc " " substr($0, 5) }
+    /^#   / && cmd { desc = (desc == "") ? substr($0, 5) : desc " | " substr($0, 5) }
     /^if \[\[/     { if (cmd && desc) printf ",%s\t%s\n", cmd, desc; cmd = "" }
   ' "$SELF" | column -t -s $'\t'
   exit 0
@@ -419,7 +418,8 @@ if [[ "${MSG}" == ",update-deps" ]]; then
   exit 0
 fi
 
-# Executing this script directly installs all commands, prints spec and help
+# Executing this script directly installs all commands, update all additional
+# dependencies and prints help.
 if [[ "${MSG}" == "${SELF_NAME}" ]]; then
   (cd "${BASH_BIN}" && ln -sf "${SELF_NAME}" ,install-commands)
   ,install-commands >/dev/null
@@ -442,9 +442,10 @@ if [[ "${MSG}" == ",print-path" ]]; then
   exit 0
 fi
 
-# ,print-content
-#   Print the content of each given file enclosed in a <content> tag so that
-#   AI can ingest them. If a single directory is given, files under it are printed
+# ,print-content [dir|file …]
+#   Print the content of each file
+#   For each file: <content path="$path">CONTENT</content>
+#   Useful for AI as it ease parsing
 if [[ "${MSG}" == ",print-content" ]]; then
 
   print_ai_guidance() {
@@ -477,28 +478,28 @@ if [[ "${MSG}" == ",print-content" ]]; then
   exit 0
 fi
 
-# ,print-tree
-#   Print the directory tree of the given directory, respecting .gitignore
+# ,print-tree dir
+#   Print the directory tree of dir, honors .gitignore
 if [[ "${MSG}" == ",print-tree" && -d "$1" ]]; then
   tree --gitignore "$1"
   exit 0
 fi
 
-# ,start-emacs
+# ,start-emacs … 
 #   Start Emacs using the project's Emacs configuration directory
 if [[ "${MSG}" == ",start-emacs" ]]; then
   emacs --init-directory="$EMACSD" "$@"
   exit 0
 fi
 
-# ,ec
+# ,ec … 
 #   Start Emacs as fast as possible for quick edits
 if [[ "${MSG}" == ",ec" ]]; then
   exec emacs -Q -nw --init-directory="${EMACSD}" "$@"
 fi
 
 # ,print-env
-#   Print environment variables, sorted alphabetically
+#   Print alphabetically sorted environment variables
 if [[ "${MSG}" == ",print-env" ]]; then
   env | sort
   exit 0
@@ -559,7 +560,7 @@ if [[ "${MSG}" == ",build" ]]; then
 fi
 
 # ,start
-#   Start the application in production mode
+#   Start the application for production
 if [[ "${MSG}" == ",start" ]]; then
   MODE="$(mode_prod)"
   ,phx-migrate "$MODE"
@@ -595,9 +596,9 @@ if [[ "${MSG}" == ",list-todo" ]]; then
 fi
 
 # ,deploy version server
-#   Deploy a version of the application to a server
-#   version is a number, e.g. 0, 1, 2, …
-#   server is an IP address, e.g. 192.168.1.10
+#   Deploy the application at version to a server
+#   version : ℕ 
+#   server : Ip
 if [[ "${MSG}" == ",deploy" ]]; then
   # [[id:63a3e4c6-4d8e-4762-9938-b72dfb3bbb58]] implements [[ref:21eda3b4-f219-4599-abf9-5554f57d3e8b][Spec]]
 
