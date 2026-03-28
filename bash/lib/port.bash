@@ -1,11 +1,18 @@
+# Specification
+
+# [[id:bbabbbd6-cd92-44b3-91b7-095c979f7f45]]
+# port : Port represents a port
+# is? : Any → Boolean
+# check : Any → Mayeb(Error ∧ (exit 1))
+
+# Implementation
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-# Specification
-
-# Implementation
+# Interface
 
 is_port() {
   local port="$1"
@@ -15,9 +22,10 @@ is_port() {
     return 1
   fi
 }
+
 port_check() {
-  local port="$1"
-  if ! is_port "$port"; then
-    failed_check "port is not a Port" "port=$port"
+  local value="$1"
+  if ! is_port "$value"; then
+    failed_check "value is not a Port" "value=$value"
   fi
 }

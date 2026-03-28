@@ -12,5 +12,10 @@ discussion.org
 emacs.d/auto-save-list/
 emacs.d/org-persist/
 
-# Ignore vm images
-/vm
+# Ignore disk images
+/image
+
+# Ignore generated assets
+phoenix/priv/static/
+
+*.dump

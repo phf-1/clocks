@@ -1,20 +1,14 @@
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  echo "Error: this file must be sourced, not executed." >&2
-  exit 1
-fi
-
 # Specification
 
 # dir_check "something" ⇒ log an error and exit 1 if "something" is not a directory.
 # …
 
-# Context
+# Implementation
 
-ROOT_DIR="$(readlink -f "${BASH_SOURCE[0]%/*}/..")"
-LIB_DIR="$ROOT_DIR/lib"
-
-# shellcheck source=bash/lib/log.bash
-source "$LIB_DIR/log.bash"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  echo "Error: this file must be sourced, not executed." >&2
+  exit 1
+fi
 
 # Interface
 
@@ -25,21 +19,25 @@ failed_check() {
   exit 1
 }
 
+not_implemented() {
+  failed_check "Not implemented"
+}
+
 dir_check() {
   if [[ ! -d "$1" ]]; then
-    failed_check "dir is not a directory" "dir=$1"
+    failed_check "value is not a directory" "value=$1"
   fi
 }
 
 file_check() {
   if [[ ! -f "$1" ]]; then
-    failed_check "file is not a regular file." "file=$1"
+    failed_check "value is not a regular file" "value=$1"
   fi
 }
 
 exist_check() {
   if [[ ! -e "$1" ]]; then
-    failed_check "file does not exist" "file=$1"
+    failed_check "path is not in the filesystem" "path=$1"
   fi
 }
 
@@ -52,10 +50,11 @@ value_in_check() {
     [[ "$value" == "$v" ]] && return 0
   done
 
-  failed_check "value not in allowed set" "value=$value" "allowed=${allowed[*]}"
+  failed_check "value is not allowed" "value=$value" "allowed=${allowed[*]}"
 }
 
 nat_check() {
+  # TODO(3a16): should not start by 0.
   if [[ ! "$1" =~ ^[0-9]+$ ]]; then
     failed_check "value does not represent a ℕ" "value=$value"
   fi
@@ -64,10 +63,11 @@ nat_check() {
 cmd_check() {
   local cmd="$1"
   if ! command -v "$cmd" &>/dev/null; then
-    failed_check "cmd is missing" "cmd=$cmd"
+    failed_check "vaue is not a command" "value=$cmd"
   fi
 }
 
+# TODO(0484): extract previous predicates, use them there
 file_in_dir_pred() {
   local file
   file="$(realpath "$1")"

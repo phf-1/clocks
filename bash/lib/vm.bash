@@ -1,186 +1,209 @@
-###############
 # Specification
-#
-#   TODO(fa1d)
+
+# [[id:ef1de6fd-1c16-459f-9564-02bbe5917396]] 
+# vm : [[ref:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]] → Vm
+# is? : Any → Boolean
+# check : Any → Maybe(Error ∧ (exit 1)) 
+# image : Vm → Image
+# running? : Vm Timeout → Boolean
+# running_check : Vm Timeout → Maybe(Error ∧ (exit 1))
+# vm_system_check : Maybe(Error ∧ (exit 1))
+# status : Vm → String
+# stop : Vm → Vm
+# clean : Vm → Vm (underlying filesystem has been cleaned)
+
+# Implementation
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-################
-# Implementation
+_Vm_TMP="$_TMPDIR/clocks/vm"
+mkdir -p "$_Vm_TMP"
 
-# Define the set of VM images
-_VM="$ROOT/vm"
-
-# TODO(b43b): fix that, should be unique
-_VM_TMP="$TMPDIR/clocks/vm"
-mkdir -p "$_VM_TMP"
-
-# Given an OS, return a VM
-vm_build() {
-  local os="$1"
-  os_check "$os"
-  local path
-  path="$(vm_path "$os")"
-  cp -f "$(guix system image -t qcow2 "$(os_spec "$os")")" "$path"
-  chmod u+w "$path"
-  echo "$os"
-}
-
-# A VM is the name of a VM QCOW2 image in $_VM
-is_vm() {
-  file_in_dir_pred "$(vm_path "$1")" "${_VM}"
-}
-
-# Given a name, return the path of its QCOW2 image, if any
-vm_path() { echo "$_VM/$1.qcow2"; }
-
-# List VMs
-vm_list() {
-  for file in "$_VM"/*; do
-    file="${file##*/}"
-    echo "${file%.*}"
-  done
-}
-
-# Given a name and it is not a VM, then exit with an error
-vm_check() {
-  local name="$1"
-  if ! is_vm "$name"; then failed_check "vm is not a VM" "vm=$name"; fi
-}
-
-# Given a VM, return the associated socket, if any
-vm_sock_file() {
+_vm_socket() {
+  vm_check "$1"
   local vm="$1"
-  vm_check "$vm"
-  echo "$_VM_TMP/$vm.sock";
+  echo "$_Vm_TMP/$vm.sock";
 }
 
-# Given a VM, return the associated pid file, if any
-vm_pid_file() {
+_vm_unit() {
+  vm_check "$1"
   local vm="$1"
-  vm_check "$vm"
-  echo "$_VM_TMP/$vm.pid";
-}
-
-# Given a VM, decide if the associated VM is running
-vm_is_running() {
-  local vm="$1"
-  vm_check "$vm"
-  local pid_file
-  pid_file="$(vm_pid_file "$vm")"
-  # TODO(6da5): explain
-  [[ -f "$pid_file" ]] && kill -0 "$(cat "$pid_file")" 2>/dev/null
-}
-
-# If the current system should not or cannot run a VM, then exit with an error
-vm_check_os() {
-  if [[ -v GUIX_ENVIRONMENT ]]; then failed_check "This command should not execute in the container"; fi
-  for cmd in socat qemu-system-x86_64 qemu-img wget systemd-run systemctl; do cmd_check "$cmd"; done
-  if [[ ! -w /dev/kvm ]]; then failed_check "KVM is not available"; fi
-}
-
-
-# Given VM, return its unit name
-vm_unit() {
-  local vm="$1"
-  vm_check "$vm"
   echo "vm-$vm";
 }
 
-# Given a VM and a port, then start it so that it is reachable by SSH through the port
-vm_start() {
+# Socket … → Send … to the socket
+_vm_socket_send() {
+  local sock="$1";
+  shift
+  printf '%s\n' "$@" | socat - "UNIX-CONNECT:${sock}"
+}
+
+# socket:Socket → a QMP quit message has been sent to socket
+_vm_qmp_quit() {
+  local sock="$1"
+  _vm_socket_send "$sock" '{"execute":"qmp_capabilities"}{"execute":"quit"}'
+}
+
+# socket:Socket → a QMP status message has been sent to socket
+_vm_qmp_status() {
+  local sock="$1"
+  _vm_socket_send "$sock" '{"execute":"qmp_capabilities"}{"execute":"query-status"}'
+}
+
+_vm_os() {
   local vm="$1"
-  vm_check "$vm"
-  local host_port="$2"
-  port_check "$host_port"
-  local os_port
-  os_port="$(os_ssh_port "$vm")" # os ~ vm  
-  if ! vm_is_running "$vm"; then
-    vm_check_os
-    local pid_file
-    pid_file="$(vm_pid_file "$vm")"
-    local vm_sock
-    vm_sock="$(vm_sock_file "$vm")"
-    # Clean up any stale unit from a previous run
+  local image
+  image="$(vm_image "$vm")"
+  echo "$(image_os "$image")"  
+}
+
+_vm_machine() {
+  local vm="$1"
+  local os
+  os="$(_vm_os "$vm")"  
+  echo "$(os_machine "$os")"  
+}
+
+_vm_ip() {
+  local vm="$1"
+  local machine="$(_vm_machine "$1")"
+  echo "$(machine_ip "$machine")"
+}
+
+_vm_port() {
+  local vm="$1"
+  local machine="$(_vm_machine "$1")"
+  echo "$(machine_ssh_port "$machine")"
+}
+
+_vm_qcow2() {
+  local vm="$1"
+  local image="$(vm_image "$1")"
+  echo "$(image_qcow2 "$image")"
+}
+
+# Interface
+
+vm_system_check() {
+  if [[ -v GUIX_ENVIRONMENT ]]; then failed_check "This command should not execute in the container"; fi
+  for cmd in socat qemu-system-x86_64 qemu-img wget systemd-run systemctl; do cmd_check "$cmd"; done
+  if [[ ! -w /dev/kvm ]]; then failed_check "KVm is not available"; fi
+}
+
+vm() {
+  image_check "$1"
+  local image="$1"
+  vm_check "$image"
+  local vm="$image"
+  local host_port="$(_vm_port "$vm")"
+  if ! vm_is_running "$vm" "2"; then
+    vm_system_check
+    vm_clean "$vm"
     local unit
-    unit="$(vm_unit "$vm")"    
-    systemctl --user stop "$unit" 2>/dev/null || true
-    systemctl --user reset-failed "$unit" 2>/dev/null || true
-    rm -f "$pid_file" "$vm_sock"    
+    unit="$(_vm_unit "$vm")"
     systemd-run --user \
                 --unit="$unit" \
                 qemu-system-x86_64 \
                 -enable-kvm \
                 -cpu host \
-                -m 4096 \
-                -drive file="$(vm_path "$vm")",format=qcow2,if=virtio \
-                -netdev user,id=net0,hostfwd=tcp::"${host_port}"-:"${os_port}" \
+                -m 8192 \
+                -drive file="$(_vm_qcow2 "$vm")",format=qcow2,if=virtio \
+                -snapshot \
+                -netdev user,id=net0,hostfwd=tcp::"${host_port}"-:22 \
                 -device virtio-net-pci,netdev=net0 \
-                -chardev socket,id=mon,path="${vm_sock}",server=on,wait=off \
-                -mon chardev=mon,mode=control
-    systemctl --user show -p MainPID --value "$unit" > "$pid_file"
-    # TODO(c014): replace with a poll on ssh port 
-    waiting_sec=5
-    echo "Wait for the VM to start" "waiting_sec=$waiting_sec sec"
-    sleep "$waiting_sec"
+                -chardev socket,id=mon,path="$(_vm_socket "$vm")",server=on,wait=off \
+                -mon chardev=mon,mode=control \
+                2>/dev/null
+    vm_is_running_check "$vm" "15"
+  fi
+  echo "$vm"
+}
+
+is_vm() {
+  local name="$1"
+  is_image "$1"
+}
+
+vm_check() {
+  local value="$1"
+  if ! is_vm "$value"; then
+    failed_check "value is not a representation of a Vm" "value=$value";
   fi
 }
 
-# Given a socket, send it a message
-_vm_qmp() {
-  local sock="$1"; shift
-  printf '%s\n' "$@" | socat - "UNIX-CONNECT:${sock}"
-}
-
-# Given a VM, ask it to shutdown
-vm_qmp_quit() {
+vm_image() {
+  vm_check "$1"
   local vm="$1"
-  vm_check "$vm"
-  local sock
-  sock="$(vm_sock_file "$vm")"
-  printf '{"execute":"qmp_capabilities"}\n{"execute":"quit"}\n' \
-    | socat - "UNIX-CONNECT:${sock},ignoreeof"
+  echo "$vm"
 }
 
-# Given a VM, ask it its status
-vm_qmp_status() {
+vm_is_running () {
+  vm_check "$1"
   local vm="$1"
-  vm_check "$vm"    
-  _vm_qmp "$(vm_sock_file "$vm")" '{"execute":"qmp_capabilities"}{"execute":"query-status"}'
+  
+  nat_check "$2"
+  local timeout="$2"
+  
+  local ip
+  ip="$(_vm_ip "$vm")"
+  
+  local port
+  port="$(_vm_port "$vm")"
+  
+  local start_time=$SECONDS
+  
+  local key
+  while (( SECONDS - start_time < timeout )); do
+    key="$(ssh-keyscan -T 1 -t ed25519 -p "$port" "$ip" 2>/dev/null)"
+    if rg -F 'ed25519' <<<"$key" &>/dev/null; then
+      return 0
+    fi
+  done
+  
+  return 1
 }
 
-# Given a VM, return its status
+vm_is_running_check () {
+  vm_check "$1"
+  local vm="$1"
+
+  nat_check "$2"
+  local timeout="$2"
+  
+  if ! msg="$(vm_is_running "$vm" "$timeout")"; then
+    failed_check "Vm is not responsive" \
+                 "vm=$vm" "ip=$(_vm_ip "$vm")" "port=$(_vm_port "$vm")" "$msg"
+  fi
+}
+
 vm_status() {
+  vm_check "$1"
   local vm="$1"
-  vm_check "$vm"
-  if ! vm_is_running "$vm"; then
-    info "VM is stopped" "vm=${vm}"
-  else
-    local status
-    status="$(vm_qmp_status "$vm")"
-    local pid
-    pid="$(cat "$(vm_pid_file "$vm")")"
-    echo "VM is running os=${vm} pid=${pid} status=${status}"
-  fi
+  vm_is_running_check "$vm" "2"
+  _vm_qmp_status "$(_vm_socket "$vm")"
 }
 
-# Given a VM, stop its execution
 vm_stop() {
+  vm_check "$1"
   local vm="$1"
-  vm_check "$vm"
-  if vm_is_running "$vm"; then
-    vm_qmp_quit "$vm"
+  if vm_is_running "$vm" "2"; then
+    _vm_qmp_quit "$(_vm_socket "$vm")"
     local unit
-    unit="$(vm_unit "$vm")"
+    unit="$(_vm_unit "$vm")"
     while systemctl --user is-active --quiet "$unit" 2>/dev/null; do sleep 1; done
-    local sock
-    sock="$(vm_sock_file "$vm")"
-    local pid_file
-    pid_file="$(vm_pid_file "$vm")"    
-    rm -f "$sock" "$pid_file"
-    systemctl --user reset-failed "$unit" 2>/dev/null || true
   fi
+  vm_clean "$vm"
+}
+
+vm_clean() {
+  vm_check "$1"
+  local vm="$1"
+  local unit
+  unit="$(_vm_unit "$vm")"
+  systemctl --user stop "$unit" 2>/dev/null || true
+  systemctl --user reset-failed "$unit" 2>/dev/null || true
+  rm -f "$(_vm_socket "$vm")"
 }

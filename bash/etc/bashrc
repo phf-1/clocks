@@ -1,5 +1,5 @@
-ROOT="$(git rev-parse --show-toplevel)"
-source "$ROOT/bash/etc/bash_profile"
+_ROOT="$(git rev-parse --show-toplevel)"
+source "$_ROOT/bash/etc/bash_profile"
 
 # History
 export HISTSIZE=10000

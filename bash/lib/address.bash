@@ -5,10 +5,18 @@ fi
 
 # Specification
 
-# address :≡ ip ":" port
-
 # Implementation
 
+# Ip Port → Address
+address() {
+  ip_check "$1"
+  local ip="$1"
+  port_check "$2"
+  local port="$2"
+  echo "$ip:$port"
+}
+
+# Value → Boolean
 is_address() {
   local address="$1"
   local ip port
@@ -16,9 +24,25 @@ is_address() {
   port="${address##*:}"
   is_ip "$ip" && is_port "$port"
 }
+
+# Any → Maybe(Error)
 address_check() {
-  local address="$1"
-  if ! is_address "$address"; then
-    failed_check "address is not a Address" "address=$address"
+  local value="$1"
+  if ! is_address "$value"; then
+    failed_check "value is not a Address" "value=$value"
   fi
+}
+
+# Address → Ip
+address_to_ip() {
+  address_check "$1"
+  local address="$1"
+  echo "${address%:*}"
+}
+
+# Address → Port
+address_to_port() {
+  address_check "$1"
+  local address="$1"
+  echo "${address##*:}"
 }

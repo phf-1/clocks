@@ -7,40 +7,67 @@ fi
 
 # Implementation
 
-db_root() { echo "$ROOT/_postgresql"; }
-db_dev_port() { echo 5432; }
-db_test_port() { echo 5433; }
-db_prod_port() { echo 5434; }
+# Path
+db_root() {
+  echo "$_ROOT/_postgresql";
+}
+
+# Port
+db_dev_port() {
+  echo 5432;
+}
+
+# Port
+db_test_port() {
+  echo 5433;
+}
+
+# Port
+db_prod_port() {
+  echo 5434;
+}
+
+# List(Port)
 mapfile -t _DB_PORTS < <(
   db_dev_port
   db_test_port
   db_prod_port
 )
+
+# Any → Maybe(Error ∧ (exit 1))
 db_port_check() {
-  local port="$1"
-  value_in_check "$port" "${_DB_PORTS[@]}"
+  value_in_check "$1" "${_DB_PORTS[@]}"
 }
-db_mode_to_port() {
+
+# Mode → Port
+db_port() {
+  mode_check "$1"
   local mode="$1"
-  mode_check "$mode"
-  if [[ "$mode" == "$(mode_dev)" ]]; then db_dev_port; fi
-  if [[ "$mode" == "$(mode_test)" ]]; then db_test_port; fi
-  if [[ "$mode" == "$(mode_prod)" ]]; then db_prod_port; fi
+  if [[ "$mode" == "dev" ]]; then db_dev_port;
+  elif [[ "$mode" == "test" ]]; then db_test_port;
+  elif [[ "$mode" == "prod" ]]; then db_prod_port;
+  else failed_check "Unexpected mode" "mode=$mode"; fi
 }
+
+# Mode → Url
 db_mode_to_url() {
+  mode_check "$1"
   local mode="$1"
-  mode_check "$mode"
   local port
-  port="$(db_mode_to_port "$mode")"
+  port="$(db_port "$mode")"
   echo "ecto://postgres@localhost:${port}/clocks_${mode}"
 }
+
+# Mode → Path
 db_mode_to_data() {
+  mode_check "$1"
   local mode="$1"
-  mode_check "$mode"
   echo "$(db_root)/${mode}/data"
 }
+
+# Mode → Path
 db_mode_to_log() {
+  mode_check "$1"
   local mode="$1"
-  mode_check "$mode"
   echo "$(db_root)/${mode}/log"
 }
