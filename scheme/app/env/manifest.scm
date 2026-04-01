@@ -26,36 +26,36 @@
 
 ;; Erlang must carry debug_info — Dialyzer builds its PLT from
 ;; Erlang's own .beam files and needs the abstract_code chunk there.
-;; (define erlang-with-debug-info
-;;   (package
-;;    (inherit erlang)
-;;    (name "erlang-with-debug-info")
-;;    (arguments
-;;     (substitute-keyword-arguments
-;;      (package-arguments erlang)
-;;      ((#:strip-binaries? _ #t) #f)
-;;      ((#:phases phases '%standard-phases)
-;;       #~(modify-phases #$phases
-;;                        (add-before 'build 'enable-debug-info
-;;                                    (lambda _
-;;                                      (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
+(define erlang-with-debug-info
+  (package
+   (inherit erlang)
+   (name "erlang-with-debug-info")
+   (arguments
+    (substitute-keyword-arguments
+     (package-arguments erlang)
+     ((#:strip-binaries? _ #t) #f)
+     ((#:phases phases '%standard-phases)
+      #~(modify-phases #$phases
+                       (add-before 'build 'enable-debug-info
+                                   (lambda _
+                                     (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
 
-;; (define elixir-with-debug-info
-;;   (package
-;;    (inherit elixir)
-;;    (name "elixir-with-debug-info")
-;;    (inputs
-;;     (modify-inputs (package-inputs elixir)
-;;                    (replace "erlang" erlang-with-debug-info)))
-;;    (arguments
-;;     (substitute-keyword-arguments
-;;      (package-arguments elixir)
-;;      ((#:strip-binaries? _ #t) #f)
-;;      ((#:phases phases '%standard-phases)
-;;       #~(modify-phases #$phases
-;;                        (add-before 'build 'enable-debug-info
-;;                                    (lambda _
-;;                                      (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
+(define elixir-with-debug-info
+  (package
+   (inherit elixir)
+   (name "elixir-with-debug-info")
+   (inputs
+    (modify-inputs (package-inputs elixir)
+                   (replace "erlang" erlang-with-debug-info)))
+   (arguments
+    (substitute-keyword-arguments
+     (package-arguments elixir)
+     ((#:strip-binaries? _ #t) #f)
+     ((#:phases phases '%standard-phases)
+      #~(modify-phases #$phases
+                       (add-before 'build 'enable-debug-info
+                                   (lambda _
+                                     (setenv "ERL_COMPILER_OPTIONS" "debug_info")))))))))
 
 ;; Interface
 
@@ -64,11 +64,11 @@
    (list
 
     ;; ── Runtime ────────────────────────────────────────────────────────────────
-    ;; (packages->manifest
-    ;;  (list
-    ;;   ;; erlang-with-debug-info
-    ;;   ;; elixir-with-debug-info
-    ;;   ))
+    (packages->manifest
+     (list
+      erlang-with-debug-info
+      elixir-with-debug-info
+      ))
 
     (specifications->manifest
      '( ;; TLS / certs
