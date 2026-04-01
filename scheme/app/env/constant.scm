@@ -25,3 +25,5 @@
 ;; This key is used to log into a local dev VM.
 (define-public dev-public-key-path
   (string-append ssh-root "/ed25519.pub"))
+
+(define-public backend-dist (string-append project-root "/phoenix/_build/prod/rel/dist"))

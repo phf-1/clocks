@@ -13,7 +13,7 @@
 
 ;; Implementation
 
-(define-module (app vm prod os))
+(define-module (app vm dev os))
 
 (use-modules
  ((gnu services)

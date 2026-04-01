@@ -11,23 +11,14 @@
 
 ;; Implementation
 
-(define-module (app vm prod service))
+(define-module (app vm dev service))
 
 (use-modules
- ((guix records)
-  #:select (define-record-type*))
- 
- ((guix gexp)
-  #:select (gexp)) ; provides #~, #$
- 
- ((gnu services)
-  #:select (service-type service-extension))
- 
- ((gnu services shepherd)
-  #:select (shepherd-service shepherd-root-service-type))
- 
- ((srfi srfi-1)
-  #:select (concatenate)))
+ (guix records) 
+ (guix gexp) 
+ (gnu services) 
+ (gnu services shepherd) 
+ (srfi srfi-1))
 
 (define-record-type* <app-configuration>
   app-configuration make-app-configuration

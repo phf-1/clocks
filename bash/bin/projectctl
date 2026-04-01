@@ -191,6 +191,12 @@ if [[ "${MSG}" == ",guix-repl" ]]; then
   exec guix repl -i "$_SCHEME/.guile"
 fi
 
+# ,guix-build
+#   Execute a Guix build
+if [[ "${MSG}" == ",guix-build" ]]; then
+  exec guix build "${PARAMS[@]}"
+fi
+
 # db #
 
 # ,db-init Mode

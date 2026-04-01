@@ -11,28 +11,21 @@
 
 ;; Implementation
 
-(define-module (app vm prod package))
+(define-module (app vm dev package))
 
 (use-modules
- ((guix gexp)
-  #:select
-  (local-file))
-
- ((guix packages)
-  #:select
-  (package))
-
- ((guix build-system copy)
-  #:select
-  (copy-build-system)))
+ (guix gexp)
+ ((guix packages) #:prefix guix:)
+ (guix build-system copy)
+ (app env constant))
 
 (define distribution
   (local-file
-   "__DIST__"
+   backend-dist
    #:recursive? #t))
 
 (define package
-  (package
+  (guix:package
    (name "app")
    (version "0.1.0")           ; TODO(2244): read that from mix.exs 
    (source distribution)

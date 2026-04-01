@@ -6,7 +6,7 @@
 
 ;; Implementation
 
-(define-module (app vm prod machine))
+(define-module (app vm dev machine))
 
 ;;;;;;;;;;;;;;;;
 ;; configuration
@@ -27,7 +27,7 @@
   (managed-host-environment-type
    machine-ssh-configuration))
 
- ((app vm prod os)
+ ((app vm dev os)
   #:select
   (os))
 
