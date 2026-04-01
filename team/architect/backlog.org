@@ -5,9 +5,10 @@
 
 A backlog is a list of [[ref:3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc][tasks]] organized top to bottom by priority.
 
-** TODO A beautiful clock
+** DOING A beautiful clock
 :PROPERTIES:
 :ID:       44ceb8c1-0c1b-4497-a041-dab8548af84e
+:OWNER: phf
 :END:
 
 So, we need to display [[ref:a3f603d3-c122-4de6-b587-e7095d052831][beautiful clocks]].
