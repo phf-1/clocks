@@ -9,6 +9,12 @@
 - [[ref:73a7c491-ef86-4523-bfad-f024fef4fa07][Identification]]
 - [[ref:e3eff8db-1d6e-4e93-8820-4e8168678ade][Iteration]]
 
+** Beautiful
+
+Plan
+1. Design
+2. Implement modules
+
 * Local Variables                                                  :noexport:
 
 # Local Variables:

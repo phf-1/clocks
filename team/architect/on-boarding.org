@@ -12,6 +12,7 @@ following these guides:
 1. https://guix.gnu.org/manual/devel/en/guix.html#Binary-Installation
 2. https://guix.gnu.org/manual/devel/en/guix.html#Name-Service-Switch-1
 3. https://guix.gnu.org/manual/1.5.0/en/html_node/Upgrading-Guix.html
+4. If you use SELinux, then: https://guix.gnu.org/manual/devel/en/guix.html#SELinux-Support
 
 It is a good idea to update the guix daemon using an automatic job. If using systemd,
 then why not:
