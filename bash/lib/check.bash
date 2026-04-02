@@ -1,11 +1,13 @@
 # Specification
 
+# [[id:0df8eed0-403a-422a-8fce-ec37f9acae62]]
+#
 # dir_check "something" ⇒ log an error and exit 1 if "something" is not a directory.
 # …
 
 # Implementation
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi

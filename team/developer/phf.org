@@ -155,7 +155,6 @@ add this to the fstab file:
 host-shared  /mnt/shared  virtiofs  defaults  0  0
 #+end_src
 
-
 ** Bridge
 *** 1. Understanding the Bridge Architecture
 

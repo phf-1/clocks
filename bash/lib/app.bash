@@ -1,8 +1,14 @@
 # Specification
 
+# [[id:be56746d-435f-44cb-83dd-bddb71c6a03e]]
+#
+# app : App represents TODO(6118) 
+#
+# 
+
 # Implementation
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi

@@ -38,12 +38,6 @@ chmod +x guix-install.sh
 sudo ./guix-install.sh
 #+end_src
 
-**** Install Make
-
-#+begin_src bash :eval no
-guix install make
-#+end_src
-
 **** Configure the system
 
 Use appropriate file, ~.bash_profile~ or whatever suits your setup.
@@ -53,37 +47,6 @@ cat <<'EOF' >> "$HOME/.bash_profile"
 export GUIX_PROFILE="$HOME/.guix-profile"
 source "$GUIX_PROFILE/etc/profile"
 EOF
-#+end_src
-
-**** Update the Guix daemon
-
-Keep Guix daemon up to date:
-
-#+begin_src bash :eval no
-sudo -i guix pull
-sudo systemctl restart guix-daemon.service
-#+end_src
-
-**** Update Guix
-
-#+begin_src bash :eval no
-guix pull
-export GUIX_PROFILE="$HOME/.config/guix/current"
-source "$GUIX_PROFILE/etc/profile"
-#+end_src
-
-If you use SELinux:
-
-#+begin_src bash :eval no
-sudo semodule -i /var/guix/profiles/per-user/root/current-guix/share/selinux/guix-daemon.cil
-sudo mount -o remount,rw /gnu/store
-sudo restorecon -R /gnu /var/guix
-#+end_src
-
-**** Upgrade Guix packages
-
-#+begin_src bash :eval no
-guix upgrade
 #+end_src
 
 *** Fork the repo
@@ -140,24 +103,18 @@ gpg --encrypt --recipient your@email.com .env
 rm .env
 #+end_src
 
-*** Start the application
+*** DOING Start the application
 
 Start the development environment:
 
 #+begin_src bash :eval no
-make dev-env
-#+end_src
-
-To verify everything works, clone a test Lovable project under =frontend/=:
-
-#+begin_src bash :eval no
-git clone https://github.com/phf-1/my-lovely-tasks frontend
+./start_dev
 #+end_src
 
 Then start a REPL:
 
 #+begin_src bash :eval no
-,start-repl
+,app-repl
 #+end_src
 
 The application should now be live.

@@ -34,6 +34,7 @@
     (substitute-keyword-arguments
      (package-arguments erlang)
      ((#:strip-binaries? _ #t) #f)
+     ((#:tests? _ #t) #f)     
      ((#:phases phases '%standard-phases)
       #~(modify-phases #$phases
                        (add-before 'build 'enable-debug-info

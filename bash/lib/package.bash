@@ -1,13 +1,21 @@
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+# Specification
+
+# [[id:93da0b14-ce43-4c4d-a409-20608c073715]]
+#
+# TODO(b568) 
+
+# Implementation
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-# Specification
+source "${BASH_SOURCE[0]%/*}/fs.bash"
+source "${BASH_SOURCE[0]%/*}/check.bash"
 
-# Implementation
-
-_PACKAGE="$_ROOT/package"
+_PACKAGE="$(fs_root)/package"
+dir_check "$_PACKAGE"
 
 # Path → Package | Error ∧ (exit 1)
 package_build() {

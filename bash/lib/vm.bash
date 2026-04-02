@@ -14,12 +14,12 @@
 
 # Implementation
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-_Vm_TMP="$_TMPDIR/clocks/vm"
+_Vm_TMP="/tmp/clocks/vm"
 mkdir -p "$_Vm_TMP"
 
 _vm_socket() {

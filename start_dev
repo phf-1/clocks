@@ -9,7 +9,7 @@
 #
 # The development environment is a container with network access that packs all
 # necessary available resources for developping the current application, not matter
-# the system it runs in.
+# the underlying system.
 #
 # This guarantees reproducible development environment for all developpers.
 #
@@ -24,42 +24,55 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-main() {  
+main() {
   if [[ -v GUIX_ENVIRONMENT ]]; then
     echo "INFO | The development environment is active."
     exit 0
   else
+    source "bash/lib.bash"
+    
     # Read secret environment variables
-    # Default values are provided.        
+    # Default values are provided.
     if [[ -f .env.gpg ]]; then
       set +xv
       set -a
       eval "$(gpg --quiet --batch --yes --decrypt .env.gpg 2>/dev/null)"
       set +a
     fi
-    : "${XAI_API_KEY:=sk-0000}"
-    export XAI_API_KEY    
-    : "${SECRET_KEY_BASE:=""}"
-    export SECRET_KEY_BASE
-    
+    : "${XAI_API_KEY:=sk-0000}"; export XAI_API_KEY
+    : "${SECRET_KEY_BASE:=""}"; export SECRET_KEY_BASE
+
     # LOCAL = true → Not not use external APIs (e.g. xAI).
-    : "${LOCAL:=true}"
-    export LOCAL
-    
-    : "${MIX_ENV:=dev}"
-    export MIX_ENV
+    : "${LOCAL:=true}"; export LOCAL
+
+    : "${MIX_ENV:=dev}"; export MIX_ENV
 
     export LC_ALL=C.UTF-8
     export LANG=C.UTF-8
 
     # The shell inside the dev environment
-    local cmd="bash --init-file bash/etc/bashrc -i"
+    local cmd="bash --init-file $(bash_bashrc) -i"
 
-    # Dependencies are pinned
-    local channels="scheme/app/env/channels.scm"
+    if ! ssh-add -l &>/dev/null; then
+      info "The SSH agent is necessary to connect to VPS"
+      failed_check "The SSH agent is not functional" "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
+    else
+      ok "The SSH agent is functional" "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
+    fi
+
+    ETC_GUIX="/etc/guix"
+    if [[ ! -f "$ETC_GUIX/signing-key.pub" ]]; then
+      info "Store items must be signed before being transmitted to a VPS"
+      info "Generating keys"
+      set -x
+      sudo -k guix archive --generate-key
+      set +x
+      info "generated keys are:"
+      ls -l
+    fi
 
     # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
-    guix time-machine -C "$channels" -- shell \
+    guix time-machine -C "$(scheme_channels)" -- shell \
          -C \
          -W \
          -S /usr/bin=bin \
@@ -71,24 +84,17 @@ main() {
          -E ^LOCAL \
          -E ^MIX_ENV \
          -E ^TERM \
-         -E ^DISPLAY \
-         -E ^XAUTHORITY \
          -E ^SSH_AUTH_SOCK \
          --share="${SSH_AUTH_SOCK:-}" \
-         --expose="${XAUTHORITY:-}" \
-         --expose=/tmp/.X11-unix \
-         --expose=/etc/guix \
+         --expose="$ETC_GUIX" \
          --share=/tmp \
          -N \
-         -m scheme/app/env/manifest.scm \
-         -- bash -c "source bash/etc/bash_profile; projectctl; ${cmd}"
+         -m "$(scheme_manifest)" \
+         -- bash -c "source $(bash_bash_profile); projectctl; ${cmd}"
     exit 0
-  fi  
+  fi
 }
 
 # Interface
 
 main
-
-
-

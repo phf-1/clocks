@@ -11,26 +11,30 @@
 
 # Implementation
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
+source "${BASH_SOURCE[0]%/*}/fs.bash"
+source "${BASH_SOURCE[0]%/*}/check.bash"
+source "${BASH_SOURCE[0]%/*}/mode.bash"
+
 # Interface
 
-frontend_root() { echo "$_ROOT/frontend"; }
+frontend_root() { echo "$(fs_root)/frontend"; }
 
 frontend_version() {
-  echo "$(cd "$(frontend_root)"; git rev-parse --short HEAD)"
+  (cd "$(frontend_root)"; git rev-parse --short HEAD)
 }
 
 frontend_update() {
   (
     cd "$(frontend_root)"
-    if ! git pull &>/dev/null; then
+    if ! git pull; then
       failed_check "Could not update the frontend"
     fi
-    if ! npm i &>/dev/null; then
+    if ! npm i; then
       failed_check "Could not update frontend dependencies"
     fi
     frontend_version

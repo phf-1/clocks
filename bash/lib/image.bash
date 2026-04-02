@@ -11,15 +11,16 @@
 
 # Implementation
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-# TODO(59a4): try to only go through sysd, not through files like pid file
+source "${BASH_SOURCE[0]%/*}/fs.bash"
+source "${BASH_SOURCE[0]%/*}/check.bash"
 
-# Define the set of Image images
-_Image="$_ROOT/image"
+_IMAGE="$(fs_root)/image"
+dir_check "$_IMAGE"
 
 # Interface
 
@@ -29,20 +30,16 @@ image() {
   local spec
   spec="$(os_spec "$os")"
   local qcow2
-  qcow2="$_Image/$os.qcow2"
-  if [[ -f "$qcow2" ]] && [[ "$qcow2" -nt "$spec" ]]; then
-    : Re-building the image is not necessary.
-  else
-    set -x 
+  qcow2="$_IMAGE/$os.qcow2"
+  if [[ ! -f "$qcow2" ]] || [[ "$qcow2" -ot "$spec" ]]; then
     cp -f "$(guix system image -t qcow2 --image-size=20G "$spec")" "$qcow2"
   fi
-  local image="$os"
-  echo "$image"
+  echo "$os"
 }
 
 is_image() {
   local name="$1"
-  file_in_dir_pred "$_Image/$name.qcow2" "${_Image}";
+  file_in_dir_pred "$_IMAGE/$name.qcow2" "${_IMAGE}";
 }
 
 image_check() {
@@ -61,11 +58,11 @@ image_os() {
 image_qcow2() {
   image_check "$1"
   local image="$1"
-  echo "$_Image/$image.qcow2";
+  echo "$_IMAGE/$image.qcow2";
 }
 
 image_list() {
-  for path in "$_Image"/*; do
+  for path in "$_IMAGE"/*; do
     path="${path##*/}"
     echo "${path%.*}"
   done

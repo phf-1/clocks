@@ -59,14 +59,6 @@ How is this script structured?
 
       _ ↦
         error "unexpected message"
-
-What are the components of this project?
-
-  The project is formed by these components:
-    - A project
-    - A database
-    - A frontend
-    - A phoenix app
 EOF
 
 # Implementation
@@ -79,98 +71,30 @@ EOF
   set -x
 }
 
-## Strict mode
-
 set -euo pipefail
 IFS=$'\n\t'
 
-## Self
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+SELF_NAME="${SELF##*/}"
 
-_SELF="$(readlink -f "${BASH_SOURCE[0]}")"
-_SELF_NAME="${_SELF##*/}"
+source "${SELF%/*}/../lib.bash"
 
-## Root directory mapping
-
-_ROOT="$(git rev-parse --show-toplevel)"
-_EMACSD="$_ROOT/emacs.d"
-_BASH="$_ROOT/bash"
-_BASH_LIB="$_BASH/lib"
-_BASH_BIN="$_BASH/bin"
-_SCHEME="$_ROOT/scheme"
-: "${_TMPDIR:=/tmp}"
-
-## Add local scheme code to guile
-export GUILE_LOAD_PATH="$GUILE_LOAD_PATH:$_SCHEME"
-
-## Libraries
-
-# shellcheck source=bash/lib/log.bash
-source "$_BASH_LIB/log.bash"
-
-# shellcheck source=bash/lib/check.bash
-source "$_BASH_LIB/check.bash"
-
-# shellcheck source=bash/lib/mode.bash
-source "$_BASH_LIB/mode.bash"
-
-# shellcheck source=bash/lib/frontend.bash
-source "$_BASH_LIB/frontend.bash"
-
-# shellcheck source=bash/lib/db.bash
-source "$_BASH_LIB/db.bash"
-
-# shellcheck source=bash/lib/backend.bash
-source "$_BASH_LIB/backend.bash"
-
-# shellcheck source=bash/lib/version.bash
-# source "$_BASH_LIB/version.bash"
-
-# shellcheck source=bash/lib/ip.bash
-source "$_BASH_LIB/ip.bash"
-
-# shellcheck source=bash/lib/port.bash
-source "$_BASH_LIB/port.bash"
-
-# shellcheck source=bash/lib/address.bash
-# source "$_BASH_LIB/address.bash"
-
-# shellcheck source=bash/lib/os.bash
-source "$_BASH_LIB/os.bash"
-
-# shellcheck source=bash/lib/image.bash
-source "$_BASH_LIB/image.bash"
-
-# shellcheck source=bash/lib/machine.bash
-source "$_BASH_LIB/machine.bash"
-
-# shellcheck source=bash/lib/vm.bash
-source "$_BASH_LIB/vm.bash"
-
-# shellcheck source=bash/lib/commit.bash
-source "$_BASH_LIB/commit.bash"
-
-# shellcheck source=bash/lib/package.bash
-source "$_BASH_LIB/package.bash"
-
-# shellcheck source=bash/lib/app.bash
-source "$_BASH_LIB/app.bash"
-
-_BASH_FILES=("$_BASH_BIN/projectctl" "$_BASH_LIB"/*.bash)
-
-## Argument parsing
-
-read -r MSG <<<"${0##*/}"
-PARAMS=("$@")
-PARAMS_LENGTH=${#PARAMS[@]}
+ROOT="$(fs_root)"
+GUILE_LOAD_PATH="$GUILE_LOAD_PATH:$(scheme_root)"
+export GUILE_LOAD_PATH
 
 # Interface
+
+# MSG is the name of the script.
+# Parameters are: $1, $2…
+read -r MSG <<<"${0##*/}"
 
 # bash #
 
 # ,bash-format
 #   Format bash code
 if [[ "${MSG}" == ",bash-format" ]]; then
-  shfmt -i 2 -w "${_BASH_FILES[@]}"
+  bash_format
   ok "Bash code formatted"
   exit 0
 fi
@@ -178,7 +102,7 @@ fi
 # ,bash-analyze
 #   Run static analysis on Bash code
 if [[ "${MSG}" == ",bash-analyze" ]]; then
-  shellcheck -x "${_BASH_FILES[@]}"
+  bash_analyse
   ok "Bash code analyzed"
   exit 0
 fi
@@ -188,13 +112,13 @@ fi
 # ,guix-repl
 #   Execute a Guix repl
 if [[ "${MSG}" == ",guix-repl" ]]; then
-  exec guix repl -i "$_SCHEME/.guile"
+  exec guix repl -i "$(scheme_root)/.guile"
 fi
 
 # ,guix-build
 #   Execute a Guix build
 if [[ "${MSG}" == ",guix-build" ]]; then
-  exec guix build "${PARAMS[@]}"
+  exec guix build "$@"
 fi
 
 # db #
@@ -202,13 +126,8 @@ fi
 # ,db-init Mode
 #   Creates a directory for the DB data
 if [[ "${MSG}" == ",db-init" ]]; then
-  MODE="${1:-dev}"
-  mode_check "$MODE"
-  DB_DATA="$(db_mode_to_data "$MODE")"
-  if [[ ! -f "${DB_DATA}/PG_VERSION" ]]; then
-    mkdir -p "${DB_DATA}"
-    initdb -D "${DB_DATA}" --auth=trust --username=postgres --encoding=UTF8
-  fi
+  mode_check "$1"
+  db_init "$1"
   ok "The PostgreSQL cluster has been initialized" "MODE=$MODE" "DB_DATA=$DB_DATA"
   exit 0
 fi
@@ -216,26 +135,8 @@ fi
 # ,db-start Mode
 #   Start a PostgreSQL process
 if [[ "${MSG}" == ",db-start" ]]; then
-  MODE="${1:-dev}"
-  mode_check "$MODE"
-  ,db-init "$MODE"
-  DB_DATA="$(db_mode_to_data "$MODE")"
-  DB_LOG="$(db_mode_to_log "$MODE")"
-  DB_PORT="$(db_port "$MODE")"
-  DB_PARAMS="DB_DATA=$DB_DATA DB_LOG=$DB_LOG DB_PORT=$DB_PORT"
-  if ! pg_ctl -D "${DB_DATA}" status >/dev/null 2>&1; then
-    if pg_ctl -D "${DB_DATA}" -l "${DB_LOG}" -o "-p ${DB_PORT} -k /tmp" start; then
-      :
-    else
-      error "Could not start PostgreSQL" "$DB_PARAMS"
-      debug "Last 30 lines of the log:"
-      tail -n 30 "${DB_LOG}" 2>/dev/null || true
-      echo ""
-      debug "Most common cause: stale process on port" "port=$DB_PORT"
-      debug "Run this cmd once and try again" "cmd=pkill -9 -f postgres && rm -f ${DB_DATA}/postmaster.pid"
-      exit 1
-    fi
-  fi
+  mode_check "$1"
+  db_start "$1"
   ok "The PostgreSQL instance is started" "$DB_PARAMS"
   exit 0
 fi
@@ -243,9 +144,8 @@ fi
 # ,db-clean
 #   Remove PostgreSQL directories
 if [[ "${MSG}" == ",db-clean" ]]; then
-  DB_ROOT="$(db_root)"
-  rm -rf "$DB_ROOT"
-  ok "DB cleaned" "DB_ROOT=$DB_ROOT"
+  db_clean
+  ok "DB cleaned" "DBROOT=$DBROOT"
   exit 0
 fi
 
@@ -253,9 +153,8 @@ fi
 
 # ,frontend-update
 #   Update the frontend to the last version
-if [[ "${MSG}" == ",frontend-update" ]]; then
-  frontend_update
-  version="$(frontend_version)"
+if [[ "${MSG}" == ",frontend-update" ]]; then  
+  version="$(frontend_update)"
   ok "The frontend has been updated" "version=$version"
   exit 0
 fi
@@ -281,13 +180,7 @@ fi
 # ,backend-init-db Mode
 #   Set up database tables
 if [[ "${MSG}" == ",backend-init-db" ]]; then
-  MODE="${1:-dev}"
-  mode_check "$MODE"
-  ,db-start "$MODE"
-  DATABASE_URL="$(db_mode_to_url "$MODE")"
-  export DATABASE_URL
-  export MIX_ENV="$MODE"
-  (cd "$(backend_root)" && mix ecto.create)
+  backend_init_db
   ok "The database tables have been created" "MODE=$MODE"
   exit 0
 fi
@@ -295,13 +188,7 @@ fi
 # ,backend-migrate Mode
 #   Apply pending Ecto migrations to the database
 if [[ "${MSG}" == ",backend-migrate" ]]; then
-  mode_check "$1"  
-  MODE="$1"
-  ,backend-init-db "$MODE"
-  DATABASE_URL="$(db_mode_to_url "$MODE")"
-  export DATABASE_URL
-  export MIX_ENV="$MODE"
-  (cd "$(backend_root)" && mix ecto.migrate)
+  backend_migrate
   ok "Ecto migration has been applied to the database" "MODE=$MODE"
   exit 0
 fi
@@ -309,7 +196,7 @@ fi
 # ,backend-format
 #   Format Phoenix code
 if [[ "${MSG}" == ",backend-format" ]]; then
-  (cd "$(backend_root)" && mix format)
+  backend_format
   ok "Phoenix code has been formatted"
   exit 0
 fi
@@ -317,7 +204,7 @@ fi
 # ,backend-credo
 #   Run Credo static code analysis
 if [[ "${MSG}" == ",backend-credo" ]]; then
-  (cd "$(backend_root)" && mix credo --strict)
+  backend_credo
   ok "Credo analysis finished"
   exit 0
 fi
@@ -325,7 +212,7 @@ fi
 # ,backend-dialyzer
 #   Run Dialyzer type checking
 if [[ "${MSG}" == ",backend-dialyzer" ]]; then
-  (cd "$(backend_root)" && mix dialyzer --format short)
+  backend_dialyser
   ok "Dialyzer finished"
   exit 0
 fi
@@ -333,7 +220,7 @@ fi
 # ,backend-security
 #   Run Sobelow security scan for Phoenix
 if [[ "${MSG}" == ",backend-security" ]]; then
-  (cd "$(backend_root)" && mix sobelow --config)
+  backend_soblow
   ok "Sobelow security scan finished"
   exit 0
 fi
@@ -341,17 +228,15 @@ fi
 # ,backend-analyse
 #   Run static analysis tools against phoenix code
 if [[ "${MSG}" == ",backend-analyse" ]]; then
-  ,backend-credo
-  ,backend-dialyzer
-  ,backend-security
+  backend_analyse
   ok "Elixir code analyzed"
   exit 0
 fi
 
-# ,backend-test-only Id
+# ,backend-test-by-id Id
 #   Execute the specified backend tests
-if [[ "${MSG}" == ",backend-test-only" && -n "${1:-}" ]]; then
-  (cd "$(backend_root)" && mix test --only "$1")
+if [[ "${MSG}" == ",backend-test-by-id" && -n "${1:-}" ]]; then
+  backend_test_by_id
   ok "The backend tests identified by id have been executed" "id=$1"
   exit 0
 fi
@@ -359,7 +244,7 @@ fi
 # ,backend-test
 #   Execute the identified backend test(s)
 if [[ "${MSG}" == ",backend-test" ]]; then
-  (cd "$(backend_root)" && mix test)
+  backend_test
   ok "Phoenix tests executed"
   exit 0
 fi
@@ -367,7 +252,7 @@ fi
 # ,backend-clean
 #   Remove the Phoenix build artifacts and dependencies
 if [[ "${MSG}" == ",backend-clean" ]]; then
-  (cd "$(backend_root)" && mix clean && rm -rf _build deps)
+  backend_clean
   ok "Phoenix directory cleaned" "PHX=$(backend_root)"
   exit 0
 fi
@@ -478,9 +363,9 @@ if [[ "${MSG}" == ",app-install-frontend" ]]; then
   exit 0
 fi
 
-# ,app-start-dev
+# ,app-repl
 #   Start the application and drop into iex
-if [[ "${MSG}" == ",app-start-dev" ]]; then
+if [[ "${MSG}" == ",app-repl" ]]; then
   ,backend-migrate dev
   ,app-install-frontend
   (cd "$(backend_root)" && iex --dbg pry -S mix phx.server)
@@ -609,21 +494,18 @@ fi
 # ,install-commands
 #   (Re)install commands
 if [[ "${MSG}" == ",install-commands" ]]; then
-  _SELF="$(readlink -f "${BASH_SOURCE[0]}")"
-  _SELF_NAME="${_SELF##*/}"
-
-  cd "$_BASH_BIN"
+  cd "${SELF%/*}"
 
   # Remove all existing symbolic links
   rm -f ,*
 
   # Store the list of commands i.e. lines that look like: # ,cmd
-  CMDS=$(rg -o -r '$1' -I -N '^ *# ,(\S+)' "$_SELF" | sort -u)
+  CMDS=$(rg -o -r '$1' -I -N '^ *# ,(\S+)' "$SELF" | sort -u)
 
   # Build the commands
   while IFS= read -r cmd; do
     [[ -n "$cmd" ]] || continue
-    ln -sf "$_SELF_NAME" ",$cmd"
+    ln -sf "$SELF_NAME" ",$cmd"
     ok ",$cmd"
   done <<<"$CMDS"
 
@@ -637,16 +519,16 @@ if [[ "${MSG}" == ",clean" ]]; then
   ,frontend-clean
   ,db-clean
   ,backend-clean
-  (cd "${_ROOT}" && rm -rf _*)
-  ok "ROOT directory cleaned" "ROOT=$_ROOT"
+  (cd "${ROOT}" && rm -rf _*)
+  ok "ROOT directory cleaned" "ROOT=$ROOT"
   exit 0
 fi
 
 # ,list-todo
 #   List todos under root
 if [[ "${MSG}" == ",list-todo" ]]; then
-  rg -F 'TODO' "$_ROOT"
-  ok "'TODO' markers under ROOT in git tracked files have been listed" "ROOT=$_ROOT"
+  rg -F 'TODO' "$ROOT"
+  ok "'TODO' markers under ROOT in git tracked files have been listed" "ROOT=$ROOT"
   exit 0
 fi
 
@@ -667,7 +549,7 @@ if [[ "${MSG}" == ",print-content" ]]; then
     echo ""
   }
 
-  if [[ $PARAMS_LENGTH -eq 1 && -d "$1" ]]; then
+  if [[ -d "$1" ]]; then
     print_ai_guidance
     echo ""
     while IFS= read -r -d '' path; do
@@ -678,7 +560,7 @@ if [[ "${MSG}" == ",print-content" ]]; then
 
   print_ai_guidance
   echo ""
-  for path in "${PARAMS[@]}"; do
+  for path in "$@"; do
     print_file "$path"
   done
   exit 0
@@ -718,7 +600,7 @@ if [[ "${MSG}" == ",print-help" ]]; then
       cmd = ""
       desc = ""
     }
-  ' "$_SELF" | column -t -s $'\t'
+  ' "$SELF" | column -t -s $'\t'
   exit 0
 fi
 
@@ -746,8 +628,8 @@ fi
 
 # ,self
 #   Executing the script installs the commands and setup dependencies
-if [[ "${MSG}" == "${_SELF_NAME}" ]]; then
-  (cd "${_BASH_BIN}" && ln -sf "${_SELF_NAME}" ,install-commands)
+if [[ "${MSG}" == "${SELF_NAME}" ]]; then
+  (cd "${_BASH_BIN}" && ln -sf "${SELF_NAME}" ,install-commands)
   ,install-commands >/dev/null
   ,update-deps >/dev/null
   ,print-help
@@ -777,6 +659,6 @@ if [[ "${MSG}" == ",update-deps" ]]; then
 fi
 
 # All other cases
-error "Unexpected message" "MSG=${MSG[*]}" "PARAMS=${PARAMS[*]}"
+error "Unexpected message" "MSG=${MSG[*]}" "PARAMS=$@"
 info "try: ,print-help"
 exit 1

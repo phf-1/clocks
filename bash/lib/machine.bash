@@ -7,12 +7,16 @@
 
 # Implementation
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
 
-_MACHINE="$_SCHEME/app/vm"
+source "${BASH_SOURCE[0]%/*}/scheme.bash"
+source "${BASH_SOURCE[0]%/*}/check.bash"
+
+_MACHINE="$(scheme_root)/app/vm"
+dir_check "$_MACHINE"
 
 # Any → Boolean
 is_machine() {
