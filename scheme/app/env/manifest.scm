@@ -1,6 +1,6 @@
 ;; Specification
 
-;; [[id:ddced880-d052-4730-afd1-51fa39d7404c]] 
+;; [[id:ddced880-d052-4730-afd1-51fa39d7404c]]
 ;; This module defines a [[ref:80e405db-329d-4dd1-a642-ed1bdb8e3a54][Manifest]] that provides the sub-set of available packages
 ;; within the provided [[ref:de35545c-ebb7-41db-b7c7-c8fcff0422f2][channel]].
 
@@ -14,7 +14,7 @@
  (gnu packages erlang)
  (gnu packages elixir)
  (gnu packages base)
- ((guix gexp) #:select (gexp)) 
+ ((guix gexp) #:select (gexp))
  ((gnu packages) #:select (specifications->manifest))
  ((guix profiles) #:select (concatenate-manifests packages->manifest)))
 
@@ -51,6 +51,7 @@
     (substitute-keyword-arguments
      (package-arguments elixir)
      ((#:strip-binaries? _ #t) #f)
+     ((#:tests? _ #t) #f)
      ((#:phases phases '%standard-phases)
       #~(modify-phases #$phases
                        (add-before 'build 'enable-debug-info
@@ -76,7 +77,7 @@
 
        "erlang"
        "elixir"
-       
+
        ;; Core shell environment
        "bash"
        "coreutils"
@@ -106,7 +107,7 @@
        "util-linux"
 
        ;; Dev tooling
-       "inotify-tools"   
+       "inotify-tools"
        "ripgrep"
        "fd"
        "tree"
@@ -116,7 +117,7 @@
        "shellcheck"
        "shfmt"
        "guile-readline"
-       "guile-colorized"       
+       "guile-colorized"
        ))
 
     (packages->manifest
