@@ -170,14 +170,14 @@ if [[ "${MSG}" == "${SELF_NAME}" ]]; then
 fi
 
 # ,spec
-#   Print the specification of this script
+#   Explain how to extend this script
 if [[ "${MSG}" == ",spec" ]]; then
   echo "$SPEC"
   exit 0
 fi
 
 # ,list-todo
-#   List todos under root
+#   List todos
 if [[ "${MSG}" == ",list-todo" ]]; then
   rg -F 'TODO' "$(fs_root)"
   ok "List TODOs"
@@ -323,7 +323,7 @@ fi
 # Elixir #
 
 # ,ex-format
-#   Format Phoenix code
+#   Format Elixir code
 if [[ "${MSG}" == ",ex-format" ]]; then
   backend_format
   ok "Phoenix code has been formatted"
@@ -331,7 +331,7 @@ if [[ "${MSG}" == ",ex-format" ]]; then
 fi
 
 # ,ex-credo
-#   Run Credo static code analysis
+#   Evaluate Elixir code quality
 if [[ "${MSG}" == ",ex-credo" ]]; then
   backend_credo
   ok "Credo analysis finished"
@@ -339,7 +339,7 @@ if [[ "${MSG}" == ",ex-credo" ]]; then
 fi
 
 # ,ex-dialyzer
-#   Run Dialyzer type checking
+#   Typecheck Elixir code
 if [[ "${MSG}" == ",ex-dialyzer" ]]; then
   backend_dialyser
   ok "Dialyzer finished"
@@ -347,7 +347,7 @@ if [[ "${MSG}" == ",ex-dialyzer" ]]; then
 fi
 
 # ,ex-security
-#   Run Sobelow security scan for Phoenix
+#   Scan Elixir code for security vulnerabilities
 if [[ "${MSG}" == ",ex-security" ]]; then
   backend_soblow
   ok "Sobelow security scan finished"
@@ -355,7 +355,7 @@ if [[ "${MSG}" == ",ex-security" ]]; then
 fi
 
 # ,ex-analyse
-#   Run static analysis tools against phoenix code
+#   Execute all static analysis tools on Elixir code
 if [[ "${MSG}" == ",ex-analyse" ]]; then
   backend_analyse
   ok "Elixir code analyzed"
@@ -363,7 +363,7 @@ if [[ "${MSG}" == ",ex-analyse" ]]; then
 fi
 
 # ,ex-test-by-id Id
-#   Execute the specified backend tests
+#   Execute the specified Elixir tests
 if [[ "${MSG}" == ",ex-test-by-id" && -n "${1:-}" ]]; then
   backend_test_by_id
   ok "The backend tests identified by id have been executed" "id=$1"
@@ -371,7 +371,7 @@ if [[ "${MSG}" == ",ex-test-by-id" && -n "${1:-}" ]]; then
 fi
 
 # ,ex-test
-#   Execute the identified backend test(s)
+#   Execute all Elixir tests
 if [[ "${MSG}" == ",ex-test" ]]; then
   backend_test
   ok "Phoenix tests executed"
@@ -412,7 +412,7 @@ fi
 
 # DEPLOYMENT #
 
-# VM #
+# Vm #
 
 # ,vm-build Os
 #   Given an OS, then build its vm
@@ -475,7 +475,76 @@ fi
 
 # SUPPORT #
 
-# bash #
+# ,print-content (Directory | List(File))
+#   Print the content of each file for AI consumption
+if [[ "${MSG}" == ",print-content" ]]; then
+
+  print_ai_guidance() {
+    echo "Each file content is enclosed in an XML tag of the form <content path=\"PATH\">CONTENT</content>"
+  }
+
+  print_file() {
+    local path="$1"
+    file_check "$path"
+    echo "<content path=\"$path\">"
+    cat "$path"
+    echo "</content>"
+    echo ""
+  }
+
+  if [[ -d "$1" ]]; then
+    print_ai_guidance
+    echo ""
+    while IFS= read -r -d '' path; do
+      print_file "$path"
+    done < <(fd -t f --print0 . "$1")
+    exit 0
+  fi
+
+  print_ai_guidance
+  echo ""
+  for path in "$@"; do
+    print_file "$path"
+  done
+  exit 0
+fi
+
+# ,print-env
+#   Print alphabetically sorted environment variables
+if [[ "${MSG}" == ",print-env" ]]; then
+  env | sort
+  exit 0
+fi
+
+# ,path
+#   Break $PATH to newlines for debugging
+if [[ "${MSG}" == ",path" ]]; then
+  echo "$PATH" | tr ':' '\n'
+  exit 0
+fi
+
+# ,tree Directory
+#   Print the directory tree of dir, honors .gitignore
+if [[ "${MSG}" == ",tree" ]]; then
+  dir_check "$1"
+  tree --gitignore "$1"
+  exit 0
+fi
+
+# ,emacs …
+#   Start Emacs using the project's Emacs configuration directory
+if [[ "${MSG}" == ",emacs" ]]; then
+  emacs --init-directory="$_EMACSD" "$@"
+  exit 0
+fi
+
+# ,ec …
+#   Start Emacs as fast as possible for quick edits
+if [[ "${MSG}" == ",ec" ]]; then
+  exec emacs -Q -nw --init-directory="${_EMACSD}" "$@"
+fi
+
+# Bash #
 
 # ,bash-format
 #   Format bash code
@@ -493,7 +562,7 @@ if [[ "${MSG}" == ",bash-analyze" ]]; then
   exit 0
 fi
 
-# guix #
+# Guix #
 
 # ,guix-repl
 #   Execute a Guix repl
@@ -596,77 +665,6 @@ if [[ "${MSG}" == ",app-deploy-dev" ]]; then
   set -x
   guix deploy -e '(begin (use-modules (app vm init machine)) (list machine))'
   exit 0
-fi
-
-# TOOLS #
-
-# ,print-content (Directory | List(File))
-#   Print the content of each file for AI consumption
-if [[ "${MSG}" == ",print-content" ]]; then
-
-  print_ai_guidance() {
-    echo "Each file content is enclosed in an XML tag of the form <content path=\"PATH\">CONTENT</content>"
-  }
-
-  print_file() {
-    local path="$1"
-    file_check "$path"
-    echo "<content path=\"$path\">"
-    cat "$path"
-    echo "</content>"
-    echo ""
-  }
-
-  if [[ -d "$1" ]]; then
-    print_ai_guidance
-    echo ""
-    while IFS= read -r -d '' path; do
-      print_file "$path"
-    done < <(fd -t f --print0 . "$1")
-    exit 0
-  fi
-
-  print_ai_guidance
-  echo ""
-  for path in "$@"; do
-    print_file "$path"
-  done
-  exit 0
-fi
-
-# ,print-env
-#   Print alphabetically sorted environment variables
-if [[ "${MSG}" == ",print-env" ]]; then
-  env | sort
-  exit 0
-fi
-
-# ,path
-#   Break $PATH to newlines for debugging
-if [[ "${MSG}" == ",path" ]]; then
-  echo "$PATH" | tr ':' '\n'
-  exit 0
-fi
-
-# ,tree Directory
-#   Print the directory tree of dir, honors .gitignore
-if [[ "${MSG}" == ",tree" ]]; then
-  dir_check "$1"
-  tree --gitignore "$1"
-  exit 0
-fi
-
-# ,emacs …
-#   Start Emacs using the project's Emacs configuration directory
-if [[ "${MSG}" == ",emacs" ]]; then
-  emacs --init-directory="$_EMACSD" "$@"
-  exit 0
-fi
-
-# ,ec …
-#   Start Emacs as fast as possible for quick edits
-if [[ "${MSG}" == ",ec" ]]; then
-  exec emacs -Q -nw --init-directory="${_EMACSD}" "$@"
 fi
 
 # All other cases
