@@ -1,6 +1,6 @@
 # Specification
 
-# [[id:b10f3eef-3767-4d1b-b690-71f36f619fd9]] 
+# [[id:b10f3eef-3767-4d1b-b690-71f36f619fd9]]
 # os : OS represents an [[ref:be4a5e39-7ec4-43ed-9d96-376db49ce782][OS]]
 # To build an OS, add a definition to the appropriate directory
 # is? : Any → Boolean
@@ -27,7 +27,7 @@ source "${BASH_SOURCE[0]%/*}/check.bash"
 _OS_VM="$(scheme_root)/app/vm"
 dir_check "$_OS_VM"
 
-# [[id:317882b2-8907-4bda-89ed-a1d60793ddc3]] 
+# [[id:317882b2-8907-4bda-89ed-a1d60793ddc3]]
 _os_value() {
   os_check "$1"
   local os="$1"
@@ -46,7 +46,7 @@ _os_value() {
 
 is_os() {
   local name="$1"
-  file_in_dir_pred "$_OS_VM/$name/os.scm" "${_OS_VM}";
+  file_in_dir_pred "$_OS_VM/$name/os.scm" "${_OS_VM}"
 }
 
 init_os() {
@@ -99,4 +99,3 @@ os_machine() {
   local os="$1"
   echo "$os"
 }
-

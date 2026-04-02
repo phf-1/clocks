@@ -21,7 +21,7 @@ dir_check "$_MACHINE"
 # Any → Boolean
 is_machine() {
   local name="$1"
-  file_in_dir_pred "$_MACHINE/$machine/machine.scm" "${_MACHINE}";
+  file_in_dir_pred "$_MACHINE/$machine/machine.scm" "${_MACHINE}"
 }
 
 # Any → Maybe(Error ∧ (exit 1))
@@ -43,7 +43,7 @@ machine_list() {
 }
 
 # Machine Name → Value | Error ∧ (exit 1)
-# [[id:aa625827-d060-4211-a1a9-8d97db13b3c5]] 
+# [[id:aa625827-d060-4211-a1a9-8d97db13b3c5]]
 machine_var() {
   machine_check "$1"
   local machine="$1"
@@ -87,19 +87,19 @@ machine_host_key() {
 }
 
 # Machine Timeout → Boolean
-machine_is_live () {
+machine_is_live() {
   machine_check "$1"
   local machine="$1"
   local ip
   ip="$(machine_ip "$machine")"
-  local port  
+  local port
   local port="$(machine_ssh_port "$machine")"
   nat_check "$2"
   local timeout="$2"
   local start_time=$SECONDS
   local key
-  while (( SECONDS - start_time < timeout )); do
-    key="$(ssh-keyscan -T 1 -t ed25519 -p "$port" "$ip" 2>/dev/null)"    
+  while ((SECONDS - start_time < timeout)); do
+    key="$(ssh-keyscan -T 1 -t ed25519 -p "$port" "$ip" 2>/dev/null)"
     if rg -F 'ed25519' <<<"$key" &>/dev/null; then
       return 0
     fi
@@ -108,7 +108,7 @@ machine_is_live () {
 }
 
 # Machine Ip Port Timeout → Maybe(Error ∧ (exit 1))
-machine_is_live_check () {
+machine_is_live_check() {
   machine_check "$1"
   local machine="$1"
   ip_check "$2"
@@ -119,7 +119,7 @@ machine_is_live_check () {
   local timeout="$4"
   if ! msg="$(machine_is_live "$machine" "$ip" "$port" "$timeout")"; then
     failed_check "Machine is not responsive" \
-                 "machine=$machine" "ip=$ip" "port=$port" "$msg"
+      "machine=$machine" "ip=$ip" "port=$port" "$msg"
   fi
 }
 

@@ -1,9 +1,9 @@
 # Specification
 
-# [[id:ef1de6fd-1c16-459f-9564-02bbe5917396]] 
+# [[id:ef1de6fd-1c16-459f-9564-02bbe5917396]]
 # vm : [[ref:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]] → Vm
 # is? : Any → Boolean
-# check : Any → Maybe(Error ∧ (exit 1)) 
+# check : Any → Maybe(Error ∧ (exit 1))
 # image : Vm → Image
 # running? : Vm Timeout → Boolean
 # running_check : Vm Timeout → Maybe(Error ∧ (exit 1))
@@ -25,18 +25,18 @@ mkdir -p "$_Vm_TMP"
 _vm_socket() {
   vm_check "$1"
   local vm="$1"
-  echo "$_Vm_TMP/$vm.sock";
+  echo "$_Vm_TMP/$vm.sock"
 }
 
 _vm_unit() {
   vm_check "$1"
   local vm="$1"
-  echo "vm-$vm";
+  echo "vm-$vm"
 }
 
 # Socket … → Send … to the socket
 _vm_socket_send() {
-  local sock="$1";
+  local sock="$1"
   shift
   printf '%s\n' "$@" | socat - "UNIX-CONNECT:${sock}"
 }
@@ -57,14 +57,14 @@ _vm_os() {
   local vm="$1"
   local image
   image="$(vm_image "$vm")"
-  echo "$(image_os "$image")"  
+  echo "$(image_os "$image")"
 }
 
 _vm_machine() {
   local vm="$1"
   local os
-  os="$(_vm_os "$vm")"  
-  echo "$(os_machine "$os")"  
+  os="$(_vm_os "$vm")"
+  echo "$(os_machine "$os")"
 }
 
 _vm_ip() {
@@ -105,18 +105,18 @@ vm() {
     local unit
     unit="$(_vm_unit "$vm")"
     systemd-run --user \
-                --unit="$unit" \
-                qemu-system-x86_64 \
-                -enable-kvm \
-                -cpu host \
-                -m 8192 \
-                -drive file="$(_vm_qcow2 "$vm")",format=qcow2,if=virtio \
-                -snapshot \
-                -netdev user,id=net0,hostfwd=tcp::"${host_port}"-:22 \
-                -device virtio-net-pci,netdev=net0 \
-                -chardev socket,id=mon,path="$(_vm_socket "$vm")",server=on,wait=off \
-                -mon chardev=mon,mode=control \
-                2>/dev/null
+      --unit="$unit" \
+      qemu-system-x86_64 \
+      -enable-kvm \
+      -cpu host \
+      -m 8192 \
+      -drive file="$(_vm_qcow2 "$vm")",format=qcow2,if=virtio \
+      -snapshot \
+      -netdev user,id=net0,hostfwd=tcp::"${host_port}"-:22 \
+      -device virtio-net-pci,netdev=net0 \
+      -chardev socket,id=mon,path="$(_vm_socket "$vm")",server=on,wait=off \
+      -mon chardev=mon,mode=control \
+      2>/dev/null
     vm_is_running_check "$vm" "15"
   fi
   echo "$vm"
@@ -130,7 +130,7 @@ is_vm() {
 vm_check() {
   local value="$1"
   if ! is_vm "$value"; then
-    failed_check "value is not a representation of a Vm" "value=$value";
+    failed_check "value is not a representation of a Vm" "value=$value"
   fi
 }
 
@@ -140,42 +140,42 @@ vm_image() {
   echo "$vm"
 }
 
-vm_is_running () {
+vm_is_running() {
   vm_check "$1"
   local vm="$1"
-  
+
   nat_check "$2"
   local timeout="$2"
-  
+
   local ip
   ip="$(_vm_ip "$vm")"
-  
+
   local port
   port="$(_vm_port "$vm")"
-  
+
   local start_time=$SECONDS
-  
+
   local key
-  while (( SECONDS - start_time < timeout )); do
+  while ((SECONDS - start_time < timeout)); do
     key="$(ssh-keyscan -T 1 -t ed25519 -p "$port" "$ip" 2>/dev/null)"
     if rg -F 'ed25519' <<<"$key" &>/dev/null; then
       return 0
     fi
   done
-  
+
   return 1
 }
 
-vm_is_running_check () {
+vm_is_running_check() {
   vm_check "$1"
   local vm="$1"
 
   nat_check "$2"
   local timeout="$2"
-  
+
   if ! msg="$(vm_is_running "$vm" "$timeout")"; then
     failed_check "Vm is not responsive" \
-                 "vm=$vm" "ip=$(_vm_ip "$vm")" "port=$(_vm_port "$vm")" "$msg"
+      "vm=$vm" "ip=$(_vm_ip "$vm")" "port=$(_vm_port "$vm")" "$msg"
   fi
 }
 

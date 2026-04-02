@@ -17,6 +17,8 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+source "${BASH_SOURCE[0]%/*}/check.bash"
+
 # Interface
 
 address() {

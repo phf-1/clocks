@@ -15,6 +15,10 @@ dir_check "$_SCHEME"
 
 # Interface
 
+scheme_root() {
+  echo "$_SCHEME"
+}
+
 scheme_manifest() {
   echo "$_SCHEME/app/env/manifest.scm"
 }

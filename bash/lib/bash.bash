@@ -2,11 +2,11 @@
 
 # [[id:3d172e70-2743-497d-a2b2-893cbd847c01]]
 #
-# TODO(f070) 
+# TODO(f070)
 
 # Implementation
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
@@ -26,12 +26,16 @@ dir_check "$_BASH_ETC"
 # Interface
 
 bash_analyze() {
-  # TODO(7680) 
+  # TODO(7680)
   shellcheck -x "$_BASH"
 }
 
 bash_bash_profile() {
   echo "$_BASH_ETC/bash_profile"
+}
+
+bash_bash_bin() {
+  echo "$_BASH_BIN"
 }
 
 bash_bashrc() {

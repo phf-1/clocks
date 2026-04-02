@@ -16,6 +16,9 @@ source "$_LIB/log.bash"
 # shellcheck source=bash/lib/check.bash
 source "$_LIB/check.bash"
 
+# shellcheck source=bash/lib/bash.bash
+source "$_LIB/bash.bash"
+
 # shellcheck source=bash/lib/scheme.bash
 source "$_LIB/scheme.bash"
 
@@ -61,9 +64,9 @@ source "$_LIB/vm.bash"
 # shellcheck source=bash/lib/commit.bash
 source "$_LIB/commit.bash"
 
+# TODO(73c1)
 # shellcheck source=bash/lib/package.bash
-source "$_LIB/package.bash"
+# source "$_LIB/package.bash"
 
 # shellcheck source=bash/lib/app.bash
 source "$_LIB/app.bash"
-

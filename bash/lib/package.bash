@@ -2,7 +2,7 @@
 
 # [[id:93da0b14-ce43-4c4d-a409-20608c073715]]
 #
-# TODO(b568) 
+# TODO(b568)
 
 # Implementation
 
@@ -31,7 +31,7 @@ package_build() {
 # Any → Boolean
 is_package() {
   local name="$1"
-  file_in_dir_pred "$_PACKAGE/$name.scm" "${_PACKAGE}";
+  file_in_dir_pred "$_PACKAGE/$name.scm" "${_PACKAGE}"
 }
 
 # Any → Maybe(Error ∧ (exit 1))

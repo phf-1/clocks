@@ -1,5 +1,7 @@
 # Specification
 
+# [[id:9498f31c-91da-4a26-85a7-e0fad70bedff][Mode]]
+#
 # m : Mode represents the category of users using the application
 # dev means developers
 # test means automated systems for testing purposes

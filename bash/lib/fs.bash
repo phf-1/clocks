@@ -13,7 +13,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
-_ROOT="$(gir rev-parse --show-toplevel)"
+_ROOT="$(git rev-parse --show-toplevel)"
 
 # Interface
 

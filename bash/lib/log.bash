@@ -17,11 +17,11 @@
 #
 # log_example() {
 #   local a="$1"
-#   debug "a=$a"  
+#   debug "a=$a"
 #   local x
 #   # DEBUG=false
 #   x="$(log_example_double $a)"
-#   # DEBUG=true  
+#   # DEBUG=true
 #   debug "x=$x"
 #   local y
 #   y=$(( x * 2 ))
@@ -37,10 +37,15 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
 fi
 
 _logger_log() {
-  local trace="$1"  
+  local trace="$1"
   local level="$2"
-  local assertion="$3"
-  local msg="$level | $assertion"
+  local assertion="${3:-}"
+  local msg
+  if [[ -z "$assertion" ]]; then
+    msg="$level"
+  else
+    msg="$level | $assertion"
+  fi
   shift 3
   if [[ $# -gt 0 ]]; then
     local IFS=' | '
@@ -50,7 +55,7 @@ _logger_log() {
     echo "$msg" 1>&2
   else
     echo "$msg"
-  fi 
+  fi
 }
 
 # Interface
@@ -58,16 +63,16 @@ _logger_log() {
 debug() {
   if [[ "${DEBUG:-false}" == "true" ]]; then
     local caller="${FUNCNAME[1]:-top-level}"
-    _logger_log "true" "DEBUG" "$caller" "$@";
-  fi 
+    _logger_log "true" "DEBUG" "$caller" "${@:-}"
+  fi
 }
 
-info() { _logger_log "false" "INFO " "$@"; }
+info() { _logger_log "false" "INFO     " "${@:-}"; }
 
-objective() { _logger_log "false" "OBJECTIVE" "$@"; }
+objective() { _logger_log "false" "OBJECTIVE" "${@:-}"; }
 
-error() { _logger_log "true" "ERROR" "$@"; }
+error() { _logger_log "true" "ERROR    " "${@:-}"; }
 
-ok() { _logger_log "false" "OK" "$@"; }
+ok() { _logger_log "false" "OK       " "${@:-}"; }
 
-todo() { _logger_log "false" "TODO" "$@"; }
+todo() { _logger_log "false" "TODO     " "${@:-}"; }
