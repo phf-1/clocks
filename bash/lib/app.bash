@@ -13,6 +13,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_APP ]] && return
+_LIB_APP=1
+
 _APP="$_ROOT/app"
 _APP_TMP="$(mktemp -d --suffix '-app')"
 

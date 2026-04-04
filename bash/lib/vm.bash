@@ -1,6 +1,9 @@
 # Specification
 
-# [[id:ef1de6fd-1c16-459f-9564-02bbe5917396]]
+# [[id:ef1de6fd-1c16-459f-9564-02bbe5917396][VM]]
+#
+# A VM represents a [[ref:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]].
+#
 # vm : [[ref:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]] → Vm
 # is? : Any → Boolean
 # check : Any → Maybe(Error ∧ (exit 1))
@@ -11,6 +14,7 @@
 # status : Vm → String
 # stop : Vm → Vm
 # clean : Vm → Vm (underlying filesystem has been cleaned)
+# name : Vm → String
 
 # Implementation
 
@@ -18,6 +22,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
+
+[[ -v _LIB_VM ]] && return
+_LIB_VM=1
 
 _Vm_TMP="/tmp/clocks/vm"
 mkdir -p "$_Vm_TMP"
@@ -96,8 +103,6 @@ vm_system_check() {
 vm() {
   image_check "$1"
   local image="$1"
-  vm_check "$image"
-  local vm="$image"
   local host_port="$(_vm_port "$vm")"
   if ! vm_is_running "$vm" "2"; then
     vm_system_check
@@ -206,4 +211,10 @@ vm_clean() {
   systemctl --user stop "$unit" 2>/dev/null || true
   systemctl --user reset-failed "$unit" 2>/dev/null || true
   rm -f "$(_vm_socket "$vm")"
+}
+
+vm_name() {
+  vm_check "$1"
+  local vm="$1"
+  echo "$vm"
 }

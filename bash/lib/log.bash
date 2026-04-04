@@ -36,6 +36,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_LOG ]] && return
+_LIB_LOG=1
+
 _logger_log() {
   local trace="$1"
   local level="$2"

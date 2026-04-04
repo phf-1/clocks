@@ -29,6 +29,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_BACKEND ]] && return
+_LIB_BACKEND=1
+
 source "${BASH_SOURCE[0]%/*}/check.bash"
 source "${BASH_SOURCE[0]%/*}/mode.bash"
 source "${BASH_SOURCE[0]%/*}/db.bash"

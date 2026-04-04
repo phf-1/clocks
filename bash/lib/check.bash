@@ -12,6 +12,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_CHECK ]] && return
+_LIB_CHECK=1
+
 # Interface
 
 failed_check() {

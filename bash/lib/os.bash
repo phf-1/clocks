@@ -13,6 +13,7 @@
 # package_d : OS → Directory
 # scheme : OS → Scheme
 # machine : OS → [[ref:6ab03cba-6319-43bf-acc2-d74e77e95198][Machine]]
+# name : OS → String
 
 # Implementation
 
@@ -20,6 +21,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   echo "Error: this file must be sourced, not executed." >&2
   exit 1
 fi
+
+[[ -v _LIB_OS ]] && return
+_LIB_OS=1
 
 source "${BASH_SOURCE[0]%/*}/scheme.bash"
 source "${BASH_SOURCE[0]%/*}/check.bash"
@@ -95,6 +99,12 @@ os_scheme() {
 }
 
 os_machine() {
+  os_check "$1"
+  local os="$1"
+  echo "$os"
+}
+
+os_name() {
   os_check "$1"
   local os="$1"
   echo "$os"

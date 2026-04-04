@@ -13,6 +13,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_CONTEXT ]] && return
+_LIB_CONTEXT=1
+
 # Interface
 
 is_commit() {

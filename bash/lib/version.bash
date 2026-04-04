@@ -9,6 +9,9 @@ fi
 
 # Implementation
 
+[[ -v _LIB_VERSION ]] && return
+_LIB_VERSION=1
+
 # major, minor, patch : ℕ → Version
 version() {
   nat_check "$1"

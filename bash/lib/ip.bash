@@ -11,6 +11,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_IP ]] && return
+_LIB_IP=1
+
 source "${BASH_SOURCE[0]%/*}/check.bash"
 
 # Interface

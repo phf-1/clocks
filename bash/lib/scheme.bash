@@ -7,6 +7,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_SCHEME ]] && return
+_LIB_SCHEME=1
+
 source "${BASH_SOURCE[0]%/*}/fs.bash"
 source "${BASH_SOURCE[0]%/*}/check.bash"
 

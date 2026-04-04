@@ -7,6 +7,9 @@ fi
 
 # Implementation
 
+[[ -v _LIB_EMACS ]] && return
+_LIB_EMACS=1
+
 source "${BASH_SOURCE[0]%/*}/fs.bash"
 source "${BASH_SOURCE[0]%/*}/check.bash"
 

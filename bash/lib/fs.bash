@@ -13,6 +13,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_FS ]] && return
+_LIB_FS=1
+
 _ROOT="$(git rev-parse --show-toplevel)"
 
 # Interface

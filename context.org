@@ -13,8 +13,10 @@
 - [[id:d7676b1e-5acf-43b0-b74b-39c593389010][postgresql-package]] :≡ guix search postgresql
 - [[id:29f62d83-9846-45f2-b102-12a83cf6e0b7][app]] :≡ 🞎
 - [[id:4d0d3620-0e64-4095-9af9-34bf78e05509][PhoenixDistribution]] :≡ https://hexdocs.pm/phoenix/releases.html
-- [[id:65e6819a-31da-4ba2-a6cb-f1ee97c06020][GuixPackage]] :≡ https://guix.gnu.org/manual/devel/en/html_node/package-Reference.html  
-- [[id:c12b81b0-eeeb-46de-9c1e-26d5113cbfdd][Service]] :≡ https://doc.guix.gnu.org/shepherd/latest/en/html_node/Defining-Services.html 
+- [[id:65e6819a-31da-4ba2-a6cb-f1ee97c06020][GuixPackage]] :≡ https://guix.gnu.org/manual/devel/en/html_node/package-Reference.html
+- [[id:c12b81b0-eeeb-46de-9c1e-26d5113cbfdd][Service]] :≡ https://doc.guix.gnu.org/shepherd/latest/en/html_node/Defining-Services.html
 - [[id:1690d23c-6cae-49f6-87ec-438dd153d1ae][OS]] :≡ https://guix.gnu.org/manual/devel/en/html_node/operating_002dsystem-Reference.html
 - [[id:de72f362-d3c5-4c64-aab7-59a3d427e470][Machine]] :≡ https://guix.gnu.org/manual/devel/en/html_node/Invoking-guix-deploy.html#index-machine
-- [[id:80e405db-329d-4dd1-a642-ed1bdb8e3a54][Manifest]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#Writing-Manifests   
+- [[id:80e405db-329d-4dd1-a642-ed1bdb8e3a54][Manifest]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#Writing-Manifests
+- [[id:97eca5fe-b140-44c7-81d9-51f2a3f4454f][Ed25519Pub]] :≡ SSH public key like: =ssh-ed25519 AAAAC3NzaC1…=
+- [[id:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]] :≡ https://grokipedia.com/page/Virtual_machine

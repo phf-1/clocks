@@ -14,6 +14,9 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
+[[ -v _LIB_MODE ]] && return
+_LIB_MODE=1
+
 _MODES=(dev test prod)
 
 # Interface
