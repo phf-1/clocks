@@ -1,7 +1,9 @@
 # Specification
 
-# [[id:b10f3eef-3767-4d1b-b690-71f36f619fd9]]
+# [[id:b10f3eef-3767-4d1b-b690-71f36f619fd9][OS]]
+#
 # os : OS represents an [[ref:be4a5e39-7ec4-43ed-9d96-376db49ce782][OS]]
+#
 # To build an OS, add a definition to the appropriate directory
 # is? : Any → Boolean
 # check : Any → Maybe(Error ∧ (exit 1))
@@ -33,7 +35,6 @@ dir_check "$_OS_VM"
 
 # [[id:317882b2-8907-4bda-89ed-a1d60793ddc3]]
 _os_value() {
-  os_check "$1"
   local os="$1"
   local name="$2"
   # name ↦ (define %name value) ↦ value
@@ -47,6 +48,11 @@ _os_value() {
 }
 
 # Interface
+
+os() {
+  os_check "$1"
+  echo "$1"
+}
 
 is_os() {
   local name="$1"
@@ -84,6 +90,18 @@ os_user() {
   os_check "$1"
   local os="$1"
   _os_value "$os" "user"
+}
+
+os_root_key() {
+  os_check "$1"
+  local os="$1"
+  _os_value "$os" "root-pub-key"
+}
+
+os_store_key() {
+  os_check "$1"
+  local os="$1"
+  _os_value "$os" "store-pub-key"
 }
 
 os_package_d() {

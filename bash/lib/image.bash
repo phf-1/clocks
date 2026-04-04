@@ -23,6 +23,7 @@ fi
 _LIB_IMAGE=1
 
 source "${BASH_SOURCE[0]%/*}/fs.bash"
+source "${BASH_SOURCE[0]%/*}/os.bash"
 source "${BASH_SOURCE[0]%/*}/check.bash"
 
 _IMAGE="$(fs_root)/image"
@@ -59,7 +60,7 @@ image_check() {
 image_os() {
   image_check "$1"
   local image="$1"
-  echo "$image"
+  echo "$(os $image)"
 }
 
 image_qcow2() {
@@ -78,5 +79,5 @@ image_list() {
 image_name() {
   image_check "$1"
   local image="$1"
-  echo "$image"  
+  echo "$image"
 }

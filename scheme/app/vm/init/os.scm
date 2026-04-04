@@ -1,9 +1,10 @@
 ;; Specification
 
-;; [[id:7f1cb335-753f-448b-9637-39c130ded682]]
-;; This module exports os.
-;; os is an [[ref:be4a5e39-7ec4-43ed-9d96-376db49ce782][OS]] which objective is provide a minimal OS for a VPS to which the
-;; application can be deployed to using guix deploy.
+;; [[id:7f1cb335-753f-448b-9637-39c130ded682][OS]]
+;;
+;; An OS represents an operating system.
+;;
+;; TODO(7461)
 
 ;; Implementation
 
@@ -28,6 +29,8 @@
 
 (define %user "root")
 (define %host-name "init")
+(define %root-pub-key dev-public-key-path)
+(define %store-pub-key "/etc/guix/signing-key.pub")
 
 ;; The app user account is responsible for the applications.
 ;; (define %user-account "app")
@@ -67,7 +70,7 @@
     (password-authentication? #f)
     (generate-host-keys? #t)
     (authorized-keys
-     `((,%user ,(local-file dev-public-key-path)))))))
+     `((,%user ,(local-file %root-pub-key)))))))
 
 
 ;; For this OS to be deployed to using `guix deploy', it needs to have this host Guix
@@ -78,7 +81,7 @@
                                       (guix-configuration
                                        (inherit config)
                                        (authorized-keys
-                                        (append (list (local-file "/etc/guix/signing-key.pub"))
+                                        (append (list (local-file %store-pub-key))
                                                 %default-authorized-guix-keys))))))
 
 ;; DHCP

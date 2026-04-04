@@ -20,6 +20,13 @@ source "${BASH_SOURCE[0]%/*}/check.bash"
 
 # Interface
 
+
+port() {
+  port_check "$1"
+  echo "$1"
+}
+
+
 is_port() {
   local port="$1"
   if [[ "$port" =~ ^[0-9]+$ ]] && ((port >= 1 && port <= 65535)); then
@@ -34,4 +41,9 @@ port_check() {
   if ! is_port "$value"; then
     failed_check "value is not a Port" "value=$value"
   fi
+}
+
+port_number() {
+  port_check "$1"
+  echo "$1"
 }

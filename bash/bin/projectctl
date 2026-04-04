@@ -426,26 +426,34 @@ if [[ "${MSG}" == ",vm-init-start" ]]; then
   image="$(image "$os")"
   ok "image: $(image_qcow2 $image)"
 
-  info "Start a VM using image listening for SSH on port" "port=$ssh_port"
+  info "Start a VM using image listening for SSH on port" "port: $ssh_port"
   vm="$(vm "$image" "$ssh_port")"
   ok "vm: $(vm_name $vm)"
 
-  #
-  # ip="$(machine_ip "$machine")"
-  # port="$(machine_ssh_port "$port")"
-  # host_key="$(machine_host_key "$machine")"
-  # root_key="$(machine_root_key "$machine")"
-  # store_key="$(machine_store_key "$machine")"
+  ip="$(vm_ip "$vm")"
+  debug "ip: $ip"
 
-  # ok "A new local VM to test deployment (as if it was a VPS) has been built"
+  port="$(vm_ssh_port "$vm")"
+  debug "port: $port"
+
+  host_key="$(vm_host_key "$vm")"
+  debug "host_key: $host_key"
+
+  root_key="$(vm_root_key "$vm")"
+  debug "root_key: $root_key"
+
+  store_key="$(vm_store_key "$vm")"
+  debug "store_key: $store_key"
+
+  ok "A new local VM to test deployment (as if it was a VPS) has been built"
   # TODO(0991): build a command ,ssh-init-vm ?
-  # ok "An ssh connexion can be established using ip, port and user from the container"
-  # ok "Ip: $ip" "SSH port: $port" "user: root"
-  # ok "Root key: $root_key"
-  # ok "The application can be deployed to the vm using ,app-deploy ip port host"
-  # ok "host is the host key"
-  # ok "Host key: $host_key"
-  # ok "Store key: $store_key"
+  ok "An ssh connexion can be established using ip, port and user from the container"
+  ok "ip: $ip, SSH port: $port, user: root"
+  ok "Root key: $root_key"
+  ok "The application can be deployed to the vm using ,app-deploy ip port host"
+  ok "host is the host key"
+  ok "Host key: $host_key"
+  ok "Store key: $store_key"
   exit 0
 fi
 

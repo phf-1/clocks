@@ -33,3 +33,8 @@ ip_check() {
     failed_check "ip is not a Ip" "ip=$ip"
   fi
 }
+
+ip_string() {
+  ip_check "$1"
+  echo "$1"
+}

@@ -65,8 +65,11 @@ _logger_log() {
 
 debug() {
   if [[ "${DEBUG:-false}" == "true" ]]; then
-    local caller="${FUNCNAME[1]:-top-level}"
-    _logger_log "true" "DEBUG" "$caller" "${@:-}"
+    local caller="top-level"
+    if [[ -v FUNCNAME ]]; then
+      caller=$(IFS=':'; echo "${FUNCNAME[*]}")
+    fi
+    _logger_log "true" "DEBUG    " "${@:-}" "$caller"
   fi
 }
 
@@ -74,7 +77,13 @@ info() { _logger_log "false" "INFO     " "${@:-}"; }
 
 objective() { _logger_log "false" "OBJECTIVE" "${@:-}"; }
 
-error() { _logger_log "true" "ERROR    " "${@:-}"; }
+error() {
+  local caller="top-level"
+  if [[ -v FUNCNAME ]]; then
+    caller=$(IFS=':'; echo "${FUNCNAME[*]}")
+  fi
+  _logger_log "true" "ERROR    " "${@:-}" "| $caller"
+}
 
 ok() { _logger_log "false" "OK       " "${@:-}"; }
 
