@@ -24,7 +24,7 @@ def _log(level: str, assertion: str, *ctx: str, stderr: bool = False) -> None:
     if assertion:
         parts.append(assertion)
     parts.extend(ctx)
-    msg = " | ".join(parts)
+    msg = " | ".join(parts).replace("\n", " ")
     print(msg, file=sys.stderr if stderr else sys.stdout)
 
 # Interface

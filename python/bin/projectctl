@@ -83,15 +83,18 @@ sys.path.insert(0, str(SELF.parent.parent / "lib"))
 from log import Log      # noqa: E402
 ok = Log.ok
 info = Log.info
-from check import Check  # noqa: E402
+from check import Check, CheckError  # noqa: E402
 failed = Check.failed
 from fs import Fs        # noqa: E402
 from backend import Backend  # noqa: E402
 from frontend import Frontend  # noqa: E402
+from db import Db              # noqa: E402
+from mode import Mode    # noqa: E402
+from constant import Constant    # noqa: E402
 
 # Constants
 
-ENCODING = "utf-8"
+ENCODING = Constant.encoding()
 CMD_RE = re.compile(r" *# (,.+)$")
 
 def _help():
@@ -120,20 +123,14 @@ def _install_commands():
     ok("Old command symlinks have been removed")
     for line in SELF.read_text(encoding=ENCODING).splitlines():
         if (m := CMD_RE.match(line)):
-            cmd = m.group(1)
+            cmd = m.group(1).split(" ")[0]
             symlink = bin_dir / f"{cmd}"
             symlink.symlink_to(SELF_NAME)
             ok(f"{cmd}")
     ok("All command symlinks are up to date")
 
 def _rcv(msg, params):
-    # DEVELOPMENT #
-
-    # ,help
-    #   Print commands and descriptions
-    if msg == ",help":
-        _help()
-        sys.exit(0)
+    # INSTALLATION #
 
     # ,install-commands
     #   (Re)install commands
@@ -146,6 +143,25 @@ def _rcv(msg, params):
     if msg == ",update-deps":
         _update_deps()
         sys.exit(0)
+        
+    # Executing this script directly installs commands and fetches dependencies
+    if msg == SELF_NAME:
+        install_link = Path(SELF.parent) / ",install-commands"
+        install_link.unlink(missing_ok=True)
+        install_link.symlink_to(SELF_NAME)
+        _update_deps()
+        _install_commands()
+        sys.exit(0)
+    
+    # DEVELOPMENT #
+
+    #   Mode :≡ dev | test | prod    
+
+    # ,help
+    #   Print commands and descriptions
+    if msg == ",help":
+        _help()
+        sys.exit(0)
 
     # ,list-todo
     #   List todos
@@ -156,15 +172,50 @@ def _rcv(msg, params):
         ok("List TODOs")
         sys.exit(0)
 
-    # Executing this script directly installs commands and fetches dependencies
-    if msg == SELF_NAME:
-        install_link = Path(SELF.parent) / ",install-commands"
-        install_link.unlink(missing_ok=True)
-        install_link.symlink_to(SELF_NAME)
-        _update_deps()
-        _install_commands()
+    # Database #
+
+    # ,db-init Mode 
+    #   Creates a directory for the DB data
+    if msg == ",db-init":
+        mode = Mode.parse(params[0])
+        db_data = Db.init(mode)
+        ok("The PostgreSQL cluster has been initialized",
+           f"mode={mode}", f"db_data={db_data}")
+        sys.exit(0)
+
+    # ,db-start Mode
+    #   Start a PostgreSQL process
+    if msg == ",db-start":        
+        mode = Mode.parse(params[0])
+        Db.start(mode)
+        ok("The PostgreSQL instance is started")
+        sys.exit(0)
+
+    # ,db-status Mode
+    #   Status a PostgreSQL process
+    if msg == ",db-status":        
+        mode = Mode.parse(params[0])
+        match Db.status(mode):
+            case ["running", status]:
+                ok(status)
+            case _:
+                ok(f"Database in mode {mode} is not running")
+        sys.exit(0)
+
+    # ,db-clean
+    #   Remove PostgreSQL directories
+    if msg == ",db-clean":
+        Db.clean()
+        ok("DB cleaned", f"DBROOT={Db.root()}")
         sys.exit(0)
 
 # Interface
 
-_rcv(Path(sys.argv[0]).name, sys.argv[1:])
+if __name__ == "__main__":
+    try:
+        _rcv(Path(sys.argv[0]).name, sys.argv[1:])
+    except CheckError:
+        sys.exit(1)
+    except Exception as e:                  
+        Log.error("Unexpected exception", str(e))
+        sys.exit(1)

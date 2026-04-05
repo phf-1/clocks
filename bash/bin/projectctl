@@ -91,44 +91,6 @@ read -r MSG <<<"${0##*/}"
 
 # DEVELOPMENT #
 
-# ,list-todo
-#   List todos
-if [[ "${MSG}" == ",list-todo" ]]; then
-  rg -F 'TODO' "$(fs_root)"
-  ok "List TODOs"
-  exit 0
-fi
-
-# Database #
-
-# ,db-init Mode
-#   Creates a directory for the DB data
-if [[ "${MSG}" == ",db-init" ]]; then
-  mode_check "$1"
-  mode="$1"
-  db_data="$(db_init "$mode")"
-  ok "The PostgreSQL cluster has been initialized" "mode=$mode" "db_data=$db_data"
-  exit 0
-fi
-
-# ,db-start Mode
-#   Start a PostgreSQL process
-if [[ "${MSG}" == ",db-start" ]]; then
-  mode_check "$1"
-  mode="$1"
-  db_start "$mode"
-  ok "The PostgreSQL instance is started"
-  exit 0
-fi
-
-# ,db-clean
-#   Remove PostgreSQL directories
-if [[ "${MSG}" == ",db-clean" ]]; then
-  db_clean
-  ok "DB cleaned" "DBROOT=$DBROOT"
-  exit 0
-fi
-
 # Frontend #
 
 # ,frontend-update

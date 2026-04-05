@@ -17,19 +17,19 @@ from pathlib import Path
 from log import Log
 error = Log.error
 
-class _CheckError(SystemExit):
-    """Raised by failed_check. Extends SystemExit so it exits with code 1
-    without needing an explicit sys.exit at every call site."""
-    def __init__(self, msg: str, *ctx: str) -> None:
-        error(msg, *ctx)
-        super().__init__(1)
+class CheckError(Exception):
+    """Raised by Check.failed().
+    The error message has already been logged via Log.error().
+    The top-level script catches this exception and exits with code 1."""
+    pass
 
 # Interface
 
 class Check:
     @staticmethod
     def failed(msg: str, *ctx: str) -> None:
-        raise _CheckError(msg, *ctx)
+        Log.error(msg, *ctx)
+        raise CheckError(msg)
 
     @staticmethod
     def not_implemented() -> None:
