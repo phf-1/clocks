@@ -19,3 +19,5 @@ emacs.d/org-persist/
 phoenix/priv/static/
 
 *.dump
+
+.venv

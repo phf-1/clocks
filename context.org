@@ -20,3 +20,4 @@
 - [[id:80e405db-329d-4dd1-a642-ed1bdb8e3a54][Manifest]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#Writing-Manifests
 - [[id:97eca5fe-b140-44c7-81d9-51f2a3f4454f][Ed25519Pub]] :≡ SSH public key like: =ssh-ed25519 AAAAC3NzaC1…=
 - [[id:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]] :≡ https://grokipedia.com/page/Virtual_machine
+- [[id:56eb52ec-d0e8-4f03-8199-9ca69887c0c5][Authority]] :≡ https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL#basics_anatomy_of_a_url

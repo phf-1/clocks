@@ -1,14 +1,14 @@
 # Specification
 
-# [[id:b8b14535-4b8f-43e0-9a0d-fd11f167db7e]]
+# [[id:b8b14535-4b8f-43e0-9a0d-fd11f167db7e][Authority]]
 #
-# addr: Address represents an address, e.g. 127.0.0.1:8080.
+# An Authority represents an [[ref:56eb52ec-d0e8-4f03-8199-9ca69887c0c5][Authority]]
 #
-# address : Ip Port → Address
+# authority : Ip Port → Authority
 # is? : Any → Boolean
 # check : Any → Any → Maybe(Error ∧ (exit 1))
-# ip : Address → Ip
-# port : Address → Port
+# ip : Authority → Ip
+# port : Authority → Port
 
 # Implementation
 
@@ -17,43 +17,43 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   exit 1
 fi
 
-[[ -v _LIB_ADDRESS ]] && return
-_LIB_ADDRESS=1
+[[ -v _LIB_AUTHORITY ]] && return
+_LIB_AUTHORITY=1
 
 source "${BASH_SOURCE[0]%/*}/check.bash"
+source "${BASH_SOURCE[0]%/*}/ip.bash"
+source "${BASH_SOURCE[0]%/*}/port.bash"
 
 # Interface
 
-address() {
+authority() {
   ip_check "$1"
   local ip="$1"
   port_check "$2"
   local port="$2"
-  echo "$ip:$port"
+  echo "authority|$(ip_string "$ip")|$(port_string "$port")"
 }
 
-is_address() {
-  local value="$1"
-  local ip="${value%:*}"
-  local port="${value##*:}"
-  is_ip "$ip" && is_port "$port"
+is_authority() {
+  IFS='|' read -r tag _ _ <<< "$1"
+  [[ "$tag" == "authority" ]]
 }
 
-address_check() {
+authority_check() {
   local value="$1"
-  if ! is_address "$value"; then
-    failed_check "value is not a Address" "value=$value"
+  if ! is_authority "$value"; then
+    failed_check "value is not a Authority" "value=$value"
   fi
 }
 
-address_ip() {
-  address_check "$1"
-  local address="$1"
-  echo "${address%:*}"
+authority_ip() {
+  authority_check "$1"
+  IFS='|' read -r _ str _ <<< "$1"
+  echo "$(ip "$str")"
 }
 
-address_to_port() {
-  address_check "$1"
-  local address="$1"
-  echo "${address##*:}"
+authority_port() {
+  authority_check "$1"
+  IFS='|' read -r _ _ str <<< "$1"
+  echo "$(port "$str")"
 }
