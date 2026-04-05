@@ -91,24 +91,6 @@ read -r MSG <<<"${0##*/}"
 
 # DEVELOPMENT #
 
-# Frontend #
-
-# ,frontend-update
-#   Update the frontend to the last version
-if [[ "${MSG}" == ",frontend-update" ]]; then
-  version="$(frontend_update)"
-  ok "The frontend has been updated" "version=$version"
-  exit 0
-fi
-
-# ,frontend-clean
-#   Delete built files
-if [[ "${MSG}" == ",frontend-clean" ]]; then
-  frontend_clean
-  ok "Frontend generated files are deleted"
-  exit 0
-fi
-
 # Backend #
 
 # ,backend-update

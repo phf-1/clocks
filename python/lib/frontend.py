@@ -17,6 +17,7 @@ from pathlib import Path
 
 from check import Check
 from fs import Fs
+import shutil
 
 # Interface
 
@@ -48,3 +49,14 @@ class Frontend:
             Check.failed("Could not update frontend dependencies")
     
         return Frontend.version()
+
+    @staticmethod    
+    def clean() -> None:
+        """Delete built frontend files (equivalent to rm -rf dist/*)."""
+        dist = Frontend.root() / "dist"
+        if dist.exists() and dist.is_dir():
+            for item in list(dist.iterdir()):
+                if item.is_dir():
+                    shutil.rmtree(item, ignore_errors=True)
+                else:
+                    item.unlink(missing_ok=True)

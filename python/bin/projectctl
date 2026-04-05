@@ -209,6 +209,22 @@ def _rcv(msg, params):
         ok("DB cleaned", f"DBROOT={Db.root()}")
         sys.exit(0)
 
+    # Frontend #
+
+    # ,frontend-update
+    #   Update the frontend to the last version
+    if msg == ",frontend-update":
+        version = Frontend.update()
+        ok("The frontend has been updated", f"version={version}")
+        sys.exit(0)
+
+    # ,frontend-clean
+    #   Delete built files
+    if msg == ",frontend-clean":
+        Frontend.clean()
+        ok("Frontend generated files are deleted")
+        sys.exit(0)
+
 # Interface
 
 if __name__ == "__main__":
