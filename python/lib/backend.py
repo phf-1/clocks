@@ -149,3 +149,19 @@ class Backend:
                 Check.failed("backend dist failed", f"cmd={' '.join(cmd)}")
 
         return release_path
+
+    @staticmethod
+    def repl() -> None:
+        root = Backend.root()
+        subprocess.run(
+            ["iex", "--dbg", "pry", "-S", "mix", "phx.server"],
+            cwd=root,
+        )
+
+    @staticmethod
+    def test() -> None:
+        """Execute all Elixir/Phoenix tests (mix test)."""
+        root = Backend.root()
+        result = subprocess.run(["mix", "test"], cwd=root)
+        if result.returncode != 0:
+            Check.failed("Backend tests failed")

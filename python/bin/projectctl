@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import subprocess
+import shutil
 from pathlib import Path
 
 SPEC = """
@@ -225,7 +226,6 @@ def _rcv(msg, params):
         ok("Frontend generated files are deleted")
         sys.exit(0)
 
-
     # Backend #
 
     # ,backend-update
@@ -251,6 +251,13 @@ def _rcv(msg, params):
         ok("Ecto migration has been applied to the database", f"mode={mode}")
         sys.exit(0)
 
+    # ,backend-test
+    #   Execute all Elixir tests
+    if msg == ",backend-test":
+        Backend.test()
+        ok("Phoenix tests executed")
+        sys.exit(0)
+        
     # ,backend-dist
     #   Build a backend distribution
     if msg == ",backend-dist":
@@ -268,6 +275,43 @@ def _rcv(msg, params):
     if msg == ",backend-clean":
         Backend.clean()
         ok("Backend directory cleaned", f"PHX={Backend.root()}")
+        sys.exit(0)
+
+    # App #
+
+    # ,app-repl
+    #   Start the application and drop into iex
+    if msg == ",app-repl":
+        mode = Mode.dev
+        Db.init(mode)
+        Db.start(mode)
+        Backend.init_db(mode)
+        Backend.migrate(mode)
+        url = Backend.mode_url(mode)
+        frontend_dist = Frontend.dist(url)
+        Backend.install_frontend(frontend_dist)
+        Backend.repl()
+        sys.exit(0)
+
+    # ,app-test
+    #   Execute tests
+    if msg == ",app-test":
+        Backend.test()
+        ok("Tests have been executed")
+        sys.exit(0)
+
+    # ,app-clean
+    #   Delete all generated files
+    if msg == ",app-clean":
+        Frontend.clean()
+        Db.clean()
+        Backend.clean()
+        # Remove all top-level _* directories (exact Bash equivalent)
+        root = Fs.root()
+        for item in list(root.glob("_*")):
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+        ok("ROOT directory cleaned", f"ROOT={root}")
         sys.exit(0)
 
 # Interface

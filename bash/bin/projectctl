@@ -91,22 +91,6 @@ read -r MSG <<<"${0##*/}"
 
 # App #
 
-# ,app-repl
-#   Start the application and drop into iex
-if [[ "${MSG}" == ",app-repl" ]]; then
-  mode="dev"
-  db_init "$mode"
-  db_start "$mode"
-  backend_init_db "$mode"
-  backend_migrate "$mode"
-  url="$(backend_mode_url "$mode")"
-  info "Backed is listening at url" "url: $url"
-  dir="$(frontend_dist "$url")"
-  backend_install_frontend "$dir"
-  app_repl
-  exit 0
-fi
-
 # ,app-test
 #   Execute tests
 if [[ "${MSG}" == ",app-test" ]]; then
