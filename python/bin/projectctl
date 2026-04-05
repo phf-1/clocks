@@ -77,26 +77,17 @@ How is this script structured?
 SELF = Path(os.path.realpath(__file__))
 SELF_NAME = SELF.name
 
-# Add python/bin/../lib sys.path
+# Add python/bin/../lib to sys.path
 sys.path.insert(0, str(SELF.parent.parent / "lib"))
 
 from log import Log      # noqa: E402
 ok = Log.ok
 info = Log.info
-from check import Check         # noqa: E402
+from check import Check  # noqa: E402
 failed = Check.failed
-from fs import Fs
-from backend import Backend
-from frontend import Frontend
-
-# ---------------------------------------------------------------------------
-# Environment setup  (mirrors the ROOT / GUILE_LOAD_PATH block)
-# ---------------------------------------------------------------------------
-
-if False:
-    ROOT = Fs.root()
-    guile_load_path = os.environ.get("GUILE_LOAD_PATH", "")
-    os.environ["GUILE_LOAD_PATH"] = f"{guile_load_path}:{scheme_root()}"
+from fs import Fs        # noqa: E402
+from backend import Backend  # noqa: E402
+from frontend import Frontend  # noqa: E402
 
 # Constants
 
@@ -104,8 +95,8 @@ ENCODING = "utf-8"
 CMD_RE = re.compile(r" *# (,.+)$")
 
 def _help():
-    SECTION_RE  = re.compile(r" *# ([^ ]+) #$")
-    DESC_RE     = re.compile(r" *#   (.+)")    
+    SECTION_RE = re.compile(r" *# ([^ ]+) #$")
+    DESC_RE    = re.compile(r" *#   (.+)")
     for line in SELF.read_text(encoding=ENCODING).splitlines():
         if m := SECTION_RE.match(line):
             print(f"# {m.group(1)} #")
@@ -125,47 +116,55 @@ def _install_commands():
     bin_dir = SELF.parent
     os.chdir(bin_dir)
     for link in bin_dir.glob(",*"):
-        link.unlink()            
+        link.unlink()
     ok("Old command symlinks have been removed")
     for line in SELF.read_text(encoding=ENCODING).splitlines():
         if (m := CMD_RE.match(line)):
             cmd = m.group(1)
             symlink = bin_dir / f"{cmd}"
             symlink.symlink_to(SELF_NAME)
-            ok(f"{cmd}")                
+            ok(f"{cmd}")
     ok("All command symlinks are up to date")
-        
+
 def _rcv(msg, params):
     # DEVELOPMENT #
-    
+
     # ,help
     #   Print commands and descriptions
     if msg == ",help":
         _help()
         sys.exit(0)
-    
+
     # ,install-commands
     #   (Re)install commands
     if msg == ",install-commands":
         _install_commands()
         sys.exit(0)
-    
+
     # ,update-deps
     #   Update dependencies not directly managed by Guix
     if msg == ",update-deps":
         _update_deps()
         sys.exit(0)
-    
+
+    # ,list-todo
+    #   List todos
+    if msg == ",list-todo":
+        result = subprocess.run(["rg", "-F", "TODO", str(Fs.root())])
+        if result.returncode not in (0, 1):
+            Check.failed("rg failed", f"returncode={result.returncode}")
+        ok("List TODOs")
+        sys.exit(0)
+
     # Executing this script directly installs commands and fetches dependencies
     if msg == SELF_NAME:
         install_link = Path(SELF.parent) / ",install-commands"
         install_link.unlink(missing_ok=True)
         install_link.symlink_to(SELF_NAME)
         _update_deps()
-        _install_commands()        
+        _install_commands()
         sys.exit(0)
 
 # Interface
 
 _rcv(Path(sys.argv[0]).name, sys.argv[1:])
-
