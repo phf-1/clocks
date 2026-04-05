@@ -83,25 +83,17 @@ sys.path.insert(0, str(SELF.parent.parent / "lib"))
 from log import Log      # noqa: E402
 ok = Log.ok
 info = Log.info
-
 from check import Check         # noqa: E402
 failed = Check.failed
-
-try:
-    from fs import Fs
-    from scheme import scheme_root
-    from bash import bash_bash_bin
-    from backend import backend_update
-    from frontend import frontend_update
-    _LIB_LOADED = True
-except ModuleNotFoundError:
-    _LIB_LOADED = False
+from fs import Fs
+from backend import Backend
+from frontend import Frontend
 
 # ---------------------------------------------------------------------------
 # Environment setup  (mirrors the ROOT / GUILE_LOAD_PATH block)
 # ---------------------------------------------------------------------------
 
-if _LIB_LOADED:
+if False:
     ROOT = Fs.root()
     guile_load_path = os.environ.get("GUILE_LOAD_PATH", "")
     os.environ["GUILE_LOAD_PATH"] = f"{guile_load_path}:{scheme_root()}"
@@ -109,29 +101,11 @@ if _LIB_LOADED:
 # Constants
 
 ENCODING = "utf-8"
-CMD_RE = re.compile(r"^# (,.+)$")
+CMD_RE = re.compile(r" *# (,.+)$")
 
-# ---------------------------------------------------------------------------
-# Message dispatch
-# ---------------------------------------------------------------------------
-
-# MSG is the name under which this script was invoked (via symlink).
-MSG = Path(sys.argv[0]).name
-PARAMS = sys.argv[1:]
-
-# DEVELOPMENT #
-
-# ,help
-#   Print commands and descriptions
-if MSG == ",help":
-    SECTION_RE  = re.compile(r"^# ([^ ]+) #$")
-    DESC_RE     = re.compile(r"^#   (.+)$")
-    DISPATCH_RE = re.compile(r'^if MSG ==')
-
-    section = ""
-    cmd = ""
-    desc = ""
-
+def _help():
+    SECTION_RE  = re.compile(r" *# ([^ ]+) #$")
+    DESC_RE     = re.compile(r" *#   (.+)")    
     for line in SELF.read_text(encoding=ENCODING).splitlines():
         if m := SECTION_RE.match(line):
             print(f"# {m.group(1)} #")
@@ -140,55 +114,58 @@ if MSG == ",help":
         elif m := DESC_RE.match(line):
             print(f"    {m.group(1)}")
             print("")
-    sys.exit(0)
 
-# ,install-commands
-#   (Re)install commands
-if MSG == ",install-commands":
+def _update_deps():
+    Backend.update()
+    version = Frontend.update()
+    ok("Dependencies not directly managed by Guix have been updated",
+       f"frontend version: {version}")
+
+def _install_commands():
     bin_dir = SELF.parent
     os.chdir(bin_dir)
     for link in bin_dir.glob(",*"):
-        link.unlink()
-    ok(f"Old command symlinks have been removed")
+        link.unlink()            
+    ok("Old command symlinks have been removed")
     for line in SELF.read_text(encoding=ENCODING).splitlines():
         if (m := CMD_RE.match(line)):
             cmd = m.group(1)
             symlink = bin_dir / f"{cmd}"
             symlink.symlink_to(SELF_NAME)
-            ok(f"{cmd}")
+            ok(f"{cmd}")                
     ok("All command symlinks are up to date")
-    sys.exit(0)
+        
+def _rcv(msg, params):
+    # DEVELOPMENT #
+    
+    # ,help
+    #   Print commands and descriptions
+    if msg == ",help":
+        _help()
+        sys.exit(0)
+    
+    # ,install-commands
+    #   (Re)install commands
+    if msg == ",install-commands":
+        _install_commands()
+        sys.exit(0)
+    
+    # ,update-deps
+    #   Update dependencies not directly managed by Guix
+    if msg == ",update-deps":
+        _update_deps()
+        sys.exit(0)
+    
+    # Executing this script directly installs commands and fetches dependencies
+    if msg == SELF_NAME:
+        install_link = Path(SELF.parent) / ",install-commands"
+        install_link.unlink(missing_ok=True)
+        install_link.symlink_to(SELF_NAME)
+        _update_deps()
+        _install_commands()        
+        sys.exit(0)
 
-# ,update-deps
-#   Update dependencies not directly managed by Guix
-if MSG == ",update-deps":
-    if not _LIB_LOADED:
-        failed("lib not loaded")
-    backend_update()
-    version = frontend_update()
-    ok("Dependencies not directly managed by Guix have been updated",
-       f"frontend version: {version}")
-    sys.exit(0)
+# Interface
 
-# Executing this script directly installs commands and fetches dependencies
-if MSG == SELF_NAME:
-    if not _LIB_LOADED:
-        failed("lib not loaded")
-    install_link = Path(bash_bash_bin()) / ",install-commands"
-    install_link.unlink(missing_ok=True)
-    install_link.symlink_to(SELF_NAME)
+_rcv(Path(sys.argv[0]).name, sys.argv[1:])
 
-    info("Install all commands")
-    subprocess.run([str(SELF.parent / ",install-commands")], check=True,
-                   stdout=subprocess.DEVNULL)
-    ok()
-
-    info("Fetch dependencies")
-    subprocess.run([str(SELF.parent / ",update-deps")], check=True,
-                   stdout=subprocess.DEVNULL)
-    ok()
-
-    info("Print ,help")
-    print()
-    subprocess.run([str(SELF.parent / ",help")], check=True)
-    sys.exit(0)
