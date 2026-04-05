@@ -18,6 +18,7 @@ from pathlib import Path
 from check import Check
 from fs import Fs
 import shutil
+import os
 
 # Interface
 
@@ -25,8 +26,8 @@ class Frontend:
     @staticmethod
     def root() -> Path:
         return Fs.root() / "frontend"
-    
-    @staticmethod    
+
+    @staticmethod
     def version() -> str:
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
@@ -35,22 +36,22 @@ class Frontend:
         if result.returncode != 0:
             Check.failed("Cannot read frontend version", result.stderr.strip())
         return result.stdout.strip()
-    
-    @staticmethod    
+
+    @staticmethod
     def update() -> str:
         root = Frontend.root()
-    
+
         pull = subprocess.run(["git", "pull"], cwd=root, capture_output=True)
         if pull.returncode != 0:
             Check.failed("Could not update the frontend")
-    
+
         npm = subprocess.run(["npm", "i"], cwd=root, capture_output=True)
         if npm.returncode != 0:
             Check.failed("Could not update frontend dependencies")
-    
+
         return Frontend.version()
 
-    @staticmethod    
+    @staticmethod
     def clean() -> None:
         """Delete built frontend files (equivalent to rm -rf dist/*)."""
         dist = Frontend.root() / "dist"
@@ -60,3 +61,20 @@ class Frontend:
                     shutil.rmtree(item, ignore_errors=True)
                 else:
                     item.unlink(missing_ok=True)
+
+    @staticmethod
+    def dist(url: str) -> Path:
+        """Build frontend distribution pointing to the given API url (VITE_API_BASE_URL)."""
+        root = Frontend.root()
+        env = os.environ.copy()
+        env["VITE_API_BASE_URL"] = url
+
+        result = subprocess.run(
+            ["npm", "run", "build"],
+            cwd=root,
+            env=env,
+        )
+        if result.returncode != 0:
+            Check.failed("could not build the frontend distribution")
+
+        return root / "dist"

@@ -22,7 +22,12 @@ from fs import Fs
 from db import Db
 from mode import Mode
 from constant import Constant
-ENCODING = Constant.encoding()
+from port import Port
+
+_ENCODING = Constant.encoding()
+_DEV_PORT  = Port(4000)
+_TEST_PORT = Port(4001)
+_PROD_PORT = Port(4002)
 
 # Interface
 
@@ -32,7 +37,23 @@ class Backend:
         p = Fs.root() / "backend"
         Check.dir(p)
         return p
+
+    @staticmethod
+    def dev_port():
+        return _DEV_PORT
+
+    @staticmethod
+    def test_port():
+        return _TEST_PORT
+
+    @staticmethod
+    def prod_port():
+        return _PROD_PORT
     
+    @staticmethod
+    def mode_port(mode) -> int:
+        return Mode.elim(Backend.dev_port, Backend.test_port, Backend.prod_port)(mode)
+
     @staticmethod    
     def update() -> None:
         root = Backend.root()
@@ -60,7 +81,7 @@ class Backend:
             env=env,
         )
         if result.returncode != 0:
-            Check.failed("backend init_db failed", f"mode={mode}", f"stderr={result.stderr.decode(ENCODING)}")
+            Check.failed("backend init_db failed", f"mode={mode}", f"stderr={result.stderr.decode(_ENCODING)}")
 
     @staticmethod
     def migrate(mode) -> None:
@@ -78,4 +99,53 @@ class Backend:
             env=env,
         )
         if result.returncode != 0:
-            Check.failed("backend migrate failed", f"mode={mode}", f"stderr={result.stderr.decode(ENCODING)}")
+            Check.failed("backend migrate failed", f"mode={mode}", f"stderr={result.stderr.decode(_ENCODING)}")
+
+    @staticmethod
+    def mode_url(mode) -> str:
+        """http://localhost:port/api (used by frontend build)."""
+        Mode.check(mode)
+        port = Backend.mode_port(mode)
+        return f"http://localhost:{port}/api"            
+
+    @staticmethod
+    def install_frontend(frontend_dist: Path) -> None:
+        """Rsync frontend distribution into backend/priv/static (matches Bash)."""
+        Check.dir(frontend_dist)
+        root = Backend.root()
+        target = root / "priv" / "static"
+        target.mkdir(parents=True, exist_ok=True)
+
+        result = subprocess.run(
+            ["rsync", "-a", "--delete", f"{frontend_dist}/", str(target)],
+        )
+        if result.returncode != 0:
+            Check.failed("Cannot install frontend dist in the backend")
+
+    @staticmethod
+    def dist(frontend_dist: Path) -> Path:
+        """Build a Phoenix release distribution (MIX_ENV=prod)."""
+        Check.dir(frontend_dist)
+        Backend.install_frontend(frontend_dist)
+
+        root = Backend.root()
+        mix_env = "prod"
+        release_path = root / "_build" / mix_env / "rel" / "dist"
+
+        env = os.environ.copy()
+        env["MIX_ENV"] = mix_env
+
+        cmds = [
+            ["mix", "deps.get", "--only", mix_env],
+            ["mix", "compile"],
+            ["mix", "assets.deploy"],
+            ["mix", "phx.gen.release"],
+            ["mix", "release", "--overwrite", "--path", str(release_path)],
+        ]
+
+        for cmd in cmds:
+            result = subprocess.run(cmd, cwd=root, env=env)
+            if result.returncode != 0:
+                Check.failed("backend dist failed", f"cmd={' '.join(cmd)}")
+
+        return release_path

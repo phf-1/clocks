@@ -21,3 +21,5 @@ phoenix/priv/static/
 *.dump
 
 .venv
+
+/backend/priv/static/*

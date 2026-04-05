@@ -143,7 +143,7 @@ def _rcv(msg, params):
     if msg == ",update-deps":
         _update_deps()
         sys.exit(0)
-        
+
     # Executing this script directly installs commands and fetches dependencies
     if msg == SELF_NAME:
         install_link = Path(SELF.parent) / ",install-commands"
@@ -152,10 +152,10 @@ def _rcv(msg, params):
         _update_deps()
         _install_commands()
         sys.exit(0)
-    
+
     # DEVELOPMENT #
 
-    #   Mode :≡ dev | test | prod    
+    #   Mode :≡ dev | test | prod
 
     # ,help
     #   Print commands and descriptions
@@ -174,7 +174,7 @@ def _rcv(msg, params):
 
     # Database #
 
-    # ,db-init Mode 
+    # ,db-init Mode
     #   Creates a directory for the DB data
     if msg == ",db-init":
         mode = Mode.parse(params[0])
@@ -185,7 +185,7 @@ def _rcv(msg, params):
 
     # ,db-start Mode
     #   Start a PostgreSQL process
-    if msg == ",db-start":        
+    if msg == ",db-start":
         mode = Mode.parse(params[0])
         Db.start(mode)
         ok("The PostgreSQL instance is started")
@@ -193,7 +193,7 @@ def _rcv(msg, params):
 
     # ,db-status Mode
     #   Status a PostgreSQL process
-    if msg == ",db-status":        
+    if msg == ",db-status":
         mode = Mode.parse(params[0])
         match Db.status(mode):
             case ["running", status]:
@@ -250,7 +250,26 @@ def _rcv(msg, params):
         Backend.migrate(mode)
         ok("Ecto migration has been applied to the database", f"mode={mode}")
         sys.exit(0)
-        
+
+    # ,backend-dist
+    #   Build a backend distribution
+    if msg == ",backend-dist":
+        url = Backend.mode_url(Mode.prod)
+        info("Build the frontend distribution at url", f"url={url}")
+        frontend_dist = Frontend.dist(url)
+        ok("dist=", str(frontend_dist))
+        info("Build the backend distribution")
+        dist = Backend.dist(frontend_dist)
+        ok("A backend distribution has been built", f"dist={dist}")
+        sys.exit(0)
+
+    # ,backend-clean
+    #   Remove the Phoenix build artifacts and dependencies
+    if msg == ",backend-clean":
+        Backend.clean()
+        ok("Backend directory cleaned", f"PHX={Backend.root()}")
+        sys.exit(0)
+
 # Interface
 
 if __name__ == "__main__":
@@ -258,6 +277,6 @@ if __name__ == "__main__":
         _rcv(Path(sys.argv[0]).name, sys.argv[1:])
     except CheckError:
         sys.exit(1)
-    except Exception as e:                  
+    except Exception as e:
         Log.error("Unexpected exception", str(e))
         sys.exit(1)

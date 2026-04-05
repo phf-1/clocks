@@ -89,29 +89,6 @@ export GUILE_LOAD_PATH
 # Parameters are: $1, $2…
 read -r MSG <<<"${0##*/}"
 
-# DEVELOPMENT #
-
-# ,backend-dist
-#   Build a backend distribution
-if [[ "${MSG}" == ",backend-dist" ]]; then
-  url="$(backend_mode_url "prod")"
-  info "Build the frontend distribution at url" "url=$url"
-  frontend_dist="$(frontend_dist "$url")"
-  ok "dist=$frontend_dist"
-  info "Build the backend distribution"
-  dist="$(backend_dist "$frontend_dist")"
-  ok "A backend distribution has been built" "dist=$dist"
-  exit 0
-fi
-
-# ,backend-clean
-#   Remove the Phoenix build artifacts and dependencies
-if [[ "${MSG}" == ",backend-clean" ]]; then
-  backend_clean
-  ok "Backend directory cleaned" "PHX=$(backend_root)"
-  exit 0
-fi
-
 # App #
 
 # ,app-repl
