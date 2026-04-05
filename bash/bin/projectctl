@@ -91,36 +91,6 @@ read -r MSG <<<"${0##*/}"
 
 # DEVELOPMENT #
 
-# Backend #
-
-# ,backend-update
-#   Update the backend dependencies
-if [[ "${MSG}" == ",backend-update" ]]; then
-  backend_update
-  ok "The backend dependencies have been updated"
-  exit 0
-fi
-
-# ,backend-init-db Mode
-#   Set up database tables
-if [[ "${MSG}" == ",backend-init-db" ]]; then
-  mode_check "$1"
-  mode="$1"
-  backend_init_db "$mode"
-  ok "The database tables have been created" "mode=$mode"
-  exit 0
-fi
-
-# ,backend-migrate Mode
-#   Apply pending Ecto migrations to the database
-if [[ "${MSG}" == ",backend-migrate" ]]; then
-  mode_check "$1"
-  mode="$1"
-  backend_migrate "$mode"
-  ok "Ecto migration has been applied to the database" "mode=$mode"
-  exit 0
-fi
-
 # ,backend-dist
 #   Build a backend distribution
 if [[ "${MSG}" == ",backend-dist" ]]; then

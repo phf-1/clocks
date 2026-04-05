@@ -225,6 +225,32 @@ def _rcv(msg, params):
         ok("Frontend generated files are deleted")
         sys.exit(0)
 
+
+    # Backend #
+
+    # ,backend-update
+    #   Update the backend dependencies
+    if msg == ",backend-update":
+        Backend.update()
+        ok("The backend dependencies have been updated")
+        sys.exit(0)
+
+    # ,backend-init-db Mode
+    #   Set up database tables
+    if msg == ",backend-init-db":
+        mode = Mode.parse(params[0])
+        Backend.init_db(mode)
+        ok("The database tables have been created", f"mode={mode}")
+        sys.exit(0)
+
+    # ,backend-migrate Mode
+    #   Apply pending Ecto migrations to the database
+    if msg == ",backend-migrate":
+        mode = Mode.parse(params[0])
+        Backend.migrate(mode)
+        ok("Ecto migration has been applied to the database", f"mode={mode}")
+        sys.exit(0)
+        
 # Interface
 
 if __name__ == "__main__":
