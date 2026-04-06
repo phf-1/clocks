@@ -2,7 +2,7 @@
 
 # Specification
 
-# [[id:b80c22c9-2eed-4eea-a469-136e7666ea96]]
+# [[id:b80c22c9-2eed-4eea-a469-136e7666ea96][start-dev]]
 #
 # Given that Bash and Guix are installed on the current system, this script starts
 # the development environment.
@@ -54,10 +54,8 @@ main() {
     local cmd="bash --init-file $(bash_bashrc) -i"
 
     if ! ssh-add -l &>/dev/null; then
-      info "The SSH agent is necessary to connect to VPS"
+      info "The SSH agent is necessary to connect to a VPS"
       failed_check "The SSH agent is not functional" "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
-    else
-      ok "The SSH agent is functional" "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
     fi
 
     ETC_GUIX="/etc/guix"

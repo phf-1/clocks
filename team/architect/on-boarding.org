@@ -108,7 +108,7 @@ rm .env
 Start the development environment:
 
 #+begin_src bash :eval no
-./start_dev
+./start-dev
 #+end_src
 
 Then start a REPL:
