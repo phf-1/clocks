@@ -38,13 +38,13 @@
 
 ;; Interface
 
-(define-public machine
+(define-public (machine ip port key)
   (gnu:machine
    (environment managed-host-environment-type)
    (configuration
     (machine-ssh-configuration
-     (host-name %host-name)
-     (port %ssh-port)
-     (host-key %host-key)
+     (host-name ip)
+     (port port)
+     (host-key (string-join `("ssh-ed25519" ,key) " "))
      (system "x86_64-linux")))
    (operating-system os)))

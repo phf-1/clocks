@@ -65,6 +65,30 @@ def _clean(image) -> None:
     subprocess.run(["systemctl", "--user", "reset-failed", unit])
     _socket(image).unlink(missing_ok=True)
 
+def _start(image, ip, ssh_port):
+    if not _is_running(ip, ssh_port, 2):
+        _system_check()
+        _clean(image)
+        unit = _unit(image)
+        qcow2 = Image.qcow2(image)
+        socket = _socket(image)
+        cmd = [
+            "systemd-run", "--user",
+            "--unit", unit,
+            "qemu-system-x86_64",
+            "-enable-kvm",
+            "-cpu", "host",
+            "-m", "8192",
+            "-drive", f"file={qcow2},format=qcow2,if=virtio",
+            "-snapshot",
+            "-device", "virtio-net-pci,netdev=net0",
+            "-netdev", f"user,id=net0,hostfwd=tcp::{ssh_port}-:22",
+            "-chardev", f"socket,id=mon,path={socket},server=on,wait=off",
+            "-mon", "chardev=mon,mode=control",
+        ]
+        subprocess.run(cmd)
+        _is_running_check(ip, ssh_port, timeout=20)            
+    
 def _is_running(ip, port, timeout) -> bool:
     start = time.time()
     while time.time() - start < timeout:
@@ -95,28 +119,6 @@ class Vm:
         self._ssh_port = ssh_port
         # TODO(5e4b): generalize to arbitrary IP 
         self._ip = Ip("127.0.0.1")
-        if not Vm.is_running(self, timeout=2):
-            _system_check()
-            Vm.clean(self)
-            unit = _unit(image)
-            qcow2 = Image.qcow2(image)
-            socket = _socket(image)
-            cmd = [
-                "systemd-run", "--user",
-                "--unit", unit,
-                "qemu-system-x86_64",
-                "-enable-kvm",
-                "-cpu", "host",
-                "-m", "8192",
-                "-drive", f"file={qcow2},format=qcow2,if=virtio",
-                "-snapshot",
-                "-device", "virtio-net-pci,netdev=net0",
-                "-netdev", f"user,id=net0,hostfwd=tcp::{ssh_port}-:22",
-                "-chardev", f"socket,id=mon,path={socket},server=on,wait=off",
-                "-mon", "chardev=mon,mode=control",
-            ]
-            subprocess.run(cmd)
-            Vm.is_running_check(self, timeout=20)
 
     @staticmethod
     def is_a(vm) -> bool:
@@ -155,6 +157,11 @@ class Vm:
             vm._host_key = Vm.elim(lambda image, ip, port: _host_key(ip,port))(vm)
             return vm._host_key
 
+    @staticmethod
+    def start(vm):
+         Vm.elim(lambda image, ip, port: _start(image,ip,port))(vm)
+         return vm
+        
     @staticmethod
     def root_key(vm):
         Vm.check(vm)

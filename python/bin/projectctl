@@ -41,6 +41,7 @@ from osys import Osys      # noqa: E402
 from image import Image # noqa: E402
 from port import Port # noqa: E402
 from vm import Vm       # noqa: E402
+from scheme import Scheme       # noqa: E402
 
 # Constants
 
@@ -63,7 +64,7 @@ How to use this script?
 How to choose a new command name?
 
   command_name :≡ "," (component "-")? verb ("-" param)*
-  example :≡ ,help
+example :≡ ,help
   example :≡ ,backend-test
 
   Commands start with a comma "," so that they are easy to differentiate from
@@ -140,6 +141,22 @@ def _install_commands():
 def _container_is_active():
     return "GUIX_ENVIRONMENT" in os.environ
 
+def _dev_vm(ssh_port):
+    osys = Osys("init")    
+    info("Build image for os", f"os: {osys}")            
+    image = Image(osys, inside_container=True)
+    ok(f"image: {Image.qcow2(image)}")    
+    info("Start a VM using image listening for SSH on port", f"port: {ssh_port}")
+    return Vm(image, ssh_port)
+
+def _guix_deploy(module, ip, port, key):
+    env = os.environ.copy()
+    load_path=env["GUILE_LOAD_PATH"]
+    env["GUILE_LOAD_PATH"] = f"{Scheme.root()}:{load_path}"
+    machine = f'(machine "{ip}" {port} "{key}")'
+    expression = f'(begin (use-modules {module}) (list {machine}))'
+    subprocess.run(["guix", "deploy", "-e", expression], env=env, check=True)
+            
 def _rcv(msg, params):
     # INSTALLATION #
 
@@ -287,6 +304,44 @@ def _rcv(msg, params):
         ok("Backend directory cleaned", f"PHX={Backend.root()}")
         sys.exit(0)
 
+    # Vm #
+
+    # ,vm-init-image-build 
+    #   Build the image of the init OS
+    if msg == ",vm-init-image-build":
+        osys = Osys("init")
+        if not _container_is_active():
+            error("The image should be built from within the container")
+            sys.exit(1)
+        image = Image(osys, inside_container=True)
+        ok(f"image: {Image.qcow2(image)}")
+        sys.exit(0)    
+    
+    # ,vm-init-start port
+    #   Start a local VM listening for SSH on port to simulate a new VPS
+    if msg == ",vm-init-start":
+        ssh_port = Port(params[0])
+        vm = _dev_vm(ssh_port)
+        if _container_is_active():
+            error("This command should run outside of the container")
+            sys.exit(1)        
+        Vm.start(vm)
+        ok(f"vm: {Vm.name(vm)}")        
+        ip = Vm.ip(vm)
+        port = Vm.ssh_port(vm)
+        host_key = Vm.host_key(vm)
+        root_key = Vm.root_key(vm)
+        store_key = Vm.store_key(vm)
+        ok("A new local VM to test deployment (as if it was a VPS) has been built")
+        ok("An ssh connexion can be established using ip, port and user from the container")
+        ok(f"ip: {ip}, SSH port: {port}, user: root")
+        ok(f"Root key: {root_key}")
+        ok("The application can be deployed to the vm using ,app-deploy ip port host")
+        ok("host is the host key")
+        ok(f"Host key: {host_key}")
+        ok(f"Store key: {store_key}")
+        sys.exit(0)    
+
     # App #
 
     # ,app-repl
@@ -310,6 +365,23 @@ def _rcv(msg, params):
         ok("Tests have been executed")
         sys.exit(0)
 
+    # ,app-deploy-dev ssh-port
+    #   Deploy the application to the local dev VM
+    if msg == ",app-deploy-dev":
+        ssh_port = Port(params[0])
+        vm = _dev_vm(ssh_port)
+        ok(f"vm: {Vm.name(vm)}")
+        ip = Vm.ip(vm)
+        port = Vm.ssh_port(vm)        
+        if not Vm.is_running(vm, 2):
+            error("Dev VM is not running.", f"ip: {ip}", f"port: {port}")
+            info("Start the Dev VM outside the container with ,vm-init-start port", f"port: {port}")
+            sys.exit(1)
+        host_key = Vm.host_key(vm)
+        _guix_deploy('(app vm init machine)', ip, ssh_port, host_key)
+        ok("Application has been deployed to the local vm", f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
+        sys.exit(0)
+
     # ,app-clean
     #   Delete all generated files
     if msg == ",app-clean":
@@ -324,61 +396,8 @@ def _rcv(msg, params):
         ok("ROOT directory cleaned", f"ROOT={root}")
         sys.exit(0)
 
-    # Vm #
-
-    # ,vm-init-image-build 
-    #   Build the image of the init OS
-    if msg == ",vm-init-image-build":
-        osys = Osys("init")
-        if not _container_is_active():
-            error("The image should be built from within the container")
-            sys.exit(1)
-        image = Image(osys, inside_container=True)
-        ok(f"image: {Image.qcow2(image)}")
-        sys.exit(0)    
-    
-    # ,vm-init-start port
-    #   Start a local VM listening for SSH on port to simulate a new VPS
-    if msg == ",vm-init-start":
-        ssh_port = Port(params[0])
-        osys = Osys("init")
-        
-        if _container_is_active():
-            error("This command should run outside of the container")
-            sys.exit(1)
-
-        info("Build image for os", f"os: {osys}")            
-        image = Image(osys, inside_container=True)
-        ok(f"image: {Image.qcow2(image)}")
-        
-        info("Start a VM using image listening for SSH on port", f"port: {ssh_port}")
-        vm = Vm(image, ssh_port)
-        ok(f"vm: {Vm.name(vm)}")
-        
-        ip = Vm.ip(vm)
-        debug("ip:", ip)
-
-        port = Vm.ssh_port(vm)
-        debug("port:", port)
-
-        host_key = Vm.host_key(vm)
-        debug("host_key:", host_key)
-
-        root_key = Vm.root_key(vm)
-        debug("root_key:", root_key)
-
-        store_key = Vm.store_key(vm)
-        debug("store_key:", store_key)
-
-        ok("A new local VM to test deployment (as if it was a VPS) has been built")
-        ok("An ssh connexion can be established using ip, port and user from the container")
-        ok(f"ip: {ip}, SSH port: {port}, user: root")
-        ok(f"Root key: {root_key}")
-        ok("The application can be deployed to the vm using ,app-deploy ip port host")
-        ok("host is the host key")
-        ok(f"Host key: {host_key}")
-        ok(f"Store key: {store_key}")
-        sys.exit(0)    
+    error("Unexpected message.", f"msg: {msg}")
+    sys.exit(1)
 
 # Interface
 
