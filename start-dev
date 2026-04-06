@@ -61,7 +61,7 @@ main() {
       set -x
       sudo -k guix archive --generate-key
       set +x
-      ls -l
+      ls -l "$ETC_GUIX"
     fi
 
     # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
