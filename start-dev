@@ -29,8 +29,6 @@ main() {
     echo "INFO | The development environment is active."
     exit 0
   else
-    source "bash/lib.bash"
-    
     # Read secret environment variables
     # Default values are provided.
     if [[ -f .env.gpg ]]; then
@@ -51,7 +49,7 @@ main() {
     export LANG=C.UTF-8
 
     # The shell inside the dev environment
-    local cmd="bash --init-file $(bash_bashrc) -i"
+    local cmd="bash --init-file bash/etc/bashrc -i"
 
     if ! ssh-add -l &>/dev/null; then
       info "The SSH agent is necessary to connect to a VPS"
@@ -70,7 +68,7 @@ main() {
     fi
 
     # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
-    guix time-machine -C "$(scheme_channels)" -- shell \
+    guix time-machine -C scheme/app/env/channels.scm -- shell \
          -C \
          -W \
          -S /usr/bin=bin \
@@ -87,8 +85,8 @@ main() {
          --expose="$ETC_GUIX" \
          --share=/tmp \
          -N \
-         -m "$(scheme_manifest)" \
-         -- bash -c "source $(bash_bash_profile); projectctl; ${cmd}"
+         -m scheme/app/env/manifest.scm \
+         -- bash -c "source bash/etc/bash_profile; projectctl; ${cmd}"
     exit 0
   fi
 }
