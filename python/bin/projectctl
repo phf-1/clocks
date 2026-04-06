@@ -18,6 +18,36 @@ import subprocess
 import shutil
 from pathlib import Path
 
+SELF = Path(os.path.realpath(__file__))
+SELF_NAME = SELF.name
+
+# Add python/bin/../lib to sys.path
+sys.path.insert(0, str(SELF.parent.parent / "lib"))
+
+from log import Log      # noqa: E402
+ok = Log.ok
+info = Log.info
+debug = Log.debug
+error = Log.error
+from check import Check, CheckError  # noqa: E402
+failed = Check.failed
+from fs import Fs        # noqa: E402
+from backend import Backend  # noqa: E402
+from frontend import Frontend  # noqa: E402
+from db import Db              # noqa: E402
+from mode import Mode    # noqa: E402
+from constant import Constant    # noqa: E402
+from osys import Osys      # noqa: E402
+from image import Image # noqa: E402
+from port import Port # noqa: E402
+from vm import Vm       # noqa: E402
+
+# Constants
+
+ENCODING = Constant.encoding()
+CMD_RE = re.compile(r" *# (,.+)$")
+
+
 SPEC = """
 What is the objective of this script?
 
@@ -75,29 +105,6 @@ How is this script structured?
         error "unexpected message"
 """
 
-SELF = Path(os.path.realpath(__file__))
-SELF_NAME = SELF.name
-
-# Add python/bin/../lib to sys.path
-sys.path.insert(0, str(SELF.parent.parent / "lib"))
-
-from log import Log      # noqa: E402
-ok = Log.ok
-info = Log.info
-from check import Check, CheckError  # noqa: E402
-failed = Check.failed
-from fs import Fs        # noqa: E402
-from backend import Backend  # noqa: E402
-from frontend import Frontend  # noqa: E402
-from db import Db              # noqa: E402
-from mode import Mode    # noqa: E402
-from constant import Constant    # noqa: E402
-
-# Constants
-
-ENCODING = Constant.encoding()
-CMD_RE = re.compile(r" *# (,.+)$")
-
 def _help():
     SECTION_RE = re.compile(r" *# ([^ ]+) #$")
     DESC_RE    = re.compile(r" *#   (.+)")
@@ -129,6 +136,9 @@ def _install_commands():
             symlink.symlink_to(SELF_NAME)
             ok(f"{cmd}")
     ok("All command symlinks are up to date")
+
+def _container_is_active():
+    return "GUIX_ENVIRONMENT" in os.environ
 
 def _rcv(msg, params):
     # INSTALLATION #
@@ -313,6 +323,62 @@ def _rcv(msg, params):
                 shutil.rmtree(item, ignore_errors=True)
         ok("ROOT directory cleaned", f"ROOT={root}")
         sys.exit(0)
+
+    # Vm #
+
+    # ,vm-init-image-build 
+    #   Build the image of the init OS
+    if msg == ",vm-init-image-build":
+        osys = Osys("init")
+        if not _container_is_active():
+            error("The image should be built from within the container")
+            sys.exit(1)
+        image = Image(osys, inside_container=True)
+        ok(f"image: {Image.qcow2(image)}")
+        sys.exit(0)    
+    
+    # ,vm-init-start port
+    #   Start a local VM listening for SSH on port to simulate a new VPS
+    if msg == ",vm-init-start":
+        ssh_port = Port(params[0])
+        osys = Osys("init")
+        
+        if _container_is_active():
+            error("This command should run outside of the container")
+            sys.exit(1)
+
+        info("Build image for os", f"os: {osys}")            
+        image = Image(osys, inside_container=True)
+        ok(f"image: {Image.qcow2(image)}")
+        
+        info("Start a VM using image listening for SSH on port", f"port: {ssh_port}")
+        vm = Vm(image, ssh_port)
+        ok(f"vm: {Vm.name(vm)}")
+        
+        ip = Vm.ip(vm)
+        debug("ip:", ip)
+
+        port = Vm.ssh_port(vm)
+        debug("port:", port)
+
+        host_key = Vm.host_key(vm)
+        debug("host_key:", host_key)
+
+        root_key = Vm.root_key(vm)
+        debug("root_key:", root_key)
+
+        store_key = Vm.store_key(vm)
+        debug("store_key:", store_key)
+
+        ok("A new local VM to test deployment (as if it was a VPS) has been built")
+        ok("An ssh connexion can be established using ip, port and user from the container")
+        ok(f"ip: {ip}, SSH port: {port}, user: root")
+        ok(f"Root key: {root_key}")
+        ok("The application can be deployed to the vm using ,app-deploy ip port host")
+        ok("host is the host key")
+        ok(f"Host key: {host_key}")
+        ok(f"Store key: {store_key}")
+        sys.exit(0)    
 
 # Interface
 

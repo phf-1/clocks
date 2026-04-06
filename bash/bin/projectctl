@@ -89,27 +89,6 @@ export GUILE_LOAD_PATH
 # Parameters are: $1, $2…
 read -r MSG <<<"${0##*/}"
 
-# App #
-
-# ,app-test
-#   Execute tests
-if [[ "${MSG}" == ",app-test" ]]; then
-  ,backend-test
-  ok "Tests have been executed"
-  exit 0
-fi
-
-# ,app-clean
-#   Delete all generated files
-if [[ "${MSG}" == ",app-clean" ]]; then
-  ,frontend-clean
-  ,db-clean
-  ,backend-clean
-  (cd "${ROOT}" && rm -rf _*)
-  ok "ROOT directory cleaned" "ROOT=$ROOT"
-  exit 0
-fi
-
 # Elixir #
 
 # ,ex-format
@@ -203,49 +182,6 @@ fi
 # DEPLOYMENT #
 
 # Vm #
-
-# ,vm-init-start port
-#   Start a local VM listening for SSH on port to simulate a new VPS
-if [[ "${MSG}" == ",vm-init-start" ]]; then
-  port_check "$1"
-  ssh_port="$1"
-  os="init"
-  os_check "$os"
-
-  info "Build an image for os" "os=$os"
-  image="$(image "$os")"
-  ok "image: $(image_qcow2 $image)"
-
-  info "Start a VM using image listening for SSH on port" "port: $ssh_port"
-  vm="$(vm "$image" "$ssh_port")"
-  ok "vm: $(vm_name $vm)"
-
-  ip="$(vm_ip "$vm")"
-  debug "ip: $ip"
-
-  port="$(vm_ssh_port "$vm")"
-  debug "port: $port"
-
-  host_key="$(vm_host_key "$vm")"
-  debug "host_key: $host_key"
-
-  root_key="$(vm_root_key "$vm")"
-  debug "root_key: $root_key"
-
-  store_key="$(vm_store_key "$vm")"
-  debug "store_key: $store_key"
-
-  ok "A new local VM to test deployment (as if it was a VPS) has been built"
-  # TODO(0991): build a command ,ssh-init-vm ?
-  ok "An ssh connexion can be established using ip, port and user from the container"
-  ok "ip: $ip, SSH port: $port, user: root"
-  ok "Root key: $root_key"
-  ok "The application can be deployed to the vm using ,app-deploy ip port host"
-  ok "host is the host key"
-  ok "Host key: $host_key"
-  ok "Store key: $store_key"
-  exit 0
-fi
 
 # ,vm-build Os
 #   Given an OS, then build its vm
