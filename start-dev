@@ -52,18 +52,15 @@ main() {
     local cmd="bash --init-file bash/etc/bashrc -i"
 
     if ! ssh-add -l &>/dev/null; then
-      info "The SSH agent is necessary to connect to a VPS"
-      failed_check "The SSH agent is not functional" "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
+      echo "ERROR | The SSH agent is necessary to connect to a VPS"
+      exit 1
     fi
 
     ETC_GUIX="/etc/guix"
     if [[ ! -f "$ETC_GUIX/signing-key.pub" ]]; then
-      info "Store items must be signed before being transmitted to a VPS"
-      info "Generating keys"
       set -x
       sudo -k guix archive --generate-key
       set +x
-      info "generated keys are:"
       ls -l
     fi
 
