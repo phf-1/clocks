@@ -1,22 +1,6 @@
-# Specification
-
 # [[id:ef1de6fd-1c16-459f-9564-02bbe5917396][VM]]
 #
 # A VM represents a [[ref:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]].
-#
-# vm : [[ref:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]] [[ref:bbabbbd6-cd92-44b3-91b7-095c979f7f45][Port]] → VM
-# is? : Any → Boolean
-# check : Any → Maybe(Error ∧ (exit 1))
-# image : VM → Image
-# running? : VM Timeout → Boolean
-# running_check : VM Timeout → Maybe(Error ∧ (exit 1))
-# vm_system_check : Maybe(Error ∧ (exit 1))
-# status : VM → String
-# stop : VM → VM
-# clean : VM → VM (underlying filesystem has been cleaned)
-# name : VM → String
-
-# Implementation
 
 from __future__ import annotations
 import subprocess
@@ -35,7 +19,7 @@ _VM_TMP.mkdir(parents=True, exist_ok=True)
 
 def _system_check() -> None:
     for cmd in ("socat", "qemu-system-x86_64", "qemu-img", "wget", "systemd-run", "systemctl"):
-        if shutil.which(cmd) is None:     
+        if shutil.which(cmd) is None:
             Check.failed("required command not found", f"cmd={cmd}")
 
     if not Path("/dev/kvm").exists():
@@ -87,8 +71,8 @@ def _start(image, ip, ssh_port):
             "-mon", "chardev=mon,mode=control",
         ]
         subprocess.run(cmd)
-        _is_running_check(ip, ssh_port, timeout=20)            
-    
+        _is_running_check(ip, ssh_port, timeout=20)
+
 def _is_running(ip, port, timeout) -> bool:
     start = time.time()
     while time.time() - start < timeout:
@@ -112,13 +96,38 @@ def _store_key(image):
 # Interface
 
 class Vm:
+    """
+    mk : [[ref:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]] [[ref:bbabbbd6-cd92-44b3-91b7-095c979f7f45][Port]] → VM
+    elim : (Image Ip Port → C) → VM → C
+    image : VM → Image
+    name : VM → String
+    ip : VM → Ip
+    ssh-port : VM → Port
+    host-key : VM → String
+    root-key : VM → String
+    store-key : VM → String
+    vm_system_check : ∅
+    start : VM → VM
+    running? : VM Timeout → Boolean
+    running_check : VM Timeout → Maybe(Error ∧ (exit 1))
+    status : VM → String
+    stop : VM → VM
+    clean : VM → VM (underlying filesystem has been cleaned)
+    """
+
     def __init__(self, image, ssh_port):
-        Image.check(image)  
+        Image.check(image)
         Port.check(ssh_port)
         self._image = image
         self._ssh_port = ssh_port
-        # TODO(5e4b): generalize to arbitrary IP 
+        # TODO(5e4b): generalize to arbitrary IP
         self._ip = Ip("127.0.0.1")
+
+    @staticmethod
+    def mk(image, ssh_port) -> Vm:
+        Image.check(image)
+        Port.check(ssh_port)
+        return Vm(image, ssh_port)
 
     @staticmethod
     def is_a(vm) -> bool:
@@ -161,7 +170,7 @@ class Vm:
     def start(vm):
          Vm.elim(lambda image, ip, port: _start(image,ip,port))(vm)
          return vm
-        
+
     @staticmethod
     def root_key(vm):
         Vm.check(vm)

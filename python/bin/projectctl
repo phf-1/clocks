@@ -17,6 +17,9 @@ from pathlib import Path
 SELF = Path(os.path.realpath(__file__))
 SELF_NAME = SELF.name
 
+lib_dir = (SELF.parent.parent / "lib").resolve()
+if str(lib_dir) not in sys.path:
+    sys.path.insert(0, str(lib_dir))
 
 from log import Log      # noqa: E402
 ok = Log.ok
@@ -33,14 +36,12 @@ from mode import Mode    # noqa: E402
 from constant import Constant    # noqa: E402
 from osys import Osys      # noqa: E402
 from image import Image # noqa: E402
-from port import Port # noqa: E402
 from vm import Vm       # noqa: E402
-from scheme import Scheme       # noqa: E402
 from help import Help       # noqa: E402
-from seq import Seq       # noqa: E402
-from maybe import Maybe       # noqa: E402
-from toolz import pipe    # noqa: E402
+from ip import Ip       # noqa: E402
+from port import Port       # noqa: E402
 from params import Params    # noqa: E402
+from guix import Guix    # noqa: E402
 
 
 ENCODING = Constant.encoding()
@@ -137,14 +138,6 @@ def _dev_vm(ssh_port):
     ok(f"image: {Image.qcow2(image)}")
     info("Start a VM using image listening for SSH on port", f"port: {ssh_port}")
     return Vm(image, ssh_port)
-
-def _guix_deploy(module, ip, port, key):
-    env = os.environ.copy()
-    load_path=env["GUILE_LOAD_PATH"]
-    env["GUILE_LOAD_PATH"] = f"{Scheme.root()}:{load_path}"
-    machine = f'(machine "{ip}" {port} "{key}")'
-    expression = f'(begin (use-modules {module}) (list {machine}))'
-    subprocess.run(["guix", "deploy", "-e", expression], env=env, check=True)
 
 def _rcv(msg, params):
     # INSTALLATION #
@@ -352,8 +345,8 @@ def _rcv(msg, params):
         ok("Tests have been executed")
         sys.exit(0)
 
-    # ,app-deploy-dev ssh-port
-    #   Deploy the application to the local dev VM
+    # ,app-deploy-dev port
+    #   Deploy the application to the local dev VM using SSH port
     if msg == ",app-deploy-dev":
         ssh_port = Params.port(params, 0)
         vm = _dev_vm(ssh_port)
@@ -365,9 +358,13 @@ def _rcv(msg, params):
             info("Start the Dev VM outside the container with ,vm-init-start port", f"port: {port}")
             sys.exit(1)
         host_key = Vm.host_key(vm)
-        _guix_deploy('(app vm init machine)', ip, ssh_port, host_key)
-        ok("Application has been deployed to the local vm", f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
-        sys.exit(0)
+        result = Guix.deploy(['app', 'vm', 'init', 'machine'], [Ip.string(ip), Port.number(ssh_port), host_key])
+        if result.returncode == 0:
+            ok("Application has been deployed to the local vm", f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
+            sys.exit(0)            
+        else:
+            error("Application has NOT been deployed to the local vm", f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
+            sys.exit(1)            
 
     # ,app-clean
     #   Delete all generated files
