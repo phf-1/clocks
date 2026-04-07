@@ -1,14 +1,10 @@
 #! /usr/bin/env python3.11
 
-# Specification
-
 # [[id:344d2579-2d67-4901-8e70-1849eea0c843][projectctl]]
 #
 # This executable acts as a centralized CLI for the project. It automatizes needed
 # operations like starting the database, linting source files, or deploying the
 # application.
-
-# Implementation
 
 from __future__ import annotations
 import os
@@ -44,11 +40,8 @@ from vm import Vm       # noqa: E402
 from scheme import Scheme       # noqa: E402
 from help import Help       # noqa: E402
 
-# Constants
-
 ENCODING = Constant.encoding()
 CMD_RE = re.compile(r" *# (,.+)$")
-
 
 SPEC = """
 What is the objective of this script?
@@ -335,7 +328,7 @@ def _rcv(msg, params):
         ok(f"Store key: {store_key}")
         sys.exit(0)
 
-    # App #
+    # APP #
 
     # ,app-repl
     #   Start the application and drop into iex
@@ -391,8 +384,6 @@ def _rcv(msg, params):
 
     error("Unexpected message.", f"msg: {msg}")
     sys.exit(1)
-
-# Interface
 
 if __name__ == "__main__":
     try:
