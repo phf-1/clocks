@@ -1,12 +1,5 @@
-;; Context
-
-;; [[id:709a6ce8-29d8-4054-b578-18d6e652de50][package]] :≡ [[ref:2c987f55-f961-4d1f-9268-dee9264ce318]]
-;; [[id:3d3d718d-f6e8-41f0-a565-cbdae8a7fe2d][service]] :≡ https://doc.guix.gnu.org/shepherd/latest/en/html_node/Defining-Services.html
-
-;; Specification
-
 ;; This module exports app-service-type and app-configuration.
-;; app-service-type is a [[ref:3d3d718d-f6e8-41f0-a565-cbdae8a7fe2d][service]] for [[ref:709a6ce8-29d8-4054-b578-18d6e652de50][package]]
+;; app-service-type is a [[ref:c12b81b0-eeeb-46de-9c1e-26d5113cbfdd][ShepherdService]] for [[ref:65e6819a-31da-4ba2-a6cb-f1ee97c06020][GuixPackage]]
 ;; app-configuration provides a default configuration and configuration options
 
 ;; Implementation
@@ -14,10 +7,10 @@
 (define-module (app vm dev service))
 
 (use-modules
- (guix records) 
- (guix gexp) 
- (gnu services) 
- (gnu services shepherd) 
+ (guix records)
+ (guix gexp)
+ (gnu services)
+ (gnu services shepherd)
  (srfi srfi-1))
 
 (define-record-type* <app-configuration>

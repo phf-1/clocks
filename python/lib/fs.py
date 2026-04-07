@@ -1,18 +1,12 @@
-# Specification
-
 # [[id:b394674a-148b-4f10-9c5e-1166e8b86793][fs]]
 #
 # This module represents the filesystem.
 #
 # root : Directory
 
-# Implementation
-
 from __future__ import annotations
-
 import subprocess
 from pathlib import Path
-
 from check import Check
 
 # Interface

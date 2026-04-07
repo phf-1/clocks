@@ -48,3 +48,9 @@ class Guix:
     @staticmethod
     def deploy(names, params):
         return _guix_deploy(names, params)
+
+    @staticmethod
+    def build(path):
+        cmd = ["guix", "build", "-q", "-f", f"{path}"]
+        subprocess.run(cmd, check=True)
+        return Guix

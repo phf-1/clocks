@@ -42,6 +42,7 @@ from ip import Ip       # noqa: E402
 from port import Port       # noqa: E402
 from params import Params    # noqa: E402
 from guix import Guix    # noqa: E402
+from app import App    # noqa: E402
 
 
 ENCODING = Constant.encoding()
@@ -277,7 +278,7 @@ def _rcv(msg, params):
     # ,backend-dist
     #   Build a backend distribution
     if msg == ",backend-dist":
-        url = Backend.mode_url(Mode.prod)
+        url = Backend.url(Mode.prod())
         info("Build the frontend distribution at url", f"url={url}")
         frontend_dist = Frontend.dist(url)
         ok("dist=", str(frontend_dist))
@@ -306,7 +307,7 @@ def _rcv(msg, params):
         ok(f"image: {Image.qcow2(image)}")
         sys.exit(0)
 
-    # ,vm-init-start port
+    # ,vm-init-start Port
     #   Start a local VM listening for SSH on port to simulate a new VPS
     if msg == ",vm-init-start":
         ssh_port = Params.port(params, 0)
@@ -341,7 +342,7 @@ def _rcv(msg, params):
         Db.start(mode)
         Backend.init_db(mode)
         Backend.migrate(mode)
-        url = Backend.mode_url(mode)
+        url = Backend.url(mode)
         frontend_dist = Frontend.dist(url)
         Backend.install_frontend(frontend_dist)
         Backend.repl()
@@ -352,6 +353,13 @@ def _rcv(msg, params):
     if msg == ",app-test":
         Backend.test()
         ok("Tests have been executed")
+        sys.exit(0)
+
+    # ,app-package
+    #   Build an application package
+    if msg == ",app-package":
+        package = App.package()
+        ok("A package for the application has been built", f"package: {package}")
         sys.exit(0)
 
     # ,app-deploy-dev port

@@ -21,13 +21,13 @@
 
 (define distribution
   (local-file
-   backend-dist
+   "__DIST__"
    #:recursive? #t))
 
 (define package
   (guix:package
    (name "app")
-   (version "0.1.0")           ; TODO(2244): read that from mix.exs 
+   (version "0.1.0")           ; TODO(2244): read that from mix.exs
    (source distribution)
    (build-system copy-build-system)
    (arguments
@@ -36,7 +36,7 @@
      ''(("./" "opt/app"))))
    (synopsis "package for a [[ref:53ed1487-e1d0-4cdd-a4cc-c7b810bf9b17][Distribution]]")
    (description "package for a [[ref:53ed1487-e1d0-4cdd-a4cc-c7b810bf9b17][Distribution]]")
-   (license #f)  
+   (license #f)
    (home-page #f)))
 
 ;; Interface
