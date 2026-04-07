@@ -1,6 +1,6 @@
 ;; Specification
 
-;; [[id:7a5ba082-9f21-47b5-97f4-b1e29d6726c4]] 
+;; [[id:7a5ba082-9f21-47b5-97f4-b1e29d6726c4]]
 ;; This module defines a set of constants for all the scheme code, for instance the
 ;; project root directory path.
 
@@ -26,4 +26,4 @@
 (define-public dev-public-key-path
   (string-append ssh-root "/ed25519.pub"))
 
-(define-public backend-dist (string-append project-root "/phoenix/_build/prod/rel/dist"))
+(define-public backend-dist (string-append project-root "/backend/_build/prod/rel/dist"))

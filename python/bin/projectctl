@@ -262,7 +262,7 @@ def _rcv(msg, params):
     #   Execute all Elixir tests
     if msg == ",backend-test":
         Backend.test()
-        ok("Phoenix tests executed")
+        ok("Backend tests executed")
         sys.exit(0)
 
     # ,backend-dist
