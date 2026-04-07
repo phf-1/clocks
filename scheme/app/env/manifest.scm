@@ -120,6 +120,7 @@
        "guile-readline"
        "guile-colorized"
        "python"
+       "python-toolz"
        ))
 
     (packages->manifest

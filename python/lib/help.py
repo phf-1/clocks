@@ -103,7 +103,7 @@ class Help:
                 cur_cmd = None
                 doc.append(cur_sec)
             elif cur_sec is not None and (m := CMD_RE.match(line)):
-                cur_cmd = m.group(1).split()[0]
+                cur_cmd = m.group(1)
             elif cur_cmd is not None and (m := DESC_RE.match(line)):
                 cur_sec = Section.add(cur_sec, cur_cmd, m.group(1))
                 doc[-1] = cur_sec

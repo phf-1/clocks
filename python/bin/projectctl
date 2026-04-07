@@ -17,8 +17,6 @@ from pathlib import Path
 SELF = Path(os.path.realpath(__file__))
 SELF_NAME = SELF.name
 
-# Add python/bin/../lib to sys.path
-sys.path.insert(0, str(SELF.parent.parent / "lib"))
 
 from log import Log      # noqa: E402
 ok = Log.ok
@@ -39,6 +37,11 @@ from port import Port # noqa: E402
 from vm import Vm       # noqa: E402
 from scheme import Scheme       # noqa: E402
 from help import Help       # noqa: E402
+from seq import Seq       # noqa: E402
+from maybe import Maybe       # noqa: E402
+from toolz import pipe    # noqa: E402
+from params import Params    # noqa: E402
+
 
 ENCODING = Constant.encoding()
 CMD_RE = re.compile(r" *# (,.+)$")
@@ -169,8 +172,6 @@ def _rcv(msg, params):
 
     # DEVELOPMENT #
 
-    #   Mode :≡ dev | test | prod
-
     # ,help
     #   Print commands and descriptions
     if msg == ",help":
@@ -188,10 +189,10 @@ def _rcv(msg, params):
 
     # DATABASE #
 
-    # ,db-init Mode
-    #   Creates a directory for the DB data
+    # ,db-init (Mode :≡ dev|test|prod)
+    #   Creates a directory for the DB data. 
     if msg == ",db-init":
-        mode = Mode.parse(params[0])
+        mode = Params.mode(params, 0)
         db_data = Db.init(mode)
         ok("The PostgreSQL cluster has been initialized",
            f"mode={mode}", f"db_data={db_data}")
@@ -200,7 +201,7 @@ def _rcv(msg, params):
     # ,db-start Mode
     #   Start a PostgreSQL process
     if msg == ",db-start":
-        mode = Mode.parse(params[0])
+        mode = Params.mode(params, 0)
         Db.start(mode)
         ok("The PostgreSQL instance is started")
         sys.exit(0)
@@ -208,7 +209,7 @@ def _rcv(msg, params):
     # ,db-status Mode
     #   Status a PostgreSQL process
     if msg == ",db-status":
-        mode = Mode.parse(params[0])
+        mode = Params.mode(params, 0)
         match Db.status(mode):
             case ["running", status]:
                 ok(status)
@@ -251,7 +252,7 @@ def _rcv(msg, params):
     # ,backend-init-db Mode
     #   Set up database tables
     if msg == ",backend-init-db":
-        mode = Mode.parse(params[0])
+        mode = Params.mode(params, 0)
         Backend.init_db(mode)
         ok("The database tables have been created", f"mode={mode}")
         sys.exit(0)
@@ -259,7 +260,7 @@ def _rcv(msg, params):
     # ,backend-migrate Mode
     #   Apply pending Ecto migrations to the database
     if msg == ",backend-migrate":
-        mode = Mode.parse(params[0])
+        mode = Params.mode(params, 0)
         Backend.migrate(mode)
         ok("Ecto migration has been applied to the database", f"mode={mode}")
         sys.exit(0)
@@ -306,7 +307,7 @@ def _rcv(msg, params):
     # ,vm-init-start port
     #   Start a local VM listening for SSH on port to simulate a new VPS
     if msg == ",vm-init-start":
-        ssh_port = Port(params[0])
+        ssh_port = Params.port(params, 0)
         vm = _dev_vm(ssh_port)
         if _container_is_active():
             error("This command should run outside of the container")
@@ -354,7 +355,7 @@ def _rcv(msg, params):
     # ,app-deploy-dev ssh-port
     #   Deploy the application to the local dev VM
     if msg == ",app-deploy-dev":
-        ssh_port = Port(params[0])
+        ssh_port = Params.port(params, 0)
         vm = _dev_vm(ssh_port)
         ok(f"vm: {Vm.name(vm)}")
         ip = Vm.ip(vm)
@@ -387,9 +388,10 @@ def _rcv(msg, params):
 
 if __name__ == "__main__":
     try:
-        _rcv(Path(sys.argv[0]).name, sys.argv[1:])
+        _rcv(Path(sys.argv[0]).name, Params(sys.argv[1:]))
     except CheckError:
         sys.exit(1)
     except Exception as e:
         Log.error("Unexpected exception", str(e))
+        Log.error("try: ,help")
         sys.exit(1)

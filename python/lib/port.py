@@ -34,6 +34,10 @@ class Port:
         return str(self._value)
 
     @staticmethod
+    def mk(value) -> "Port":
+        return Port(value)
+
+    @staticmethod
     def is_a(value) -> bool:
         """Check whether a value is a valid port number."""
         return isinstance(value,Port)

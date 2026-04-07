@@ -1,16 +1,7 @@
-# Specification
-
 # [[id:9498f31c-91da-4a26-85a7-e0fad70bedff][Mode]]
 #
 # m : Mode represents the category of users using the application, developers,
 # automated systems for testing purposes, paying customers.
-#
-# dev : Mode
-# test : Mode
-# prod : Mode
-# is?   : Any → Boolean
-# check : Any → Maybe(Error ∧ exit 1)
-# elim : ( → C) ( → C) ( → C) → Mode → C
 
 # Implementation
 
@@ -22,6 +13,13 @@ _VALUES = ("dev", "test", "prod")
 # Interface
 
 class Mode:
+    """
+    dev : Mode
+    test : Mode
+    prod : Mode
+    elim : C C C → Mode → C
+    """
+    
     def __init__(self, value):
         if value not in _VALUES:
             Check.failed("value not in _VALUES", f"value: {value}", f"_VALUES: {_VALUES}")
@@ -59,9 +57,21 @@ class Mode:
         def closure(mode):
             Mode.check(mode)
             if mode._value == "dev":
-                return ifdev()
+                return ifdev
             if mode._value == "test":
-                return iftest()
+                return iftest
             if mode._value == "prod":
-                return ifprod()
+                return ifprod
         return closure
+
+    @staticmethod
+    def parse(string):
+        if (string == "dev"):
+            return Mode.dev()
+        if (string == "test"):
+            return Mode.test()
+        if (string == "prod"):
+            return Mode.prod()
+        raise ValueError(f"string is not a Mode representation. string: {string}")
+
+    
