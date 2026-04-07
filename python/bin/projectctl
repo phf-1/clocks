@@ -184,7 +184,7 @@ def _rcv(msg, params):
     # DATABASE #
 
     # ,db-init (Mode :≡ dev|test|prod)
-    #   Creates a directory for the DB data. 
+    #   Creates a directory for the DB data.
     if msg == ",db-init":
         mode = Params.mode(params, 0)
         db_data = Db.init(mode)
@@ -300,12 +300,13 @@ def _rcv(msg, params):
     #   Build the image of the init OS
     if msg == ",vm-init-image-build":
         osys = Osys("init")
-        if not _container_is_active():
+        if _container_is_active():
+            image = Image(osys, inside_container=True)
+            ok(f"image: {Image.qcow2(image)}")
+            sys.exit(0)
+        else:
             error("The image should be built from within the container")
             sys.exit(1)
-        image = Image(osys, inside_container=True)
-        ok(f"image: {Image.qcow2(image)}")
-        sys.exit(0)
 
     # ,vm-init-start Port
     #   Start a local VM listening for SSH on port to simulate a new VPS
@@ -315,22 +316,23 @@ def _rcv(msg, params):
         if _container_is_active():
             error("This command should run outside of the container")
             sys.exit(1)
-        Vm.start(vm)
-        ok(f"vm: {Vm.name(vm)}")
-        ip = Vm.ip(vm)
-        port = Vm.ssh_port(vm)
-        host_key = Vm.host_key(vm)
-        root_key = Vm.root_key(vm)
-        store_key = Vm.store_key(vm)
-        ok("A new local VM to test deployment (as if it was a VPS) has been built")
-        ok("An ssh connexion can be established using ip, port and user from the container")
-        ok(f"ip: {ip}, SSH port: {port}, user: root")
-        ok(f"Root key: {root_key}")
-        ok("The application can be deployed to the vm using ,app-deploy ip port host")
-        ok("host is the host key")
-        ok(f"Host key: {host_key}")
-        ok(f"Store key: {store_key}")
-        sys.exit(0)
+        else:
+            Vm.start(vm)
+            ok(f"vm: {Vm.name(vm)}")
+            ip = Vm.ip(vm)
+            port = Vm.ssh_port(vm)
+            host_key = Vm.host_key(vm)
+            root_key = Vm.root_key(vm)
+            store_key = Vm.store_key(vm)
+            ok("A new local VM to test deployment (as if it was a VPS) has been built")
+            ok("An ssh connexion can be established using ip, port and user from the container")
+            ok(f"ip: {ip}, SSH port: {port}, user: root")
+            ok(f"Root key: {root_key}")
+            ok("The application can be deployed to the vm using ,app-deploy ip port host")
+            ok("host is the host key")
+            ok(f"Host key: {host_key}")
+            ok(f"Store key: {store_key}")
+            sys.exit(0)
 
     # APP #
 
@@ -370,18 +372,21 @@ def _rcv(msg, params):
         ok(f"vm: {Vm.name(vm)}")
         ip = Vm.ip(vm)
         port = Vm.ssh_port(vm)
-        if not Vm.is_running(vm, 2):
+        if Vm.is_running(vm, 2):
+            host_key = Vm.host_key(vm)
+            result = Guix.deploy(['app', 'vm', 'init', 'machine'], [Ip.string(ip), Port.number(ssh_port), host_key])
+            if result.returncode == 0:
+                ok("Application has been deployed to the local vm",
+                   f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
+                sys.exit(0)
+            else:
+                error("Application has NOT been deployed to the local vm",
+                      f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
+                sys.exit(1)
+        else:
             error("Dev VM is not running.", f"ip: {ip}", f"port: {port}")
             info("Start the Dev VM outside the container with ,vm-init-start port", f"port: {port}")
             sys.exit(1)
-        host_key = Vm.host_key(vm)
-        result = Guix.deploy(['app', 'vm', 'init', 'machine'], [Ip.string(ip), Port.number(ssh_port), host_key])
-        if result.returncode == 0:
-            ok("Application has been deployed to the local vm", f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
-            sys.exit(0)            
-        else:
-            error("Application has NOT been deployed to the local vm", f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
-            sys.exit(1)            
 
     # ,app-clean
     #   Delete all generated files
@@ -395,6 +400,14 @@ def _rcv(msg, params):
             if item.is_dir():
                 shutil.rmtree(item, ignore_errors=True)
         ok("ROOT directory cleaned", f"ROOT={root}")
+        sys.exit(0)
+
+    # SUPPORT #
+
+    # ,guix-repl
+    #   Start the Guix repl
+    if msg == ",guix-repl":
+        Guix.repl()
         sys.exit(0)
 
     error("Unexpected message.", f"msg: {msg}")

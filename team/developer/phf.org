@@ -396,6 +396,13 @@ from disk on next start.
 5. Configure VM XML: =type="bridge"=, ISO attached, =cdrom= boot first
 6. Start VM and confirm it gets an IP from your router
 
+** shepherd service
+
+syslogd
+log-rotatieon
+hello.scm → /dev/log
+monitoring
+
 * Local Variables                                                  :noexport:
 
 # Local Variables:

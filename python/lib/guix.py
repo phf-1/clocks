@@ -5,6 +5,7 @@
 from __future__ import annotations
 import subprocess
 import os
+from fs import Fs
 
 # ["a", "b"] ↦ '(a b)'
 def _module(names):
@@ -43,6 +44,7 @@ class Guix:
     Module :≡ List(String)
     Params :≡ List(String)
     deploy : Module Params → subprocess.CompletedProcess
+    repl : ∅
     """
 
     @staticmethod
@@ -54,3 +56,9 @@ class Guix:
         cmd = ["guix", "build", "-q", "-f", f"{path}"]
         subprocess.run(cmd, check=True)
         return Guix
+
+    @staticmethod
+    def repl():
+        init = Fs.scheme() / ".guile"
+        cmd = ["guix", "repl", "-i", init]
+        subprocess.run(cmd)

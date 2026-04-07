@@ -38,22 +38,24 @@ class Image:
         self._qcow2 = qcow2 = _name_to_path(Osys.name(osys))
         spec = Osys.spec(osys)
         if (not qcow2.exists()) or (qcow2.stat().st_mtime <= spec.stat().st_mtime):
-            if not inside_container:
+            if inside_container:
+                result = subprocess.run(
+                    ["guix", "system", "image", "-t", "qcow2", "--image-size=20G", str(spec)],
+                    capture_output=True,
+                    check=True,
+                    text=True
+                )
+                breakpoint()
+                built = Path(result.stdout.strip())
+                shutil.copy2(built, qcow2)
+            else:
                 Check.error("An image cannot be built outside of a container")
-            result = subprocess.run(
-                ["guix", "system", "image", "-t", "qcow2", "--image-size=20G", str(spec)],
-                capture_output=True,
-                text=True,
-            )
-            if result.returncode != 0:
-                Check.failed("guix system image failed")
-            built = Path(result.stdout.strip())
-            shutil.copy2(built, qcow2)
+
 
     @staticmethod
     def is_a(x):
         return isinstance(x, Image)
-    
+
     @staticmethod
     def check(value) -> None:
         if not Image.is_a(value):
@@ -69,12 +71,11 @@ class Image:
     @staticmethod
     def qcow2(image):
         return Image.elim(lambda _osys, qcow2: qcow2)(image)
-    
+
     @staticmethod
     def osys(image):
         return Image.elim(lambda osys, _qcow2: osys)(image)
-    
+
     @staticmethod
     def name(image):
         return Image.elim(lambda osys, _qcow2: Osys.name(osys))(image)
-

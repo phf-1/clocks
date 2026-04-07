@@ -21,3 +21,7 @@ class Fs:
         if result.returncode != 0:
             Check.failed("Cannot determine repository root", result.stderr.strip())
         return Path(result.stdout.strip())
+
+    @staticmethod
+    def scheme() -> Path:
+        return Fs.root() / "scheme"

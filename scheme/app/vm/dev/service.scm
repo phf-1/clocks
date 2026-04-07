@@ -1,4 +1,6 @@
-;; This module exports app-service-type and app-configuration.
+;; [[id:ab47a8e4-aaa3-431d-8a50-30b47c36d762][AppService]]
+;;
+;; This module exports a shepherd service and service configuration for the app
 ;; app-service-type is a [[ref:c12b81b0-eeeb-46de-9c1e-26d5113cbfdd][ShepherdService]] for [[ref:65e6819a-31da-4ba2-a6cb-f1ee97c06020][GuixPackage]]
 ;; app-configuration provides a default configuration and configuration options
 
@@ -19,7 +21,7 @@
   (pid-file  app-configuration-pid-file  (default "/var/run/app.pid"))
   (name      app-configuration-name      (default "joe")))
 
-(define (app-shepherd-service config)
+(define-public (app-shepherd-service config)
   "Return a list of <shepherd-service> for app with CONFIG."
   (let ((pid-file (app-configuration-pid-file config))
         (name     (app-configuration-name config)))
@@ -34,7 +36,7 @@
            (stop #~(make-kill-destructor))
            (auto-start? #t)))))
 
-(define app-service-type
+(define-public app-service-type
   (service-type
    (name 'app)
    (description "Run the app.")

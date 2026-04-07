@@ -27,3 +27,5 @@
   (string-append ssh-root "/ed25519.pub"))
 
 (define-public backend-dist (string-append project-root "/backend/_build/prod/rel/dist"))
+
+(define-public store-public-key "/etc/guix/signing-key.pub")

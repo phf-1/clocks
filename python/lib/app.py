@@ -41,9 +41,19 @@ def _package(dist):
 package
 """
 
+def _service(package):
+    return """
+
+    """
+
+def _os(package):
+    raise NotImplementedError
+
 class App:
     """
     package : Path :≡ Path to the application package
+    service : Path :≡ Path to the service
+    os : Path :≡ Path to the os
     """
 
     @staticmethod
@@ -58,3 +68,11 @@ class App:
             f.write(_package(dist))
         Guix.build(package_tmp)
         return package_tmp
+
+    @staticmethod
+    def service():
+        raise NotImplementedError
+
+    @staticmethod
+    def os():
+        raise NotImplementedError

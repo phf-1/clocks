@@ -1,12 +1,9 @@
-;; Specification
-
-;; [[id:7f1cb335-753f-448b-9637-39c130ded682][OS]]
+;; [[id:7f1cb335-753f-448b-9637-39c130ded682][InitOS]]
 ;;
-;; An OS represents an operating system.
-;;
-;; TODO(7461)
-
-;; Implementation
+;; This module represents the initial OS, the one we get to install on a fresh
+;; VPS. Then, it can be used as a target for deploying applications to. So, it is
+;; minimal in nature, with just enough package to allow experimentations with Guix
+;; System.
 
 (define-module (app vm init os))
 
@@ -22,84 +19,72 @@
  (gnu services networking)
  (gnu services ssh)
  (gnu packages base)
+ (gnu packages emacs)
+ (gnu packages emacs-xyz)
+ (gnu services guix)
+ (gnu home)
  (guix gexp)
- (app env constant))
+ ((app env constant) #:prefix cst:))
 
-;; see: [[ref:317882b2-8907-4bda-89ed-a1d60793ddc3]]
+;; A [[ref:38345dba-d72f-49b6-9c0e-1bade9e9677a][GuixSystem]] can be viewed as a network of services ([[ref:e2dba26b-b5a5-426f-82a0-a7f0772c2c69][ServicesDag]]).
+(define services '())
 
+;; To send/receive messages from/to the network, the machine gets an Ip address using
+;; a DHCP service.
+(define dhcp-service
+  (service
+   dhcpcd-service-type
+   (dhcpcd-configuration)))
+(set! services (cons dhcp-service services))
+
+;; root can connect to the machine using an ssh connection. Variables names starting
+;; with % are targets to scripts. See: [[ref:317882b2-8907-4bda-89ed-a1d60793ddc3]]
 (define %user "root")
-(define %host-name "init")
-(define %root-pub-key dev-public-key-path)
-(define %store-pub-key "/etc/guix/signing-key.pub")
-
-;; The app user account is responsible for the applications.
-;; (define %user-account "app")
-;; (define app-user
-;;   (user-account
-;;    (name %user-account)
-;;    (group "users")))
-
-
-;; The system account is responsible for everything else, like system upgrades.
-;; (define %system-account "system")
-;; (define system-user
-;;   (user-account
-;;    (name %system-account)
-;;    (group "system")
-;;    (system? #t)))
-
-;; For the system account to operate, it needs to be added to the sudoers file.
-;; (define sudoers
-;;   (plain-file
-;;    "sudoers"
-;;    (string-append
-;;     (plain-file-content %sudoers-specification)
-;;     (format #f "~a ALL = NOPASSWD: ALL~%" %system-account))))
-
-;; The VM listens for SSH connexions on port 22. It is only possible to connect
-;; through ed25519 pub/key pairs using the declared accounts.
+(define %root-pub-key cst:dev-public-key-path)
 (define %ssh-port 22)
 (define ssh-service
   (service
    openssh-service-type
    (openssh-configuration
     (port-number %ssh-port)
-    ;; (permit-root-login 'prohibit-password)
-    (permit-root-login #t)
+    (permit-root-login 'prohibit-password)
     (allow-empty-passwords? #f)
     (password-authentication? #f)
     (generate-host-keys? #t)
     (authorized-keys
      `((,%user ,(local-file %root-pub-key)))))))
+(set! services (cons ssh-service services))
 
+;; If root is connected, then it has basic tools.
+(define root-home
+  (home-environment
+   (packages
+    (list
+     emacs-minimal
+     emacs-geiser))))
 
-;; For this OS to be deployed to using `guix deploy', it needs to have this host Guix
-;; daemon signing key in order to accept build artifacts.
+;; Users' homes are defined
+(define home-service
+  (service guix-home-service-type
+           `(("root" ,root-home))))
+(set! services (cons home-service services))
+
+;; For this system to accept to be deployed to, it needs to trust the programs it
+;; receives from the emitter ([[ref:d78940d6-33a0-4235-b094-9fa13dc27506][GuixDeployment]]). So, it trusts the current machine.
+(define %store-pub-key cst:store-public-key)
 (define init-base-services
-  (modify-services %base-services
-                   (guix-service-type config =>
-                                      (guix-configuration
-                                       (inherit config)
-                                       (authorized-keys
-                                        (append (list (local-file %store-pub-key))
-                                                %default-authorized-guix-keys))))))
+  (modify-services
+   %base-services
+   (guix-service-type config =>
+                      (guix-configuration
+                       (inherit config)
+                       (authorized-keys
+                        (append (list (local-file %store-pub-key))
+                                %default-authorized-guix-keys))))))
+(set! services (append init-base-services services))
 
-;; DHCP
-(define dhcp-service
-  (service
-   dhcpcd-service-type
-   (dhcpcd-configuration)))
-
-;; Services
-
-(define services
-  (cons*
-   dhcp-service
-   ssh-service
-   init-base-services))
-
-;; Interface
-
+;; Finally, the os is fully specified
+(define %host-name "init")
 (define-public os
   (operating-system
    (host-name %host-name)
@@ -120,15 +105,6 @@
            (device "/dev/vda1")
            (type "ext4"))
           %base-file-systems))
-
-   ;; (groups (new-group ))
-
-   ;; (users
-   ;;  (cons*
-   ;;   app-user
-   ;;   system-user
-   ;;   %base-user-accounts))
-
    (services services)))
 
 ;; So that 'guix image /…/os.scm' works

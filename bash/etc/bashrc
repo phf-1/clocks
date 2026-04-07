@@ -1,6 +1,3 @@
-_ROOT="$(git rev-parse --show-toplevel)"
-source "$_ROOT/bash/etc/bash_profile"
-
 # History
 export HISTSIZE=10000
 export HISTFILESIZE=20000
