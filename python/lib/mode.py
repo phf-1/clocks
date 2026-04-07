@@ -74,4 +74,8 @@ class Mode:
             return Mode.prod()
         raise ValueError(f"string is not a Mode representation. string: {string}")
 
+    @staticmethod
+    def string(mode):
+        return Mode.elim("dev", "test", "prod")(mode)
+
     

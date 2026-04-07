@@ -226,6 +226,15 @@ def _rcv(msg, params):
         ok("The frontend has been updated", f"version={version}")
         sys.exit(0)
 
+    # ,frontend-dist Mode
+    #   Build a frontend distribution
+    if msg == ",frontend-dist":
+        mode = Params.mode(params, 0)
+        url = Backend.url(mode)
+        dist = Frontend.dist(url)
+        ok("A frontend distribution in mode has been built", f"dist: {dist}", f"mode: {mode}")
+        sys.exit(0)
+
     # ,frontend-clean
     #   Delete built files
     if msg == ",frontend-clean":

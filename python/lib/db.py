@@ -8,8 +8,8 @@
 # dev_port  : Port
 # test_port : Port
 # prod_port : Port
-# mode_port : Mode → Port
-# mode_url  : Mode → Url
+# port : Mode → Port
+# url  : Mode → Url
 # mode_data : Mode → Directory
 # mode_log  : Mode → Directory
 # init      : Mode → Directory  (initialize the db data directory if needed)
@@ -28,14 +28,13 @@ from check import Check
 from fs import Fs
 from port import Port
 from mode import Mode
-from constant import Constant    
+from constant import Constant
 
 ENCODING = Constant.encoding()
 
-_DEV_PORT  = Port(5432)
-_TEST_PORT = Port(5433)
-_PROD_PORT = Port(5434)
-
+_DEV_PORT  = Port.mk(5432)
+_TEST_PORT = Port.mk(5433)
+_PROD_PORT = Port.mk(5434)
 
 # Interface
 
@@ -47,24 +46,12 @@ class Db:
         return p
 
     @staticmethod
-    def dev_port():
-        return _DEV_PORT
+    def port(mode):
+        return Mode.elim(_DEV_PORT, _TEST_PORT, _PROD_PORT)(mode)
 
     @staticmethod
-    def test_port():
-        return _TEST_PORT
-
-    @staticmethod
-    def prod_port():
-        return _PROD_PORT
-
-    @staticmethod
-    def mode_port(mode) -> int:
-        return Mode.elim(Db.dev_port, Db.test_port, Db.prod_port)(mode)
-
-    @staticmethod
-    def mode_url(mode):
-        port = Db.mode_port(mode)
+    def url(mode):
+        port = Db.port(mode)
         return f"ecto://postgres@localhost:{port}/clocks_{mode}"
 
     @staticmethod
@@ -114,11 +101,11 @@ class Db:
         match Db.status(mode):
             case ["running", _status]:
                 return # already running
-            
+
             case _:
                 db_data = Db.mode_data(mode)
                 db_log  = Db.mode_log(mode)
-                db_port = Db.mode_port(mode)                
+                db_port = Db.port(mode)
                 result = subprocess.run([
                     "pg_ctl", "-D", str(db_data),
                     "-l", str(db_log),

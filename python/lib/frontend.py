@@ -68,7 +68,6 @@ class Frontend:
         root = Frontend.root()
         env = os.environ.copy()
         env["VITE_API_BASE_URL"] = url
-
         result = subprocess.run(
             ["npm", "run", "build"],
             cwd=root,
@@ -76,5 +75,4 @@ class Frontend:
         )
         if result.returncode != 0:
             Check.failed("could not build the frontend distribution")
-
         return root / "dist"
