@@ -2,16 +2,20 @@
 
 # [[id:bbabbbd6-cd92-44b3-91b7-095c979f7f45][Port]]
 #
-# port : Port represents a port number (1 ≤ n ≤ 65535)
+# a Port represents a port number
 #
-# is?   : Any → Boolean
-# check : Any → Port   (validates and returns int, raises CheckError if invalid)
+# Port : n:ℕ (1 ≤ n ≤ 65535) → Port
+# is_a   : Any → Boolean
+# check : Any → Maybe(Error)
+# elim : (ℕ → C) → Port → C
 # number : Port → ℕ
 
 # Implementation
 
 from __future__ import annotations
 from check import Check
+
+# Interface
 
 class Port:
     """Represents a valid TCP/UDP port (integer from 1 to 65535)."""
@@ -20,12 +24,15 @@ class Port:
         try:
             n = int(value)
             if 1 <= n <= 65535:
-                self._value = value
+                self._value = n
             else:
                 raise ValueError
         except Exception:
             Check.failed("Cannot build a port from value", f"value={value}")
-        
+
+    def __str__(self):
+        return str(self._value)
+
     @staticmethod
     def is_a(value) -> bool:
         """Check whether a value is a valid port number."""
@@ -43,8 +50,6 @@ class Port:
             return func(port._value)
         return closure
 
-    def __str__(self):
-        return str(self._value)
-    
-    
-Port.number = Port.elim(lambda x: x)
+    @staticmethod
+    def number(port) -> int:
+        return Port.elim(lambda value: value)(port)

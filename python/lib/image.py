@@ -4,12 +4,12 @@
 #
 # An Image represents a [[ref:2b855eac-c24c-4d19-a966-e8bf89be994c][DiskImage]].
 #
-# image : [[ref:b10f3eef-3767-4d1b-b690-71f36f619fd9][OS]] → Image
-# is? : Any → Boolean
-# check : Any → Maybe(Error ∧ (exit 1))
+# Image : [[ref:b10f3eef-3767-4d1b-b690-71f36f619fd9][OS]] → Image
+# is_a : Any → Boolean
+# check : Any → Maybe(Error)
+# elim : (Osys Path → C) → Image → C
 # os : Image → OS
 # qcow2 : Image → Path
-# list : List(Image)
 # name : Image → String
 
 # Implementation

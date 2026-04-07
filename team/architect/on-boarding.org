@@ -103,7 +103,7 @@ gpg --encrypt --recipient your@email.com .env
 rm .env
 #+end_src
 
-*** DOING Start the application
+*** Start the application
 
 Start the development environment:
 
@@ -119,7 +119,9 @@ Then start a REPL:
 
 The application should now be live.
 
-** Authenticated commits
+** TODO Deployment
+
+** TODO Authenticated commits
 *** Generate a keypair
 
 If you do not already have one, generate a GPG keypair. This is used to sign and
@@ -195,7 +197,7 @@ Once your PR is merged, the [[ref:87e740ec-6036-4154-968d-625196f90ee4][architec
 platform to accept commits signed by you. Your contributions will then be
 authenticated by a chain of trust.
 
-** Next steps
+** TODO Next steps
 
 - To learn what the application does and how it works, see [[ref:94a78f42-9098-4796-90c1-725e20a07fbd][Architecture]].
 - To run tests, format code, and similar tasks, see the [[ref:b80c22c9-2eed-4eea-a469-136e7666ea96][Makefile]].

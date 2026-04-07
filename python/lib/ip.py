@@ -20,12 +20,13 @@ _RE = re.compile(r"^([0-9]{1,3}\.){3}[0-9]{1,3}$")
 # Interface
 
 class Ip:
-    """Represents a valid IPv4 address (dotted decimal)."""
-
     def __init__(self, value):
         if not _RE.match(value):
             Check.failed("ip is not an Ip", f"ip={value}")
         self._value = value
+
+    def __str__(self):
+        return self._value
 
     @staticmethod
     def parse(value):
@@ -33,7 +34,7 @@ class Ip:
             return Ip(value)
         except Exception:
             return None
-            
+
     @staticmethod
     def is_a(value):
         return isinstance(value, Ip)
@@ -50,7 +51,6 @@ class Ip:
             return func(ip._value)
         return closure
 
-    def __str__(self):
-        return self._value
-
-Ip.string = Ip.elim(lambda value: value)
+    @staticmethod
+    def string(ip):
+        return Ip.elim(lambda value: value)(ip)

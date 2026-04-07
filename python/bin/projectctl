@@ -42,6 +42,7 @@ from image import Image # noqa: E402
 from port import Port # noqa: E402
 from vm import Vm       # noqa: E402
 from scheme import Scheme       # noqa: E402
+from help import Help       # noqa: E402
 
 # Constants
 
@@ -64,7 +65,7 @@ How to use this script?
 How to choose a new command name?
 
   command_name :≡ "," (component "-")? verb ("-" param)*
-example :≡ ,help
+  example :≡ ,help
   example :≡ ,backend-test
 
   Commands start with a comma "," so that they are easy to differentiate from
@@ -107,19 +108,11 @@ How is this script structured?
 """
 
 def _help():
-    SECTION_RE = re.compile(r" *# ([^ ]+) #$")
-    DESC_RE    = re.compile(r" *#   (.+)")
-    for line in SELF.read_text(encoding=ENCODING).splitlines():
-        if m := SECTION_RE.match(line):
-            print(f"# {m.group(1)} #")
-        elif m := CMD_RE.match(line):
-            print(f"  {m.group(1)}")
-        elif m := DESC_RE.match(line):
-            print(f"    {m.group(1)}")
-            print("")
+    print(Help.string(SELF))
 
 def _update_deps():
     Backend.update()
+
     version = Frontend.update()
     ok("Dependencies not directly managed by Guix have been updated",
        f"frontend version: {version}")
@@ -142,10 +135,10 @@ def _container_is_active():
     return "GUIX_ENVIRONMENT" in os.environ
 
 def _dev_vm(ssh_port):
-    osys = Osys("init")    
-    info("Build image for os", f"os: {osys}")            
+    osys = Osys("init")
+    info("Build image for os", f"os: {osys}")
     image = Image(osys, inside_container=True)
-    ok(f"image: {Image.qcow2(image)}")    
+    ok(f"image: {Image.qcow2(image)}")
     info("Start a VM using image listening for SSH on port", f"port: {ssh_port}")
     return Vm(image, ssh_port)
 
@@ -156,7 +149,7 @@ def _guix_deploy(module, ip, port, key):
     machine = f'(machine "{ip}" {port} "{key}")'
     expression = f'(begin (use-modules {module}) (list {machine}))'
     subprocess.run(["guix", "deploy", "-e", expression], env=env, check=True)
-            
+
 def _rcv(msg, params):
     # INSTALLATION #
 
@@ -200,7 +193,7 @@ def _rcv(msg, params):
         ok("List TODOs")
         sys.exit(0)
 
-    # Database #
+    # DATABASE #
 
     # ,db-init Mode
     #   Creates a directory for the DB data
@@ -237,7 +230,7 @@ def _rcv(msg, params):
         ok("DB cleaned", f"DBROOT={Db.root()}")
         sys.exit(0)
 
-    # Frontend #
+    # FRONTEND #
 
     # ,frontend-update
     #   Update the frontend to the last version
@@ -253,7 +246,7 @@ def _rcv(msg, params):
         ok("Frontend generated files are deleted")
         sys.exit(0)
 
-    # Backend #
+    # BACKEND #
 
     # ,backend-update
     #   Update the backend dependencies
@@ -284,7 +277,7 @@ def _rcv(msg, params):
         Backend.test()
         ok("Phoenix tests executed")
         sys.exit(0)
-        
+
     # ,backend-dist
     #   Build a backend distribution
     if msg == ",backend-dist":
@@ -304,9 +297,9 @@ def _rcv(msg, params):
         ok("Backend directory cleaned", f"PHX={Backend.root()}")
         sys.exit(0)
 
-    # Vm #
+    # VM #
 
-    # ,vm-init-image-build 
+    # ,vm-init-image-build
     #   Build the image of the init OS
     if msg == ",vm-init-image-build":
         osys = Osys("init")
@@ -315,8 +308,8 @@ def _rcv(msg, params):
             sys.exit(1)
         image = Image(osys, inside_container=True)
         ok(f"image: {Image.qcow2(image)}")
-        sys.exit(0)    
-    
+        sys.exit(0)
+
     # ,vm-init-start port
     #   Start a local VM listening for SSH on port to simulate a new VPS
     if msg == ",vm-init-start":
@@ -324,9 +317,9 @@ def _rcv(msg, params):
         vm = _dev_vm(ssh_port)
         if _container_is_active():
             error("This command should run outside of the container")
-            sys.exit(1)        
+            sys.exit(1)
         Vm.start(vm)
-        ok(f"vm: {Vm.name(vm)}")        
+        ok(f"vm: {Vm.name(vm)}")
         ip = Vm.ip(vm)
         port = Vm.ssh_port(vm)
         host_key = Vm.host_key(vm)
@@ -340,7 +333,7 @@ def _rcv(msg, params):
         ok("host is the host key")
         ok(f"Host key: {host_key}")
         ok(f"Store key: {store_key}")
-        sys.exit(0)    
+        sys.exit(0)
 
     # App #
 
@@ -372,7 +365,7 @@ def _rcv(msg, params):
         vm = _dev_vm(ssh_port)
         ok(f"vm: {Vm.name(vm)}")
         ip = Vm.ip(vm)
-        port = Vm.ssh_port(vm)        
+        port = Vm.ssh_port(vm)
         if not Vm.is_running(vm, 2):
             error("Dev VM is not running.", f"ip: {ip}", f"port: {port}")
             info("Start the Dev VM outside the container with ,vm-init-start port", f"port: {port}")
