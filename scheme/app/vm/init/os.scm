@@ -2,8 +2,7 @@
 ;;
 ;; This module represents the initial OS, the one we get to install on a fresh
 ;; VPS. Then, it can be used as a target for deploying applications to. So, it is
-;; minimal in nature, with just enough package to allow experimentations with Guix
-;; System.
+;; minimal in nature, with just enough code to allow deployment.
 
 (define-module (app vm init os))
 

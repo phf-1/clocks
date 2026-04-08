@@ -1,5 +1,3 @@
-# Specification
-
 # [[id:24e56bb1-c07d-450c-b5a4-643834ef3d23][Log]]
 #
 # This module provides logging function.

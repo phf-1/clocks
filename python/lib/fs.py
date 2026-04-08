@@ -29,3 +29,7 @@ class Fs:
     @staticmethod
     def ssh() -> Path:
         return Path.home() / ".ssh"
+
+    @staticmethod
+    def channels() -> Path:
+        return Fs.scheme() / "app" / "env" / "channels.scm"

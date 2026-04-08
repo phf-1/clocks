@@ -98,6 +98,7 @@ def _store_key(image):
 class Vm:
     """
     mk : [[ref:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]] [[ref:bbabbbd6-cd92-44b3-91b7-095c979f7f45][Port]] → VM
+    dev : Port → VM
     elim : (Image Ip Port → C) → VM → C
     image : VM → Image
     name : VM → String
@@ -128,6 +129,13 @@ class Vm:
         Image.check(image)
         Port.check(ssh_port)
         return Vm(image, ssh_port)
+
+    @staticmethod
+    def dev(ssh_port, inside_container) -> Vm:
+        Port.check(ssh_port)
+        osys = Osys.dev()
+        image = Image.mk(osys, inside_container=inside_container)
+        return Vm.mk(image, ssh_port)
 
     @staticmethod
     def is_a(vm) -> bool:

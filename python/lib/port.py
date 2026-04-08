@@ -55,5 +55,5 @@ class Port:
         return closure
 
     @staticmethod
-    def number(port) -> int:
+    def int(port) -> int:
         return Port.elim(lambda value: value)(port)

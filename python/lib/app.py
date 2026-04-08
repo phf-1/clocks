@@ -3,13 +3,13 @@
 # This module represents the application.
 
 from __future__ import annotations
-import os
-import shutil
 import tempfile
 from mode import Mode
 from backend import Backend
 from frontend import Frontend
 from guix import Guix
+from pathlib import Path
+from osys import Osys
 
 def _package(dist):
     return f"""
@@ -43,11 +43,19 @@ package
 
 def _service(package):
     return """
+;; Given that application package is installed on the current system, then define a
+;; Shepherd service that starts the application, and connect application logs to
+;; syslogd.
 
+;;
     """
 
 def _os(package):
-    raise NotImplementedError
+    return """
+;; Given an application package and associated service, then define an os that starts
+;; the support services for tha application to run: database, syslogd, nginx, ….
+    """
+
 
 class App:
     """
@@ -63,7 +71,8 @@ class App:
         frontend_dist = Frontend.dist(url)
         dist = Backend.dist(frontend_dist)
         app_tmp = tempfile.mkdtemp(prefix="app_")
-        package_tmp = os.path.join(app_tmp, "package.scm")
+        package_tmp = Path(app_tmp) / "package.scm"
+        breakpoint()
         with open(package_tmp, "w") as f:
             f.write(_package(dist))
         Guix.build(package_tmp)
@@ -71,8 +80,8 @@ class App:
 
     @staticmethod
     def service():
-        raise NotImplementedError
+        print("service")
 
     @staticmethod
     def os():
-        raise NotImplementedError
+        return Osys.dev()

@@ -39,7 +39,6 @@ from image import Image # noqa: E402
 from vm import Vm       # noqa: E402
 from help import Help       # noqa: E402
 from ip import Ip       # noqa: E402
-from port import Port       # noqa: E402
 from params import Params    # noqa: E402
 from guix import Guix    # noqa: E402
 from ssh import Ssh    # noqa: E402
@@ -112,7 +111,6 @@ def _help():
 
 def _update_deps():
     Backend.update()
-
     version = Frontend.update()
     ok("Dependencies not directly managed by Guix have been updated",
        f"frontend version: {version}")
@@ -130,14 +128,6 @@ def _install_commands():
             symlink.symlink_to(SELF_NAME)
             ok(f"{cmd}")
     ok("All command symlinks are up to date")
-
-def _dev_vm(ssh_port):
-    osys = Osys("init")
-    info("Build image for os", f"os: {osys}")
-    image = Image(osys, inside_container=True)
-    ok(f"image: {Image.qcow2(image)}")
-    info("Start a VM using image listening for SSH on port", f"port: {ssh_port}")
-    return Vm(image, ssh_port)
 
 def _rcv(msg, params):
     # INSTALLATION #
@@ -311,11 +301,11 @@ def _rcv(msg, params):
     #   Start a local VM listening for SSH on port to simulate a new VPS
     if msg == ",vm-init-start":
         ssh_port = Params.port(params, 0)
-        vm = _dev_vm(ssh_port)
         if Guix.container_is_active():
             error("This command should run outside of the container")
             sys.exit(1)
         else:
+            vm = Vm.dev(ssh_port, inside_container=False)
             Vm.start(vm)
             ok(f"vm: {Vm.name(vm)}")
             ip = Vm.ip(vm)
@@ -367,25 +357,10 @@ def _rcv(msg, params):
     #   Deploy the application to the local dev VM using SSH port
     if msg == ",app-deploy-dev":
         ssh_port = Params.port(params, 0)
-        vm = _dev_vm(ssh_port)
-        ok(f"vm: {Vm.name(vm)}")
-        ip = Vm.ip(vm)
-        port = Vm.ssh_port(vm)
-        if Vm.is_running(vm, 2):
-            host_key = Vm.host_key(vm)
-            result = Guix.deploy(['app', 'vm', 'init', 'machine'], [Ip.string(ip), Port.number(ssh_port), host_key])
-            if result.returncode == 0:
-                ok("Application has been deployed to the local vm",
-                   f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
-                sys.exit(0)
-            else:
-                error("Application has NOT been deployed to the local vm",
-                      f"ip: {ip}", f"port: {port}", f"host_key: {host_key}")
-                sys.exit(1)
-        else:
-            error("Dev VM is not running.", f"ip: {ip}", f"port: {port}")
-            info("Start the Dev VM outside the container with ,vm-init-start port", f"port: {port}")
-            sys.exit(1)
+        vm = Vm.dev(ssh_port, inside_container=Guix.container_is_active())
+        os = App.os()
+        Guix.deploy(vm, os)
+        sys.exit(0)
 
     # ,app-clean
     #   Delete all generated files
@@ -415,6 +390,12 @@ def _rcv(msg, params):
         ssh_port = Params.port(params, 0)
         ip = Ip.mk("127.0.0.1")
         Ssh.connect(ssh, "root", ip, ssh_port)
+        sys.exit(0)
+
+    # ,experiment
+    #   Execute temporary code
+    if msg == ",experiment":
+        App.service()
         sys.exit(0)
 
     error("Unexpected message.", f"msg: {msg}")

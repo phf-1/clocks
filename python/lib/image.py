@@ -3,9 +3,8 @@
 # An Image represents a [[ref:2b855eac-c24c-4d19-a966-e8bf89be994c][DiskImage]].
 
 from __future__ import annotations
-import subprocess
+from cmd import Cmd
 from pathlib import Path
-
 from check import Check
 import shutil
 from fs import Fs
@@ -33,13 +32,12 @@ class Image:
         spec = Osys.spec(osys)
         if (not qcow2.exists()) or (qcow2.stat().st_mtime <= spec.stat().st_mtime):
             if inside_container:
-                result = subprocess.run(
-                    ["guix", "system", "image", "-t", "qcow2", "--image-size=20G", str(spec)],
-                    capture_output=True,
-                    check=True,
-                    text=True
-                )
-                built = Path(result.stdout.strip())
+                cmd = [
+                    "guix", "time-machine", "-C", str(Fs.channels()), "--",
+                    "system", "image", "-t", "qcow2", "--image-size=20G", str(spec)
+                ]
+                result = Cmd.run(cmd)
+                built = Path(result.strip())
                 if qcow2.exists():
                     qcow2.unlink(missing_ok=True)
                 shutil.copy2(built, qcow2)
