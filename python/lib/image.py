@@ -45,12 +45,13 @@ class Image:
                     check=True,
                     text=True
                 )
-                breakpoint()
                 built = Path(result.stdout.strip())
+                if qcow2.exists():
+                    qcow2.unlink(missing_ok=True)
                 shutil.copy2(built, qcow2)
+                qcow2.touch()
             else:
                 Check.error("An image cannot be built outside of a container")
-
 
     @staticmethod
     def is_a(x):
