@@ -25,3 +25,7 @@ class Fs:
     @staticmethod
     def scheme() -> Path:
         return Fs.root() / "scheme"
+
+    @staticmethod
+    def ssh() -> Path:
+        return Path.home() / ".ssh"

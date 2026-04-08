@@ -1,18 +1,6 @@
-# Specification
-
 # [[id:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]]
 #
 # An Image represents a [[ref:2b855eac-c24c-4d19-a966-e8bf89be994c][DiskImage]].
-#
-# Image : [[ref:b10f3eef-3767-4d1b-b690-71f36f619fd9][OS]] → Image
-# is_a : Any → Boolean
-# check : Any → Maybe(Error)
-# elim : (Osys Path → C) → Image → C
-# os : Image → OS
-# qcow2 : Image → Path
-# name : Image → String
-
-# Implementation
 
 from __future__ import annotations
 import subprocess
@@ -29,9 +17,15 @@ _IMAGE_DIR.mkdir(parents=True, exist_ok=True)
 def _name_to_path(name):
     return _IMAGE_DIR / f"{name}.qcow2"
 
-# Interface
-
 class Image:
+    """
+    mk : [[ref:b10f3eef-3767-4d1b-b690-71f36f619fd9][OS]] → Image
+    elim : (Osys Path → C) → Image → C
+    os : Image → OS
+    qcow2 : Image → Path
+    name : Image → String
+    """
+
     def __init__(self, osys, inside_container=False):
         Osys.check(osys)
         self._osys = osys
@@ -52,6 +46,10 @@ class Image:
                 qcow2.touch()
             else:
                 Check.error("An image cannot be built outside of a container")
+
+    @staticmethod
+    def mk(osys, inside_container=False):
+        return Image(osys, inside_container)
 
     @staticmethod
     def is_a(x):

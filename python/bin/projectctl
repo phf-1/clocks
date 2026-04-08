@@ -42,6 +42,8 @@ from ip import Ip       # noqa: E402
 from port import Port       # noqa: E402
 from params import Params    # noqa: E402
 from guix import Guix    # noqa: E402
+from ssh import Ssh    # noqa: E402
+ssh = Ssh.mk()
 from app import App    # noqa: E402
 
 
@@ -128,9 +130,6 @@ def _install_commands():
             symlink.symlink_to(SELF_NAME)
             ok(f"{cmd}")
     ok("All command symlinks are up to date")
-
-def _container_is_active():
-    return "GUIX_ENVIRONMENT" in os.environ
 
 def _dev_vm(ssh_port):
     osys = Osys("init")
@@ -300,7 +299,7 @@ def _rcv(msg, params):
     #   Build the image of the init OS
     if msg == ",vm-init-image-build":
         osys = Osys("init")
-        if _container_is_active():
+        if Guix.container_is_active():
             image = Image(osys, inside_container=True)
             ok(f"image: {Image.qcow2(image)}")
             sys.exit(0)
@@ -313,7 +312,7 @@ def _rcv(msg, params):
     if msg == ",vm-init-start":
         ssh_port = Params.port(params, 0)
         vm = _dev_vm(ssh_port)
-        if _container_is_active():
+        if Guix.container_is_active():
             error("This command should run outside of the container")
             sys.exit(1)
         else:
@@ -408,6 +407,14 @@ def _rcv(msg, params):
     #   Start the Guix repl
     if msg == ",guix-repl":
         Guix.repl()
+        sys.exit(0)
+
+    # ,ssh-connect-dev-vm Port
+    #   Connect to the init VM
+    if msg == ",ssh-connect-dev-vm":
+        ssh_port = Params.port(params, 0)
+        ip = Ip.mk("127.0.0.1")
+        Ssh.connect(ssh, "root", ip, ssh_port)
         sys.exit(0)
 
     error("Unexpected message.", f"msg: {msg}")

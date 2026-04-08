@@ -6,6 +6,7 @@ from __future__ import annotations
 import subprocess
 import os
 from fs import Fs
+from check import Check
 
 # ["a", "b"] ↦ '(a b)'
 def _module(names):
@@ -45,6 +46,8 @@ class Guix:
     Params :≡ List(String)
     deploy : Module Params → subprocess.CompletedProcess
     repl : ∅
+    container_is_active : Boolean
+    container_check : Maybe(Error)
     """
 
     @staticmethod
@@ -62,3 +65,12 @@ class Guix:
         init = Fs.scheme() / ".guile"
         cmd = ["guix", "repl", "-i", init]
         subprocess.run(cmd)
+
+    @staticmethod
+    def container_is_active():
+        return "GUIX_ENVIRONMENT" in os.environ
+
+    @staticmethod
+    def container_check():
+        if not Guix.container_is_active():
+            Check.error("Guix container is not active")
