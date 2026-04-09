@@ -29,6 +29,7 @@ class Image:
         Osys.check(osys)
         self._osys = osys
         self._qcow2 = qcow2 = _name_to_path(Osys.name(osys))
+        breakpoint()
         spec = Osys.spec(osys)
         if (not qcow2.exists()) or (qcow2.stat().st_mtime <= spec.stat().st_mtime):
             if inside_container:
