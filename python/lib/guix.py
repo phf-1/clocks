@@ -99,4 +99,4 @@ class Guix:
     @staticmethod
     def container_check():
         if not Guix.container_is_active():
-            Check.error("Guix container is not active")
+            Check.failed("Guix container is not active")

@@ -43,7 +43,7 @@ class Image:
                 shutil.copy2(built, qcow2)
                 qcow2.touch()
             else:
-                Check.error("An image cannot be built outside of a container")
+                Check.failed("An image cannot be built outside of a container")
 
     # TODO(3d6d): False should not be a default
     @staticmethod
