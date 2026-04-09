@@ -307,20 +307,9 @@ def _rcv(msg, params):
         else:
             vm = Vm.dev(ssh_port, inside_container=False)
             Vm.start(vm)
-            ok(f"vm: {Vm.name(vm)}")
-            ip = Vm.ip(vm)
             port = Vm.ssh_port(vm)
-            host_key = Vm.host_key(vm)
-            root_key = Vm.root_key(vm)
-            store_key = Vm.store_key(vm)
             ok("A new local VM to test deployment (as if it was a VPS) has been built")
-            ok("An ssh connexion can be established using ip, port and user from the container")
-            ok(f"ip: {ip}, SSH port: {port}, user: root")
-            ok(f"Root key: {root_key}")
-            ok("The application can be deployed to the vm using ,app-deploy ip port host")
-            ok("host is the host key")
-            ok(f"Host key: {host_key}")
-            ok(f"Store key: {store_key}")
+            ok(f"Connect to the VM from the container with: ,ssh-connect-dev-vm {port}")
             sys.exit(0)
 
     # APP #
@@ -353,7 +342,7 @@ def _rcv(msg, params):
         ok("A package for the application has been built", f"package: {package}")
         sys.exit(0)
 
-    # ,app-deploy-dev port
+    # ,app-deploy-dev Port
     #   Deploy the application to the local dev VM using SSH port
     if msg == ",app-deploy-dev":
         ssh_port = Params.port(params, 0)

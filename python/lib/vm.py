@@ -12,6 +12,7 @@ from image import Image
 from osys import Osys
 from port import Port
 from ip import Ip
+import os
 import shutil
 
 _VM_TMP = Path("/tmp/clocks/vm")
@@ -44,9 +45,58 @@ def _unit(image):
 def _socket(image) -> Path:
     return _VM_TMP / f"{_name(image)}.sock"
 
+def _purge_systemd_user_unit(unit_name):
+    """
+    Safely stops, disables, and deletes a systemd user unit and its related files.
+    Silences errors if the unit does not exist.
+    """
+
+    # 1. Stop and disable the unit (silently ignore if it doesn't exist/isn't running)
+    subprocess.run(
+        ["systemctl", "--user", "stop", unit_name],
+        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+    )
+    subprocess.run(
+        ["systemctl", "--user", "disable", unit_name],
+        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+    )
+
+    # 2. Ask systemd for the exact path to the unit file
+    show_cmd = subprocess.run(
+        ["systemctl", "--user", "show", "-p", "FragmentPath", "--value", unit_name],
+        capture_output=True, text=True
+    )
+    unit_path = show_cmd.stdout.strip()
+
+    # 3. Delete the file (and any drop-in directories) if it was found
+    if unit_path and os.path.exists(unit_path):
+        try:
+            os.remove(unit_path)
+            print(f"Removed unit file: {unit_path}")
+        except OSError as e:
+            print(f"Error removing file {unit_path}: {e}")
+
+        # Check for and remove drop-in config folders (e.g., ~/.config/systemd/user/vm-dev.service.d/)
+        drop_in_dir = f"{unit_path}.d"
+        if os.path.exists(drop_in_dir):
+            shutil.rmtree(drop_in_dir, ignore_errors=True)
+            print(f"Removed drop-in directory: {drop_in_dir}")
+
+    # 4. Reload the daemon so systemd realizes the file is gone
+    subprocess.run(
+        ["systemctl", "--user", "daemon-reload"],
+        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+    )
+
+    # 5. Reset the failed state (silencing the specific error you were previously seeing)
+    subprocess.run(
+        ["systemctl", "--user", "reset-failed", unit_name],
+        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+    )
+
 def _clean(image) -> None:
     unit = _unit(image)
-    subprocess.run(["systemctl", "--user", "reset-failed", unit])
+    _purge_systemd_user_unit(unit)
     _socket(image).unlink(missing_ok=True)
 
 def _start(image, ip, ssh_port):
