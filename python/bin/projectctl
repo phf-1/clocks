@@ -328,7 +328,7 @@ def _rcv(msg, params):
     # ,app-repl
     #   Start the application and drop into iex
     if msg == ",app-repl":
-        mode = Mode.dev
+        mode = Mode.dev()
         Db.init(mode)
         Db.start(mode)
         Backend.init_db(mode)

@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# Specification
-
 # [[id:b80c22c9-2eed-4eea-a469-136e7666ea96][start-dev]]
 #
 # Given that Bash and Guix are installed on the current system, this script starts
@@ -14,8 +12,6 @@
 # This guarantees reproducible development environment for all developpers.
 #
 # For more information, see the on-boarding guide: team/architect/on-boarding.org
-
-# Implementation
 
 # VERBOSE = true → xtrace
 [[ "${VERBOSE:-false}" == "true" ]] && { export VERBOSE; set -x; }

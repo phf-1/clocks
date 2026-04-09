@@ -67,6 +67,8 @@ def _start(image, ip, ssh_port):
             "-snapshot",
             "-device", "virtio-net-pci,netdev=net0",
             "-netdev", f"user,id=net0,hostfwd=tcp::{ssh_port}-:22",
+            # TODO(3df4): make the VM reply on the host port http_port=8080
+            # "-netdev", f"user,id=net0,hostfwd=tcp::{ssh_port}-:22,hostfwd=tcp::{http_port}-:80",
             "-chardev", f"socket,id=mon,path={socket},server=on,wait=off",
             "-mon", "chardev=mon,mode=control",
         ]

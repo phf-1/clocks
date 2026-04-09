@@ -45,6 +45,7 @@ class Image:
             else:
                 Check.error("An image cannot be built outside of a container")
 
+    # TODO(3d6d): False should not be a default
     @staticmethod
     def mk(osys, inside_container=False):
         return Image(osys, inside_container)
