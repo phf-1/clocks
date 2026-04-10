@@ -7,11 +7,13 @@ import subprocess
 import sys
 import threading
 
+
 def _drain(pipe, store, sink):
     for line in pipe:
         print(line, end="", file=sink)
         sink.flush()
         store.append(line)
+
 
 class Cmd:
     """
@@ -21,10 +23,7 @@ class Cmd:
     @staticmethod
     def run(cmd):
         proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
         out, err = [], []
         t1 = threading.Thread(target=_drain, args=(proc.stdout, out, sys.stdout))

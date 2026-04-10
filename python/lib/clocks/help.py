@@ -7,9 +7,10 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-CMD_RE     = re.compile(r" *# (,.+)$")
+CMD_RE = re.compile(r" *# (,.+)$")
 SECTION_RE = re.compile(r" *# ([^ #][^#]*?) #$")
-DESC_RE    = re.compile(r" *#   (.+)")
+DESC_RE = re.compile(r" *#   (.+)")
+
 
 @dataclass
 class Section:
@@ -18,15 +19,15 @@ class Section:
     Command :≡ String
     Description :≡ String
     Content :≡ List(Command × Description)
-    Section 
+    Section
       mk      : Name Content → Section
       elim    : (Name Content → C) → Section → C
       name    : Section → Name
       content : Section → List(Command × Description)
       add     : Section Command Description → Section
     """
-    
-    _name:    str
+
+    _name: str
     _content: list[tuple[str, str]] = field(default_factory=list)
 
     @staticmethod
@@ -47,6 +48,7 @@ class Section:
         def use(sec: "Section"):
             Section.check(sec)
             return f(sec._name, sec._content)
+
         return use
 
     @staticmethod
@@ -61,6 +63,7 @@ class Section:
     def add(sec: "Section", cmd: str, desc: str) -> "Section":
         def _add(name, content):
             return Section.mk(name, content + [(cmd, desc)])
+
         return Section.elim(_add)(sec)
 
     @staticmethod
@@ -81,7 +84,9 @@ class Section:
             Section.description_width(sec),
         )
 
+
 Doc = list[Section]
+
 
 class Help:
     """
@@ -89,13 +94,13 @@ class Help:
       doc    : Path → Doc
       string : Path → String
     """
-    
+
     @staticmethod
     def doc(path: Path) -> Doc:
-        lines   = path.read_text(encoding="utf-8").splitlines()
-        doc: Doc        = []
+        lines = path.read_text(encoding="utf-8").splitlines()
+        doc: Doc = []
         cur_sec: Section | None = None
-        cur_cmd: str    | None  = None
+        cur_cmd: str | None = None
 
         for line in lines:
             if m := SECTION_RE.match(line):
@@ -113,19 +118,19 @@ class Help:
 
     @staticmethod
     def string(path: Path) -> str:
-        doc  = Help.doc(path)
+        doc = Help.doc(path)
         if not doc:
             return ""
 
-        cmd_w  = max(Section.command_width(s) for s in doc)
+        cmd_w = max(Section.command_width(s) for s in doc)
         desc_w = max(Section.description_width(s) for s in doc)
-        total  = cmd_w + 3 + desc_w   # 3 = "  " separator + at least one space
+        total = cmd_w + 3 + desc_w  # 3 = "  " separator + at least one space
 
         lines: list[str] = []
         for sec in doc:
             name = Section.name(sec)
             # Box-drawing header: ┌─ Name ──...─┐
-            pad   = total - len(name) - 2        # 2 = "─ " prefix space
+            pad = total - len(name) - 2  # 2 = "─ " prefix space
             lines.append(f"┌─ {name} {'─' * max(pad, 0)}┐")
             for cmd, desc in Section.content(sec):
                 lines.append(f"│ {cmd:<{cmd_w}}  {desc:<{desc_w}} │")

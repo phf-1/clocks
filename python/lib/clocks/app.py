@@ -11,6 +11,7 @@ from clocks.guix import Guix
 from pathlib import Path
 from clocks.osys import Osys
 
+
 def _package(dist):
     return f"""
 (use-modules
@@ -41,6 +42,7 @@ def _package(dist):
 package
 """
 
+
 def _service(package):
     return """
 ;; Given that application package is installed on the current system, then define a
@@ -49,6 +51,7 @@ def _service(package):
 
 ;;
     """
+
 
 def _os(package):
     return """

@@ -1,7 +1,6 @@
 from __future__ import annotations
 import subprocess
 import time
-from functools import cache
 
 from clocks.authority import Authority
 from clocks.fs import Fs
@@ -12,6 +11,8 @@ from clocks.maybe import Maybe
 from clocks.nat import Nat
 
 _host_key_cache: dict[Authority, Maybe] = {}
+
+
 def _host_key(authority: Authority) -> Maybe:
     """Authority → Maybe(HostKey)"""
     Authority.check(authority)
@@ -35,6 +36,7 @@ def _host_key(authority: Authority) -> Maybe:
         return success
     return Maybe.nothing()
 
+
 _ssh_config = """# begin([[ref:3946d10f-4ba6-4848-97d8-ed3d00893cf3][Ssh]])
 Host 127.0.0.1 localhost
     User root
@@ -47,6 +49,7 @@ Host github.com
     StrictHostKeyChecking accept-new
 # end
 """
+
 
 class Ssh:
     """
@@ -63,7 +66,9 @@ class Ssh:
             root.mkdir(parents=True, exist_ok=True)
             root.chmod(0o700)
             config = root / "config"
-            if not config.exists() or _ssh_config.strip() not in config.read_text(encoding="utf-8"):
+            if not config.exists() or _ssh_config.strip() not in config.read_text(
+                encoding="utf-8"
+            ):
                 with config.open("a", encoding="utf-8") as f:
                     f.write("\n" + _ssh_config)
             config.chmod(0o600)
@@ -114,7 +119,7 @@ class Ssh:
             Check.failed(
                 "Ssh daemon is not responsive",
                 f"authority: {authority}",
-                f"timeout={Nat.int(seconds)} sec"
+                f"timeout={Nat.int(seconds)} sec",
             )
 
     @staticmethod

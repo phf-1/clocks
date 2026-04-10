@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Optional
 
+
 @dataclass
 class Maybe:
     """
@@ -37,6 +38,7 @@ class Maybe:
     @staticmethod
     def elim(ifabsent, ifpresent):
         """C (X → C) → Maybe(X) → C"""
+
         def use(maybe: Maybe):
             Maybe.check(maybe)
             match maybe:
@@ -44,6 +46,7 @@ class Maybe:
                     return ifabsent
                 case Maybe(_present=True, _value=v):
                     return ifpresent(v)
+
         return use
 
     @staticmethod

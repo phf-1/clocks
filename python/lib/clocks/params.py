@@ -8,6 +8,7 @@ from clocks.mode import Mode
 from clocks.check import Check
 from clocks.string import String
 
+
 @dataclass(frozen=True)
 class Params:
     """
@@ -36,9 +37,11 @@ class Params:
     @staticmethod
     def elim(func):
         """(List(String) → C) → Params → C"""
+
         def use(params: Params):
             Params.check(params)
             return func(params._strings)
+
         return use
 
     @staticmethod
@@ -74,8 +77,9 @@ class Params:
         """Params ℕ → Port"""
         maybe = Params.port(params, idx)
         if Maybe.is_nothing(maybe):
-            Check.failed("param at idx is not a Port",
-                         f"params: {params}", f"idx: {idx}")
+            Check.failed(
+                "param at idx is not a Port", f"params: {params}", f"idx: {idx}"
+            )
         else:
             return Maybe.value(maybe)
 
@@ -84,8 +88,9 @@ class Params:
         """Params ℕ → Mode"""
         maybe = Params.mode(params, idx)
         if Maybe.is_nothing(maybe):
-            Check.failed("param at idx is not a Mode",
-                         f"params: {params}", f"idx: {idx}")
+            Check.failed(
+                "param at idx is not a Mode", f"params: {params}", f"idx: {idx}"
+            )
         else:
             return Maybe.value(maybe)
 
@@ -94,8 +99,9 @@ class Params:
         """Params ℕ → String"""
         maybe = Params.string(params, idx)
         if Maybe.is_nothing(maybe):
-            Check.failed("param at idx is not a String",
-                         f"params: {params}", f"idx: {idx}")
+            Check.failed(
+                "param at idx is not a String", f"params: {params}", f"idx: {idx}"
+            )
         else:
             return Maybe.value(maybe)
 
@@ -104,7 +110,8 @@ class Params:
         """Params ℕ → Authority"""
         maybe = Params.authority(params, idx)
         if Maybe.is_nothing(maybe):
-            Check.failed("param at idx is not a Authority",
-                         f"params: {params}", f"idx: {idx}")
+            Check.failed(
+                "param at idx is not a Authority", f"params: {params}", f"idx: {idx}"
+            )
         else:
             return Maybe.value(maybe)

@@ -32,11 +32,12 @@ from clocks.constant import Constant
 
 ENCODING = Constant.encoding()
 
-_DEV_PORT  = Port.mk(5432)
+_DEV_PORT = Port.mk(5432)
 _TEST_PORT = Port.mk(5433)
 _PROD_PORT = Port.mk(5434)
 
 # Interface
+
 
 class Db:
     @staticmethod
@@ -74,10 +75,16 @@ class Db:
         db_data = Db.mode_data(mode)
         if not (db_data / "PG_VERSION").exists():
             db_data.mkdir(parents=True, exist_ok=True)
-            result = subprocess.run([
-                "initdb", "-D", str(db_data),
-                "--auth=trust", "--username=postgres", "--encoding=UTF8",
-            ])
+            result = subprocess.run(
+                [
+                    "initdb",
+                    "-D",
+                    str(db_data),
+                    "--auth=trust",
+                    "--username=postgres",
+                    "--encoding=UTF8",
+                ]
+            )
             if result.returncode != 0:
                 Check.failed("initdb failed", f"db_data={db_data}")
         return db_data
@@ -100,18 +107,24 @@ class Db:
         Mode.check(mode)
         match Db.status(mode):
             case ["running", _status]:
-                return # already running
+                return  # already running
 
             case _:
                 db_data = Db.mode_data(mode)
-                db_log  = Db.mode_log(mode)
+                db_log = Db.mode_log(mode)
                 db_port = Db.port(mode)
-                result = subprocess.run([
-                    "pg_ctl", "-D", str(db_data),
-                    "-l", str(db_log),
-                    "-o", f"-p {db_port} -k /tmp",
-                    "start",
-                ])
+                result = subprocess.run(
+                    [
+                        "pg_ctl",
+                        "-D",
+                        str(db_data),
+                        "-l",
+                        str(db_log),
+                        "-o",
+                        f"-p {db_port} -k /tmp",
+                        "start",
+                    ]
+                )
                 if result.returncode != 0:
                     Check.failed(
                         "Could not start PostgreSQL",

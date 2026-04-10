@@ -13,8 +13,10 @@ from clocks.osys import Osys
 _IMAGE_DIR = Fs.root() / "image"
 _IMAGE_DIR.mkdir(parents=True, exist_ok=True)
 
+
 def _name_to_path(name):
     return _IMAGE_DIR / f"{name}.qcow2"
+
 
 class Image:
     """
@@ -33,8 +35,17 @@ class Image:
         if (not qcow2.exists()) or (qcow2.stat().st_mtime <= spec.stat().st_mtime):
             if inside_container:
                 cmd = [
-                    "guix", "time-machine", "-C", str(Fs.channels()), "--",
-                    "system", "image", "-t", "qcow2", "--image-size=20G", str(spec)
+                    "guix",
+                    "time-machine",
+                    "-C",
+                    str(Fs.channels()),
+                    "--",
+                    "system",
+                    "image",
+                    "-t",
+                    "qcow2",
+                    "--image-size=20G",
+                    str(spec),
                 ]
                 result = Cmd.run(cmd)
                 built = Path(result.strip())
@@ -64,6 +75,7 @@ class Image:
         def closure(image):
             Image.check(image)
             return func(image._osys, image._qcow2)
+
         return closure
 
     @staticmethod

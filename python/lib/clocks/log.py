@@ -22,13 +22,13 @@ logging.OBJECTIVE = 25
 logging.OK = 26
 logging.TODO = 27
 logging.addLevelName(logging.OBJECTIVE, "OBJECTIVE")
-logging.addLevelName(logging.OK,        "OK       ")
-logging.addLevelName(logging.TODO,      "TODO     ")
+logging.addLevelName(logging.OK, "OK       ")
+logging.addLevelName(logging.TODO, "TODO     ")
 
 # Pad built-in level names to align with custom ones
-logging.addLevelName(logging.DEBUG,    "DEBUG    ")
-logging.addLevelName(logging.INFO,     "INFO     ")
-logging.addLevelName(logging.ERROR,    "ERROR    ")
+logging.addLevelName(logging.DEBUG, "DEBUG    ")
+logging.addLevelName(logging.INFO, "INFO     ")
+logging.addLevelName(logging.ERROR, "ERROR    ")
 
 
 class _PipeFormatter(logging.Formatter):
@@ -71,7 +71,9 @@ def _msg(assertion: str, *ctx: str) -> str:
     parts.extend(ctx)
     return " | ".join(parts)
 
+
 # Interface
+
 
 class Log:
     @staticmethod

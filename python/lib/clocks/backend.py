@@ -16,9 +16,10 @@ from clocks.constant import Constant
 from clocks.port import Port
 
 _ENCODING = Constant.encoding()
-_DEV_PORT  = Port.mk(4000)
+_DEV_PORT = Port.mk(4000)
 _TEST_PORT = Port.mk(4001)
 _PROD_PORT = Port.mk(4002)
+
 
 class Backend:
     """
@@ -69,7 +70,11 @@ class Backend:
             env=env,
         )
         if result.returncode != 0:
-            Check.failed("backend init_db failed", f"mode={mode}", f"stderr={result.stderr.decode(_ENCODING)}")
+            Check.failed(
+                "backend init_db failed",
+                f"mode={mode}",
+                f"stderr={result.stderr.decode(_ENCODING)}",
+            )
 
     @staticmethod
     def migrate(mode) -> None:
@@ -87,7 +92,11 @@ class Backend:
             env=env,
         )
         if result.returncode != 0:
-            Check.failed("backend migrate failed", f"mode={mode}", f"stderr={result.stderr.decode(_ENCODING)}")
+            Check.failed(
+                "backend migrate failed",
+                f"mode={mode}",
+                f"stderr={result.stderr.decode(_ENCODING)}",
+            )
 
     @staticmethod
     def url(mode) -> str:

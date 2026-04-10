@@ -12,15 +12,19 @@
 
 from dataclasses import dataclass
 
+
 @dataclass
 class _Ok[X]:
     value: X
+
 
 @dataclass
 class _Err:
     error: Exception
 
+
 # Interface
+
 
 @dataclass
 class Result[X]:
@@ -45,6 +49,7 @@ class Result[X]:
                     return iferr(e)
                 case _:
                     raise ValueError(f"Unexpected inner type: {result._inner}")
+
         return use
 
     @staticmethod
@@ -52,6 +57,6 @@ class Result[X]:
         return isinstance(x, Result)
 
     @staticmethod
-    def check(x) -> None:        
+    def check(x) -> None:
         if not Result.is_a(x):
             raise ValueError(f"x is not a Result. x: {x}")

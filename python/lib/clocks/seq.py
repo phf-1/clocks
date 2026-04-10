@@ -1,5 +1,6 @@
 from clocks.maybe import Maybe
 
+
 class Seq:
     """
     [[id:9ed13610-3d9b-4ee1-b320-7d2b2ffd7947][Seq]]

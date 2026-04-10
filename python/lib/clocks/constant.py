@@ -10,8 +10,8 @@
 
 # Interface
 
+
 class Constant:
     @staticmethod
     def encoding():
         return "utf-8"
-

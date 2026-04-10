@@ -11,12 +11,14 @@ from clocks.check import Check
 
 # Interface
 
+
 class Fs:
     @staticmethod
     def root() -> Path:
         result = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         if result.returncode != 0:
             Check.failed("Cannot determine repository root", result.stderr.strip())

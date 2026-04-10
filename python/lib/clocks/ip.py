@@ -9,6 +9,7 @@ _RE = re.compile(r"^([0-9]{1,3}\.){3}[0-9]{1,3}$")
 
 # Interface
 
+
 class Ip:
     """
     [[id:2e06869b-d68d-4683-a3e6-84357b245e3d][Ip]]
@@ -52,6 +53,7 @@ class Ip:
         def closure(ip):
             Ip.check(ip)
             return func(ip._value)
+
         return closure
 
     @staticmethod

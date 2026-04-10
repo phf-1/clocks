@@ -22,6 +22,7 @@ import os
 
 # Interface
 
+
 class Frontend:
     @staticmethod
     def root() -> Path:
@@ -31,7 +32,9 @@ class Frontend:
     def version() -> str:
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
-            cwd=Frontend.root(), capture_output=True, text=True,
+            cwd=Frontend.root(),
+            capture_output=True,
+            text=True,
         )
         if result.returncode != 0:
             Check.failed("Cannot read frontend version", result.stderr.strip())

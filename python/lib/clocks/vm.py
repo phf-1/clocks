@@ -16,13 +16,22 @@ import shutil
 _VM_TMP = Path("/tmp/clocks/vm")
 _VM_TMP.mkdir(parents=True, exist_ok=True)
 
+
 def _system_check() -> None:
-    for cmd in ("socat", "qemu-system-x86_64", "qemu-img", "wget", "systemd-run", "systemctl"):
+    for cmd in (
+        "socat",
+        "qemu-system-x86_64",
+        "qemu-img",
+        "wget",
+        "systemd-run",
+        "systemctl",
+    ):
         if shutil.which(cmd) is None:
             Check.failed("required command not found", f"cmd={cmd}")
 
     if not Path("/dev/kvm").exists():
         Check.failed("KVM is not available")
+
 
 def _host_key(ip, port):
     result = subprocess.run(
@@ -34,14 +43,18 @@ def _host_key(ip, port):
         return result.stdout.strip().split()[-1]
     return None
 
+
 def _name(image):
     return Image.name(image)
+
 
 def _unit(image):
     return f"vm-{_name(image)}"
 
+
 def _socket(image) -> Path:
     return _VM_TMP / f"{_name(image)}.sock"
+
 
 def _purge_systemd_user_unit(unit_name):
     """
@@ -52,17 +65,20 @@ def _purge_systemd_user_unit(unit_name):
     # 1. Stop and disable the unit (silently ignore if it doesn't exist/isn't running)
     subprocess.run(
         ["systemctl", "--user", "stop", unit_name],
-        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
     )
     subprocess.run(
         ["systemctl", "--user", "disable", unit_name],
-        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
     )
 
     # 2. Ask systemd for the exact path to the unit file
     show_cmd = subprocess.run(
         ["systemctl", "--user", "show", "-p", "FragmentPath", "--value", unit_name],
-        capture_output=True, text=True
+        capture_output=True,
+        text=True,
     )
     unit_path = show_cmd.stdout.strip()
 
@@ -83,19 +99,23 @@ def _purge_systemd_user_unit(unit_name):
     # 4. Reload the daemon so systemd realizes the file is gone
     subprocess.run(
         ["systemctl", "--user", "daemon-reload"],
-        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
     )
 
     # 5. Reset the failed state (silencing the specific error you were previously seeing)
     subprocess.run(
         ["systemctl", "--user", "reset-failed", unit_name],
-        stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
     )
+
 
 def _clean(image) -> None:
     unit = _unit(image)
     _purge_systemd_user_unit(unit)
     _socket(image).unlink(missing_ok=True)
+
 
 def _start(image, ip, ssh_port):
     if not Ssh.is_running(Authority.mk(ip, ssh_port), Nat.mk(2)):
@@ -105,31 +125,43 @@ def _start(image, ip, ssh_port):
         qcow2 = Image.qcow2(image)
         socket = _socket(image)
         cmd = [
-            "systemd-run", "--user",
-            "--unit", unit,
+            "systemd-run",
+            "--user",
+            "--unit",
+            unit,
             "qemu-system-x86_64",
             "-enable-kvm",
-            "-cpu", "host",
-            "-m", "8192",
-            "-drive", f"file={qcow2},format=qcow2,if=virtio",
+            "-cpu",
+            "host",
+            "-m",
+            "8192",
+            "-drive",
+            f"file={qcow2},format=qcow2,if=virtio",
             "-snapshot",
-            "-device", "virtio-net-pci,netdev=net0",
-            "-netdev", f"user,id=net0,hostfwd=tcp::{ssh_port}-:22",
+            "-device",
+            "virtio-net-pci,netdev=net0",
+            "-netdev",
+            f"user,id=net0,hostfwd=tcp::{ssh_port}-:22",
             # TODO(3df4): make the VM reply on the host port http_port=8080
             # "-netdev", f"user,id=net0,hostfwd=tcp::{ssh_port}-:22,hostfwd=tcp::{http_port}-:80",
-            "-chardev", f"socket,id=mon,path={socket},server=on,wait=off",
-            "-mon", "chardev=mon,mode=control",
+            "-chardev",
+            f"socket,id=mon,path={socket},server=on,wait=off",
+            "-mon",
+            "chardev=mon,mode=control",
         ]
         subprocess.run(cmd)
         Ssh.is_running_check(Authority.mk(ip, ssh_port), Nat.mk(20))
+
 
 def _root_key(image):
     osys = Image.osys(image)
     return Osys.root_key(osys)
 
+
 def _store_key(image):
     osys = Image.osys(image)
     return Osys.store_key(osys)
+
 
 class Vm:
     """
@@ -173,6 +205,7 @@ class Vm:
         def closure(vm):
             Vm.check(vm)
             return func(vm._image, vm._ip, vm._ssh_port)
+
         return closure
 
     @staticmethod
@@ -190,21 +223,21 @@ class Vm:
     @staticmethod
     def host_key(vm):
         Vm.check(vm)
-        if hasattr(vm, '_host_key'):
+        if hasattr(vm, "_host_key"):
             return vm._host_key
         else:
-            vm._host_key = Vm.elim(lambda image, ip, port: _host_key(ip,port))(vm)
+            vm._host_key = Vm.elim(lambda image, ip, port: _host_key(ip, port))(vm)
             return vm._host_key
 
     @staticmethod
     def start(vm):
-         Vm.elim(lambda image, ip, port: _start(image,ip,port))(vm)
-         return vm
+        Vm.elim(lambda image, ip, port: _start(image, ip, port))(vm)
+        return vm
 
     @staticmethod
     def root_key(vm):
         Vm.check(vm)
-        if hasattr(vm, '_root_key'):
+        if hasattr(vm, "_root_key"):
             return vm._root_key
         else:
             vm._root_key = Vm.elim(lambda image, ip, port: _root_key(image))(vm)
@@ -213,7 +246,7 @@ class Vm:
     @staticmethod
     def store_key(vm):
         Vm.check(vm)
-        if hasattr(vm, '_store_key'):
+        if hasattr(vm, "_store_key"):
             return vm._store_key
         else:
             vm._store_key = Vm.elim(lambda image, ip, port: _store_key(image))(vm)
@@ -222,12 +255,18 @@ class Vm:
     @staticmethod
     def is_running(vm: Vm, timeout: Nat) -> bool:
         Nat.check(timeout)
-        return Vm.elim(lambda image, ip, port: Ssh.is_running(Authority.mk(ip, port), timeout))(vm)
+        return Vm.elim(
+            lambda image, ip, port: Ssh.is_running(Authority.mk(ip, port), timeout)
+        )(vm)
 
     @staticmethod
     def is_running_check(vm: Vm, timeout: Nat):
         Nat.check(timeout)
-        return Vm.elim(lambda image, ip, port: Ssh.is_running_check(Authority.mk(ip, port), timeout))(vm)
+        return Vm.elim(
+            lambda image, ip, port: Ssh.is_running_check(
+                Authority.mk(ip, port), timeout
+            )
+        )(vm)
 
     @staticmethod
     def clean(vm: Vm):

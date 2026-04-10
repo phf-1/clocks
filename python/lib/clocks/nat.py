@@ -3,6 +3,7 @@ from clocks.check import Check
 from clocks.string import String
 from clocks.maybe import Maybe
 
+
 class Nat:
     """
     [[id:33ebb50a-8871-46f5-a8f4-499282442495][Nat]]
@@ -25,7 +26,7 @@ class Nat:
 
     @staticmethod
     def is_a(value: any) -> bool:
-        return isinstance(value,Nat)
+        return isinstance(value, Nat)
 
     @staticmethod
     def check(value: any) -> None:
@@ -35,9 +36,11 @@ class Nat:
     @staticmethod
     def elim(func):
         """(Int → C) → Nat → C"""
+
         def closure(nat):
             Nat.check(nat)
             return func(nat._value)
+
         return closure
 
     @staticmethod

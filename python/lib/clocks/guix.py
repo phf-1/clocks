@@ -35,6 +35,7 @@ _MACHINE_TEMPLATE = """__OS__
   (operating-system os)))
 """
 
+
 def _machine(os: Osys, authority: Authority, host_key: str) -> Path:
     ip = Authority.ip(authority)
     port = Authority.port(authority)
@@ -51,6 +52,7 @@ def _machine(os: Osys, authority: Authority, host_key: str) -> Path:
     with open(machine, mode="w", encoding="utf-8") as f:
         f.write(template)
     return machine
+
 
 class Guix:
     """
@@ -69,18 +71,37 @@ class Guix:
         Authority.check(authority)
         # Python import system is kind of dumb
         from clocks.ssh import Ssh
+
         Ssh.is_running_check(authority, Nat.mk(2))
         host_key = Maybe.value(Ssh.host_key(authority))
         machine = _machine(os, authority, host_key)
         subprocess.run(
-            ["guix", "time-machine", "-C", str(Fs.channels()), "--", "deploy", str(machine)],
-            check=True
+            [
+                "guix",
+                "time-machine",
+                "-C",
+                str(Fs.channels()),
+                "--",
+                "deploy",
+                str(machine),
+            ],
+            check=True,
         )
 
     @staticmethod
     def build(path):
         """TODO(626d): this should return the Path of the artefact"""
-        cmd = ["guix", "time-machine", "-C", str(Fs.channels()), "--", "build", "-q", "-f", f"{path}"]
+        cmd = [
+            "guix",
+            "time-machine",
+            "-C",
+            str(Fs.channels()),
+            "--",
+            "build",
+            "-q",
+            "-f",
+            f"{path}",
+        ]
         subprocess.run(cmd, check=True)
         return Guix
 

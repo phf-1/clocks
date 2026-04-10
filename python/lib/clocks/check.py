@@ -10,20 +10,24 @@
 from __future__ import annotations
 
 import os
-import re
 import shutil
 from pathlib import Path
 
 from clocks.log import Log
+
 error = Log.error
+
 
 class CheckError(Exception):
     """Raised by Check.failed().
     The error message has already been logged via Log.error().
     The top-level script catches this exception and exits with code 1."""
+
     pass
 
+
 # Interface
+
 
 class Check:
     @staticmethod
@@ -58,9 +62,9 @@ class Check:
     @staticmethod
     def value_in(value: str, *allowed: str) -> None:
         if value not in allowed:
-            Check.failed("value is not allowed",
-                         f"value={value}",
-                         f"allowed={' '.join(allowed)}")
+            Check.failed(
+                "value is not allowed", f"value={value}", f"allowed={' '.join(allowed)}"
+            )
 
     @staticmethod
     def cmd(cmd: str) -> None:

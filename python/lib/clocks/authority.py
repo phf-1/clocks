@@ -7,6 +7,7 @@ from clocks.port import Port
 from clocks.string import String
 from clocks.maybe import Maybe
 
+
 @dataclass(frozen=True)
 class Authority:
     """
@@ -41,9 +42,11 @@ class Authority:
     @staticmethod
     def elim(func):
         """(Ip Port → C) → Authority → C"""
+
         def closure(authority: Authority):
             Authority.check(authority)
             return func(authority._ip, authority._port)
+
         return closure
 
     @staticmethod
@@ -70,10 +73,7 @@ class Authority:
             maybe_port = Port.parse(right)
             if Maybe.is_nothing(maybe_port):
                 return maybe_port
-            authority = Authority.mk(
-                Maybe.value(maybe_ip),
-                Maybe.value(maybe_port)
-            )
+            authority = Authority.mk(Maybe.value(maybe_ip), Maybe.value(maybe_port))
             return Maybe.just(authority)
         except Exception:
             return Maybe.nothing()

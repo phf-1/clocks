@@ -10,11 +10,13 @@ import re
 _SCHEME_VM = Fs.root() / "scheme" / "app" / "vm"
 Check.dir(_SCHEME_VM)
 
+
 def _parse_define_module(path: str) -> str | None:
     with open(path, encoding="utf-8") as f:
         text = f.read()
-    m = re.search(r'\(define-module\s+(\([^)]+\))', text)
+    m = re.search(r"\(define-module\s+(\([^)]+\))", text)
     return m.group(1) if m else None
+
 
 class Osys:
     """
@@ -59,6 +61,7 @@ class Osys:
         def closure(osys):
             Osys.check(osys)
             return func(osys._name, osys._spec)
+
         return closure
 
     @staticmethod
@@ -72,4 +75,4 @@ class Osys:
     @staticmethod
     def use_modules(osys):
         coordinates = _parse_define_module(Osys.spec(osys))
-        return f'(use-modules {coordinates})'
+        return f"(use-modules {coordinates})"

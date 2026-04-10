@@ -14,6 +14,7 @@ _VALUES = ("dev", "test", "prod")
 
 # Interface
 
+
 class Mode:
     """
     dev : Mode
@@ -24,7 +25,9 @@ class Mode:
 
     def __init__(self, value):
         if value not in _VALUES:
-            Check.failed("value not in _VALUES", f"value: {value}", f"_VALUES: {_VALUES}")
+            Check.failed(
+                "value not in _VALUES", f"value: {value}", f"_VALUES: {_VALUES}"
+            )
         self._value = value
 
     def __eq__(self, x):
@@ -64,16 +67,17 @@ class Mode:
                 return iftest
             if mode._value == "prod":
                 return ifprod
+
         return closure
 
     @staticmethod
     def parse(string: str) -> Maybe:
         String.check(string)
-        if (string == "dev"):
+        if string == "dev":
             return Maybe.just(Mode.dev())
-        if (string == "test"):
+        if string == "test":
             return Maybe.just(Mode.test())
-        if (string == "prod"):
+        if string == "prod":
             return Maybe.just(Mode.prod())
         raise Maybe.nothing()
 

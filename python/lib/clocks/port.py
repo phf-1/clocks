@@ -19,6 +19,7 @@ from clocks.maybe import Maybe
 
 # Interface
 
+
 class Port:
     """
     [[id:c4a3e737-ebd1-4922-b57e-2f135880d3e9][Port]]
@@ -46,7 +47,7 @@ class Port:
     @staticmethod
     def is_a(value) -> bool:
         """Check whether a value is a valid port number."""
-        return isinstance(value,Port)
+        return isinstance(value, Port)
 
     @staticmethod
     def check(value) -> int:
@@ -58,6 +59,7 @@ class Port:
         def closure(port):
             Port.check(port)
             return func(port._value)
+
         return closure
 
     @staticmethod

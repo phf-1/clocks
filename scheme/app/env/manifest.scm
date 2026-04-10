@@ -73,54 +73,42 @@
       ))
 
     (specifications->manifest
-     '( ;; TLS / certs
-       "nss-certs"
-
-       "erlang"
-       "elixir"
-
-       ;; Core shell environment
+     '(
        "bash"
        "coreutils"
-       "make"
-       "gawk"
-       "grep"
-       "sed"
-       "which"
-
-       ;; Version control & deployment
-       "git"
-       "gnupg"
-       "openssh"
-       "rsync"
-
-       ;; Database
-       "postgresql"
-
-       ;; Build toolchain
-       "gcc-toolchain"
-       "node"
-       "guile"
-       "qemu-minimal"
-
-       ;; System libraries
-       "fontconfig"
-       "util-linux"
-
-       ;; Dev tooling
-       "inotify-tools"
-       "ripgrep"
-       "fd"
-       "tree"
-       "less"
+       "elixir"
        "emacs"
        "emacs-pcre2el"
-       "shellcheck"
-       "shfmt"
-       "guile-readline"
+       "erlang"
+       "fd"
+       "fontconfig"
+       "gawk"
+       "gcc-toolchain"
+       "git"
+       "gnupg"
+       "grep"
+       "guile"
        "guile-colorized"
+       "guile-readline"
+       "inotify-tools"
+       "less"
+       "make"
+       "node"
+       "nss-certs"
+       "openssh"
+       "postgresql"
        "python"
        "python-toolz"
+       "qemu-minimal"
+       "ripgrep"
+       "rsync"
+       "ruff"
+       "sed"
+       "shellcheck"
+       "shfmt"
+       "tree"
+       "util-linux"
+       "which"
        ))
 
     (packages->manifest
