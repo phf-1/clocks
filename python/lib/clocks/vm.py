@@ -122,7 +122,7 @@ def _clean(image) -> None:
     _socket(image).unlink(missing_ok=True)
 
 
-def _start(image, ip, ssh_port):
+def _start(image, ip, ssh_port, http_port, https_port):
     if not Ssh.is_running(Authority.mk(ip, ssh_port), Nat.mk(2)):
         _system_check()
         _clean(image)
@@ -146,9 +146,7 @@ def _start(image, ip, ssh_port):
             "-device",
             "virtio-net-pci,netdev=net0",
             "-netdev",
-            f"user,id=net0,hostfwd=tcp::{ssh_port}-:22",
-            # TODO(3df4): make the VM reply on the host port http_port=8080
-            # "-netdev", f"user,id=net0,hostfwd=tcp::{ssh_port}-:22,hostfwd=tcp::{http_port}-:80",
+            f"user,id=net0,hostfwd=tcp::{ssh_port}-:22,hostfwd=tcp::{http_port}-:80,hostfwd=tcp::{https_port}-:443",
             "-chardev",
             f"socket,id=mon,path={socket},server=on,wait=off",
             "-mon",
@@ -174,26 +172,28 @@ class Vm:
     A VM represents a [[ref:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]].
     """
 
-    def __init__(self, image, ssh_port):
-        Image.check(image)
-        Port.check(ssh_port)
+    def __init__(self, image, ip, ssh_port, http_port, https_port):
         self._image = image
+        self._ip = ip
         self._ssh_port = ssh_port
-        # TODO(5e4b): generalize to arbitrary IP
-        self._ip = Ip("127.0.0.1")
+        self._http_port = http_port
+        self._https_port = https_port
 
     @staticmethod
-    def mk(image, ssh_port) -> Vm:
+    def mk(image, ip, ssh_port, http_port, https_port) -> Vm:
         Image.check(image)
+        Ip.check(ip)
         Port.check(ssh_port)
-        return Vm(image, ssh_port)
+        Port.check(http_port)
+        Port.check(https_port)
+        return Vm(image, ip, ssh_port, http_port, https_port)
 
     @staticmethod
-    def dev(ssh_port, inside_container) -> Vm:
-        Port.check(ssh_port)
+    def dev(inside_container: bool) -> Vm:
+        Check.bool(inside_container)
         osys = Osys.dev()
         image = Image.mk(osys, inside_container=inside_container)
-        return Vm.mk(image, ssh_port)
+        return Vm.mk(image, Ip.mk("127.0.0.1"), Port.mk(2222), Port.mk(8080), Port.mk(8443))
 
     @staticmethod
     def is_a(vm) -> bool:
@@ -208,33 +208,40 @@ class Vm:
     def elim(func):
         def closure(vm):
             Vm.check(vm)
-            return func(vm._image, vm._ip, vm._ssh_port)
-
+            return func(vm._image, vm._ip, vm._ssh_port, vm._http_port, vm._https_port)
         return closure
 
     @staticmethod
     def name(vm):
-        return Vm.elim(lambda image, ip, port: _name(image))(vm)
+        return Vm.elim(lambda image, ip, ssh, http, https: _name(image))(vm)
 
     @staticmethod
     def ip(vm):
-        return Vm.elim(lambda image, ip, port: ip)(vm)
+        return Vm.elim(lambda image, ip, ssh, http, https: ip)(vm)
 
     @staticmethod
     def ssh_port(vm):
-        return Vm.elim(lambda image, ip, port: port)(vm)
+        return Vm.elim(lambda image, ip, ssh, http, https: ssh)(vm)
+
+    @staticmethod
+    def http_port(vm):
+        return Vm.elim(lambda image, ip, ssh, http, https: http)(vm)
+
+    @staticmethod
+    def https_port(vm):
+        return Vm.elim(lambda image, ip, ssh, http, https: https)(vm)
 
     @staticmethod
     def host_key(vm):
         Vm.check(vm)
         if hasattr(vm, "_host_key"):
             return vm._host_key
-        vm._host_key = Vm.elim(lambda image, ip, port: _host_key(ip, port))(vm)
+        vm._host_key = Vm.elim(lambda image, ip, ssh, http, https: _host_key(ip, ssh))(vm)
         return vm._host_key
 
     @staticmethod
     def start(vm):
-        Vm.elim(lambda image, ip, port: _start(image, ip, port))(vm)
+        Vm.elim(lambda image, ip, ssh, http, https: _start(image, ip, ssh, http, https))(vm)
         return vm
 
     @staticmethod
@@ -242,7 +249,7 @@ class Vm:
         Vm.check(vm)
         if hasattr(vm, "_root_key"):
             return vm._root_key
-        vm._root_key = Vm.elim(lambda image, ip, port: _root_key(image))(vm)
+        vm._root_key = Vm.elim(lambda image, ip, ssh, http, https: _root_key(image))(vm)
         return vm._root_key
 
     @staticmethod
@@ -250,26 +257,26 @@ class Vm:
         Vm.check(vm)
         if hasattr(vm, "_store_key"):
             return vm._store_key
-        vm._store_key = Vm.elim(lambda image, ip, port: _store_key(image))(vm)
+        vm._store_key = Vm.elim(lambda image, ip, ssh, http, https: _store_key(image))(vm)
         return vm._store_key
 
     @staticmethod
     def is_running(vm: Vm, timeout: Nat) -> bool:
         Nat.check(timeout)
         return Vm.elim(
-            lambda image, ip, port: Ssh.is_running(Authority.mk(ip, port), timeout),
+            lambda image, ip, ssh, http, https: Ssh.is_running(Authority.mk(ip, ssh), timeout),
         )(vm)
 
     @staticmethod
     def is_running_check(vm: Vm, timeout: Nat):
         Nat.check(timeout)
         return Vm.elim(
-            lambda image, ip, port: Ssh.is_running_check(
-                Authority.mk(ip, port),
+            lambda image, ip, ssh, http, https: Ssh.is_running_check(
+                Authority.mk(ip, ssh),
                 timeout,
             ),
         )(vm)
 
     @staticmethod
     def clean(vm: Vm):
-        Vm.elim(lambda image, ip, port: _clean(image))(vm)
+        Vm.elim(lambda image, ip, ssh, http, https: _clean(image))(vm)

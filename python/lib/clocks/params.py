@@ -7,6 +7,7 @@ from clocks.check import Check
 from clocks.maybe import Maybe
 from clocks.mode import Mode
 from clocks.port import Port
+from clocks.ip import Ip
 from clocks.seq import Seq
 from clocks.string import String
 
@@ -57,6 +58,12 @@ class Params:
         return Maybe.lift(Port.parse)(maybe)
 
     @staticmethod
+    def ip(params: Params, idx: int) -> Maybe:
+        """Params ℕ → Maybe(Ip)"""
+        maybe = Params.get(params, idx)
+        return Maybe.lift(Ip.parse)(maybe)
+
+    @staticmethod
     def mode(params: Params, idx: int) -> Mode:
         """Params ℕ → Maybe(Mode)"""
         maybe = Params.get(params, idx)
@@ -80,6 +87,19 @@ class Params:
         if Maybe.is_nothing(maybe):
             Check.failed(
                 "param at idx is not a Port",
+                f"params: {params}",
+                f"idx: {idx}",
+            )
+        else:
+            return Maybe.value(maybe)
+
+    @staticmethod
+    def ip_check(params: Params, idx: int) -> Maybe:
+        """Params ℕ → Ip"""
+        maybe = Params.ip(params, idx)
+        if Maybe.is_nothing(maybe):
+            Check.failed(
+                "param at idx is not a Ip",
                 f"params: {params}",
                 f"idx: {idx}",
             )

@@ -7,10 +7,15 @@
 (use-modules
  ((gnu services))
  ((gnu services databases))
+ ((gnu services shepherd))
  ((gnu packages databases))
  ((gnu system))
+ ((gnu services web))
+ ((gnu packages web))
+ ((gnu packages python) #:prefix py:)
  ((guix gexp))
  ((gnu services networking))
+ ((app env constant) #:prefix cst:)
  ((app vm init os) #:prefix init:)
  ((app vm dev package) #:prefix dev:))
 
@@ -65,8 +70,8 @@
    (nftables-configuration
     (ruleset (plain-file "nftables.conf"
 
-      ;; We start from an empty ruleset.
-      "flush ruleset
+                         "# We start from an empty ruleset.
+      flush ruleset
 
       # `inet` tables match both IPv4 and IPv6, so we only need one table
       # instead of separate `ip` and `ip6` tables.
@@ -138,7 +143,135 @@
       }")))))
 (set! services (cons nftables-service services))
 
-;; TODO(7d53): nginx
+;; ─────────────────────────────────────────────────────────────────────────────
+;; Test web server
+;; ─────────────────────────────────────────────────────────────────────────────
+(define test-web-content-activation
+  (simple-service
+   'test-web-content
+   activation-service-type
+   #~(begin
+       (use-modules (guix build utils))
+       (let ((dir "/srv/test"))
+         (mkdir-p dir)
+         (call-with-output-file (string-append dir "/index.html")
+           (lambda (port)
+             (display
+              "<!DOCTYPE html>
+<html>
+  <body>
+    <h1>It works!</h1>
+  </body>
+</html>"
+              port)))))))
+(set! services (cons test-web-content-activation services))
+
+(set! packages (cons py:python packages))
+
+(define test-web-service
+  (simple-service
+   'test-web
+   shepherd-root-service-type
+   (list
+    (shepherd-service
+     (documentation "Simple Python HTTP server on port 4000 for testing nginx proxy.")
+     (provision '(test-web))
+     (requirement '(networking system-log))
+     (start #~(make-forkexec-constructor
+               (list #$(file-append py:python "/bin/python3")
+                     "-u" ; Force unbuffered output so logs appear in syslog immediately
+                     "-m" "http.server" "4000"
+                     "--directory" "/srv/test")
+               #:environment-variables '())) ; Removed #:log-file
+     (stop #~(make-kill-destructor))
+     (respawn? #t)))))
+(set! services (cons test-web-service services))
+
+;; ─────────────────────────────────────────────────────────────────────────────
+;; HTTPS dev certificates
+;; ─────────────────────────────────────────────────────────────────────────────
+(define dev-certs-activation
+  (let ((cert (local-file (string-append cst:certs-root "/dev-cert.pem")))
+        (key  (local-file (string-append cst:certs-root  "/dev-key.pem"))))
+    (simple-service
+     'dev-certs
+     activation-service-type
+     #~(begin
+         (use-modules (guix build utils))
+         (let* ((cert-dir       "/etc/certs/dev")
+                (guest-dev-cert (string-append cert-dir "/dev-cert.pem"))
+                (guest-dev-key  (string-append cert-dir "/dev-key.pem")))
+           (mkdir-p cert-dir)
+           (chmod cert-dir #o700)
+           (copy-file #$cert guest-dev-cert)
+           (copy-file #$key  guest-dev-key)
+           (chmod guest-dev-cert #o644)
+           (chmod guest-dev-key  #o600))))))
+(set! services (cons dev-certs-activation services))
+
+;; ─────────────────────────────────────────────────────────────────────────────
+;; NGINX — reverse proxy
+;;
+;; Listens on :80 (HTTP) and :443 (HTTPS).  All plain-HTTP requests are
+;; permanently redirected to HTTPS.  HTTPS traffic is forwarded to the
+;; application server on http://localhost:4000.
+;;
+;; TLS certificate paths follow the conventional Let's Encrypt / ACME layout;
+;; adjust `server-name` and the cert paths to match your deployment.
+;;
+;; The upstream keepalive pool (32 idle connections) avoids the TCP handshake
+;; cost on every proxied request, which matters when the app server handles
+;; many short-lived requests.
+;; ─────────────────────────────────────────────────────────────────────────────
+(define nginx-service
+  (service
+   nginx-service-type
+   (nginx-configuration
+
+    ;; `events` must be a key inside global-directives, not a separate block.
+    ;; Without it nginx refuses to start ("no events section").
+    (global-directives
+     '((worker_processes . auto)
+       (events . ((worker_connections . 1024)))))
+
+    (server-blocks
+     (list
+
+      ;; ── HTTP → HTTPS redirect ─────────────────────────────────────────────
+      (nginx-server-configuration
+       (server-name '("localhost" "www.localhost"))
+       (listen '("80"))
+       (ssl-certificate #f)
+       (ssl-certificate-key #f)
+       (raw-content
+        '("return 301 https://$host$request_uri;")))
+
+      ;; ── HTTPS reverse proxy ───────────────────────────────────────────────
+      (nginx-server-configuration
+       (server-name '("localhost" "www.localhost"))
+       (listen '("443 ssl"))
+       (ssl-certificate     "/etc/certs/dev/dev-cert.pem")
+       (ssl-certificate-key "/etc/certs/dev/dev-key.pem")
+       (locations
+        (list
+         (nginx-location-configuration
+          (uri "/")
+          (body
+           '("proxy_set_header X-Real-IP       $remote_addr;"
+             "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;"
+             "proxy_set_header X-Forwarded-Proto https;"
+             "proxy_set_header Host            $host;"
+             "proxy_pass http://localhost:4000;"
+             "proxy_http_version 1.1;"
+             "proxy_set_header Connection \"\";"
+             "proxy_connect_timeout 10s;"
+             "proxy_read_timeout    60s;"
+             "proxy_send_timeout    60s;")))))))))))
+
+(set! services (cons nginx-service services))
+;; nginx binary for diagnostics
+(set! packages (cons nginx packages))
+
 ;; TODO(f529): add dev:package
 ;; TODO(f529): add dev:service
 

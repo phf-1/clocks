@@ -414,6 +414,19 @@ Result:
   1. build image inside fedora 43, fails because SELinux
   2. python3.11 must be installed
 
+** https
+
+#+begin_src bash :eval no
+mkdir cert
+cd cert
+sudo apt update
+sudo apt install mkcert libnss3-tools
+mkcert -install
+mkcert -key-file dev-key.pem -cert-file dev-cert.pem \
+  example.dev localhost 127.0.0.1 ::1
+mkcert -install
+#+end_src
+
 ** shepherd service
 
 syslogd

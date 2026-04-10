@@ -46,7 +46,10 @@ class Frontend:
         root = Frontend.root()
 
         pull = subprocess.run(
-            ["git", "pull"], check=False, cwd=root, capture_output=True,
+            ["git", "pull"],
+            check=False,
+            cwd=root,
+            capture_output=True,
         )
         if pull.returncode != 0:
             Check.failed("Could not update the frontend")

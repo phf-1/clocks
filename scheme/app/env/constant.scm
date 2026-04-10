@@ -22,6 +22,9 @@
 (define-public ssh-root
   (string-append project-root "/ssh"))
 
+(define-public certs-root
+  (string-append project-root "/certs"))
+
 ;; This key is used to log into a local dev VM.
 (define-public dev-public-key-path
   (string-append ssh-root "/ed25519.pub"))

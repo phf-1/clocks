@@ -171,6 +171,19 @@ Start an initial VM using:
 ,vm-init-start $PORT
 #+end_src
 
+*** TODO Certificates
+
+#+begin_src bash :eval no
+sudo apt update
+sudo apt install mkcert libnss3-tools
+#+end_src
+
+#+begin_src bash :eval no
+cd certs/
+mkcert -key-file dev-key.pem -cert-file dev-cert.pem example.dev localhost 127.0.0.1 ::1
+mkcert -install
+#+end_src
+
 *** Application deployment
 
 The objective is to deploy the application to the initial server vm.

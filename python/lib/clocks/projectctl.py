@@ -1,28 +1,31 @@
 from __future__ import annotations
+
 import os
 import re
-import subprocess
 import shutil
+import subprocess
 from pathlib import Path
-from clocks.log import Log
-from clocks.check import Check
-from clocks.fs import Fs
-from clocks.backend import Backend
-from clocks.frontend import Frontend
-from clocks.db import Db
-from clocks.mode import Mode
-from clocks.constant import Constant
-from clocks.osys import Osys
-from clocks.image import Image
-from clocks.vm import Vm
-from clocks.help import Help
-from clocks.ip import Ip
-from clocks.params import Params
-from clocks.guix import Guix
-from clocks.cmd import Cmd
-from clocks.authority import Authority
-from clocks.ssh import Ssh
+
 from clocks.app import App
+from clocks.authority import Authority
+from clocks.backend import Backend
+from clocks.check import Check
+from clocks.cmd import Cmd
+from clocks.constant import Constant
+from clocks.db import Db
+from clocks.frontend import Frontend
+from clocks.fs import Fs
+from clocks.guix import Guix
+from clocks.help import Help
+from clocks.image import Image
+from clocks.ip import Ip
+from clocks.log import Log
+from clocks.maybe import Maybe
+from clocks.mode import Mode
+from clocks.osys import Osys
+from clocks.params import Params
+from clocks.ssh import Ssh
+from clocks.vm import Vm
 
 failed = Check.failed
 ok = Log.ok
@@ -91,14 +94,19 @@ How is this script structured?
         error "unexpected message"
 """
 
+
 def _help(self):
-    print(Help.string(self._path))
+    print(Help.string(Path(os.path.realpath(__file__))))
+
 
 def _update_deps():
     Backend.update()
     version = Frontend.update()
-    ok("Dependencies not directly managed by Guix have been updated",
-       f"frontend version: {version}")
+    ok(
+        "Dependencies not directly managed by Guix have been updated",
+        f"frontend version: {version}",
+    )
+
 
 def _install_commands(self):
     bin_dir = self._bin
@@ -106,17 +114,17 @@ def _install_commands(self):
     for link in bin_dir.glob(",*"):
         link.unlink()
     ok("Old command symlinks have been removed")
-    for line in self._path.read_text(encoding=ENCODING).splitlines():
-        if (m := CMD_RE.match(line)):
+    for line in Path(os.path.realpath(__file__)).read_text(encoding=ENCODING).splitlines():
+        if m := CMD_RE.match(line):
             cmd = m.group(1).split(" ")[0]
             symlink = bin_dir / f"{cmd}"
             symlink.symlink_to(self._name)
             ok(f"{cmd}")
     ok("All command symlinks are up to date")
 
+
 class Projectctl:
-    """
-    [[id:344d2579-2d67-4901-8e70-1849eea0c843][projectctl]]
+    """[[id:344d2579-2d67-4901-8e70-1849eea0c843][projectctl]]
 
     This executable acts as a centralized CLI for the project. It automatizes needed
     operations like starting the database, linting source files, or deploying the
@@ -153,19 +161,19 @@ class Projectctl:
             install_link.unlink(missing_ok=True)
             install_link.symlink_to(self._name)
             _update_deps()
-            _install_commands()
+            _install_commands(self)
 
         # DEVELOPMENT #
 
         # ,help
         #   Print commands and descriptions
         elif msg == ",help":
-            _help()
+            _help(self)
 
         # ,list-todo
         #   List todos
         elif msg == ",list-todo":
-            result = subprocess.run(["rg", "-F", "TODO", str(Fs.root())])
+            result = subprocess.run(["rg", "-F", "TODO", str(Fs.root())], check=False)
             if result.returncode not in (0, 1):
                 Check.failed("rg failed", f"returncode={result.returncode}")
             ok("List TODOs")
@@ -177,8 +185,11 @@ class Projectctl:
         elif msg == ",db-init":
             mode = Params.mode_check(params, 0)
             db_data = Db.init(mode)
-            ok("The PostgreSQL cluster has been initialized",
-               f"mode={mode}", f"db_data={db_data}")
+            ok(
+                "The PostgreSQL cluster has been initialized",
+                f"mode={mode}",
+                f"db_data={db_data}",
+            )
 
         # ,db-start Mode
         #   Start a PostgreSQL process
@@ -217,7 +228,11 @@ class Projectctl:
             mode = Params.mode_check(params, 0)
             url = Backend.url(mode)
             dist = Frontend.dist(url)
-            ok("A frontend distribution in mode has been built", f"dist: {dist}", f"mode: {mode}")
+            ok(
+                "A frontend distribution in mode has been built",
+                f"dist: {dist}",
+                f"mode: {mode}",
+            )
 
         # ,frontend-clean
         #   Delete built files
@@ -285,21 +300,28 @@ class Projectctl:
 
         # VM #
 
-        # ,vm-start OS Port
-        #   Start a local VM built from OS and listening for SSH connection on Port
+        # ,vm-start OS Ip SshPort HttpPort HttpsPort
+        #   Start a local VM built from OS and listening on SshPort, HttpPort, and HttpsPort
         elif msg == ",vm-start":
             name = Params.string_check(params, 0)
-            ssh_port = Params.port_check(params, 1)
+            ip = Params.ip_check(params, 1)
+            ssh_port = Params.port_check(params, 2)
+            http_port = Params.port_check(params, 3)
+            https_port = Params.port_check(params, 4)
             if Guix.container_is_active():
                 Check.failed("This command should run outside of the container")
             else:
                 osys = Osys.mk(name)
                 image = Image.mk(osys, inside_container=Guix.container_is_active())
-                vm = Vm.mk(image, ssh_port)
+                vm = Vm.mk(image, ip, ssh_port, http_port, https_port)
                 Vm.start(vm)
                 port = Vm.ssh_port(vm)
-                ok("A new local VM to test deployment (as if it was a VPS) has been built")
-                ok(f"Connect to the VM from the container with: ,ssh-connect-dev-vm {port}")
+                ok(
+                    "A new local VM to test deployment (as if it was a VPS) has been built",
+                )
+                ok(
+                    f"Connect to the VM from the container with: ,ssh-connect-dev-vm {port}",
+                )
 
         # DEPLOYMENT #
 
@@ -369,11 +391,34 @@ class Projectctl:
         elif msg == ",experiment":
             App.service()
 
-        # ,apply-static-tools-python
-        #   Apply static code tools to python
+        # ,apply-static-tools-python [path]
+        #   Apply static code tools to path or all python code
         elif msg == ",apply-static-tools-python":
+            maybe = Params.string(params, 0)
+            path = Maybe.elim(".", lambda string: string)(maybe)
             python = self._root / "python"
-            # Cmd.run_if_exists(["ruff", "format", "."], cwd=python)
-            # Cmd.run_if_exists(["ruff", "check", "--fix", "."], cwd=python)
-            # Cmd.run_if_exists(["uv", "run", "pyright"], cwd=python)
-            Cmd.run_if_exists(["uv", "run", "pydeps", "lib/clocks", "-o", "/tmp/clocks-deps.png"], cwd=python)
+            try:
+                Cmd.run_if_exists(["ruff", "format", path], cwd=python)
+            except Exception:
+                pass
+
+            try:
+                Cmd.run_if_exists(["ruff", "check", "--fix", path], cwd=python)
+            except Exception:
+                pass
+
+            try:
+                Cmd.run_if_exists(["uv", "run", "pyright", path], cwd=python)
+            except Exception:
+                pass
+
+            try:
+                Cmd.run_if_exists(
+                    ["uv", "run", "pydeps", "lib/clocks", "-o", "/tmp/clocks-deps.png"],
+                    cwd=python,
+                )
+            except Exception:
+                pass
+
+        else:
+            Check.failed("Unexpected message.", f"message: {msg}")

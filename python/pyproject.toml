@@ -7,29 +7,44 @@ requires-python = ">=3.11"
 include = ["lib"]
 
 pythonVersion = "3.11"
-typeCheckingMode = "strict"      # start with "basic", later switch to "strict"
+typeCheckingMode = "strict"
 reportMissingImports = true
 reportMissingTypeStubs = true
 
 exclude = [
-    "**/__pycache__",
-    "**/.venv",
+"**/__pycache__",
+"**/.venv",
 ]
 
 [tool.ruff]
 target-version = "py311"
-line-length = 88          # or 100/120 — your choice
+line-length = 100
 
 [tool.ruff.lint]
-select = ["ALL"]          # or a curated list like ["E", "F", "I", "UP", "B", "SIM", "RET"]
-ignore = ["E501"]         # let Ruff format handle line length
+select = ["ALL"]
+
+ignore = [
+"D401", # First line of docstring should be in imperative mood:
+"D415", # First line should end with a period, question mark, or exclamation point
+"D400", # First line should end with a period
+"D100", # Missing docstring in public module
+"D203",   # incorrect-blank-line-before-class (conflicts with D211)
+"D213",   # multi-line-summary-second-line (conflicts with D212)
+"COM812", # trailing-comma-missing (conflicts with the formatter)
+"E501",   # line-length (formatter already enforces it)
+]
+
 fixable = ["ALL"]
 
 [tool.ruff.format]
 quote-style = "double"
 
+[tool.ruff.lint.per-file-ignores]
+"lib/clocks/maybe.py" = ["ANN"]
+
 [dependency-groups]
 dev = [
-    "pydeps>=3.0.2",
-    "pyright>=1.1.408",
+"ruff>=0.11.0",
+"pydeps>=3.0.2",
+"pyright>=1.1.408",
 ]
