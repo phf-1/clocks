@@ -1,18 +1,19 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
-from clocks.seq import Seq
+
 from clocks.authority import Authority
-from clocks.maybe import Maybe
-from clocks.port import Port
-from clocks.mode import Mode
 from clocks.check import Check
+from clocks.maybe import Maybe
+from clocks.mode import Mode
+from clocks.port import Port
+from clocks.seq import Seq
 from clocks.string import String
 
 
 @dataclass(frozen=True)
 class Params:
-    """
-    [[id:69ca9c93-4bfa-4c6d-90c0-f44e8ef2009a][Params]]
+    """[[id:69ca9c93-4bfa-4c6d-90c0-f44e8ef2009a][Params]]
 
     a Params represents the CLI parameter inputs
     """
@@ -78,7 +79,9 @@ class Params:
         maybe = Params.port(params, idx)
         if Maybe.is_nothing(maybe):
             Check.failed(
-                "param at idx is not a Port", f"params: {params}", f"idx: {idx}"
+                "param at idx is not a Port",
+                f"params: {params}",
+                f"idx: {idx}",
             )
         else:
             return Maybe.value(maybe)
@@ -89,7 +92,9 @@ class Params:
         maybe = Params.mode(params, idx)
         if Maybe.is_nothing(maybe):
             Check.failed(
-                "param at idx is not a Mode", f"params: {params}", f"idx: {idx}"
+                "param at idx is not a Mode",
+                f"params: {params}",
+                f"idx: {idx}",
             )
         else:
             return Maybe.value(maybe)
@@ -100,7 +105,9 @@ class Params:
         maybe = Params.string(params, idx)
         if Maybe.is_nothing(maybe):
             Check.failed(
-                "param at idx is not a String", f"params: {params}", f"idx: {idx}"
+                "param at idx is not a String",
+                f"params: {params}",
+                f"idx: {idx}",
             )
         else:
             return Maybe.value(maybe)
@@ -111,7 +118,9 @@ class Params:
         maybe = Params.authority(params, idx)
         if Maybe.is_nothing(maybe):
             Check.failed(
-                "param at idx is not a Authority", f"params: {params}", f"idx: {idx}"
+                "param at idx is not a Authority",
+                f"params: {params}",
+                f"idx: {idx}",
             )
         else:
             return Maybe.value(maybe)

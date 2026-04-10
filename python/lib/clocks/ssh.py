@@ -1,14 +1,15 @@
 from __future__ import annotations
+
 import subprocess
 import time
 
 from clocks.authority import Authority
-from clocks.fs import Fs
-from clocks.string import String
 from clocks.check import Check
+from clocks.fs import Fs
 from clocks.guix import Guix
 from clocks.maybe import Maybe
 from clocks.nat import Nat
+from clocks.string import String
 
 _host_key_cache: dict[Authority, Maybe] = {}
 
@@ -23,6 +24,7 @@ def _host_key(authority: Authority) -> Maybe:
     try:
         result = subprocess.run(
             ["ssh-keyscan", "-T", "1", "-t", "ed25519", "-p", str(port), str(ip)],
+            check=False,
             capture_output=True,
             text=True,
             timeout=5,
@@ -52,8 +54,7 @@ Host github.com
 
 
 class Ssh:
-    """
-    [[id:3946d10f-4ba6-4848-97d8-ed3d00893cf3][Ssh]]
+    """[[id:3946d10f-4ba6-4848-97d8-ed3d00893cf3][Ssh]]
 
     This module represents an SSH client.
 
@@ -67,7 +68,7 @@ class Ssh:
             root.chmod(0o700)
             config = root / "config"
             if not config.exists() or _ssh_config.strip() not in config.read_text(
-                encoding="utf-8"
+                encoding="utf-8",
             ):
                 with config.open("a", encoding="utf-8") as f:
                     f.write("\n" + _ssh_config)

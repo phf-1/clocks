@@ -1,17 +1,17 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 from clocks.check import Check
 from clocks.ip import Ip
+from clocks.maybe import Maybe
 from clocks.port import Port
 from clocks.string import String
-from clocks.maybe import Maybe
 
 
 @dataclass(frozen=True)
 class Authority:
-    """
-    [[id:bc2ba6d9-0f9f-40f0-af70-5fa80b9ee0ba][Authority]]
+    """[[id:bc2ba6d9-0f9f-40f0-af70-5fa80b9ee0ba][Authority]]
 
     Represents an [[ref:56eb52ec-d0e8-4f03-8199-9ca69887c0c5][Authority]]
     """

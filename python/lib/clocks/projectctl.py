@@ -1,0 +1,379 @@
+from __future__ import annotations
+import os
+import re
+import subprocess
+import shutil
+from pathlib import Path
+from clocks.log import Log
+from clocks.check import Check
+from clocks.fs import Fs
+from clocks.backend import Backend
+from clocks.frontend import Frontend
+from clocks.db import Db
+from clocks.mode import Mode
+from clocks.constant import Constant
+from clocks.osys import Osys
+from clocks.image import Image
+from clocks.vm import Vm
+from clocks.help import Help
+from clocks.ip import Ip
+from clocks.params import Params
+from clocks.guix import Guix
+from clocks.cmd import Cmd
+from clocks.authority import Authority
+from clocks.ssh import Ssh
+from clocks.app import App
+
+failed = Check.failed
+ok = Log.ok
+info = Log.info
+debug = Log.debug
+error = Log.error
+ssh = Ssh.mk()
+
+ENCODING = Constant.encoding()
+CMD_RE = re.compile(r" *# (,.+)$")
+
+SPEC = """
+What is the objective of this script?
+
+  Its objective is to minimize the cost of executing repetitive tasks. This script
+  makes this directory respond to commands, automating various tasks, like starting
+  the REPL, executing tests or formatting code.
+
+How to use this script?
+
+  if: $ ln -s this_script a_command,
+  then: $ a_command param is identical to invoking the script with <a_command, [param]>
+
+How to choose a new command name?
+
+  command_name :≡ "," (component "-")? verb ("-" param)*
+  example :≡ ,help
+  example :≡ ,backend-test
+
+  Commands start with a comma "," so that they are easy to differentiate from
+  non-project commands. For instance: ",help".
+
+  If the command is addressed to the project itself, then it starts with a verb. For
+  instance: ",help".
+
+  If the command is addressed to a part of the project, then it starts with the name
+  of that part and then a verb. For instance: ",backend-test".
+
+  To add a new command, just look at the implementation, copy/paste the simplest one,
+  start from there.
+
+How to add a new command?
+
+  To add a new command, just look at the implementation, copy/paste the simplest one,
+  start from there.
+
+How is this script structured?
+
+  Assume that cmd is the name of this script, then invoking this script must be
+  understood as follows:
+
+  $ ./cmd param1 param2 :≡
+    message :≡ <cmd, [param1 param2]>
+
+    case message
+      <a, []> ↦
+        # do something
+
+      <cmd, [x,y]> ↦
+        # do something
+
+      … ↦
+        # do something
+
+      _ ↦
+        error "unexpected message"
+"""
+
+def _help(self):
+    print(Help.string(self._path))
+
+def _update_deps():
+    Backend.update()
+    version = Frontend.update()
+    ok("Dependencies not directly managed by Guix have been updated",
+       f"frontend version: {version}")
+
+def _install_commands(self):
+    bin_dir = self._bin
+    os.chdir(bin_dir)
+    for link in bin_dir.glob(",*"):
+        link.unlink()
+    ok("Old command symlinks have been removed")
+    for line in self._path.read_text(encoding=ENCODING).splitlines():
+        if (m := CMD_RE.match(line)):
+            cmd = m.group(1).split(" ")[0]
+            symlink = bin_dir / f"{cmd}"
+            symlink.symlink_to(self._name)
+            ok(f"{cmd}")
+    ok("All command symlinks are up to date")
+
+class Projectctl:
+    """
+    [[id:344d2579-2d67-4901-8e70-1849eea0c843][projectctl]]
+
+    This executable acts as a centralized CLI for the project. It automatizes needed
+    operations like starting the database, linting source files, or deploying the
+    application.
+    """
+
+    def __init__(self, path, root, bin, name):
+        self._path = path
+        self._root = root
+        self._bin = bin
+        self._name = name
+
+    @staticmethod
+    def mk(path, root, bin, name):
+        return Projectctl(path, root, bin, name)
+
+    @staticmethod
+    def rcv(self, msg, params):
+        # INSTALLATION #
+
+        # ,install-commands
+        #   (Re)install commands
+        if msg == ",install-commands":
+            _install_commands(self)
+
+        # ,update-deps
+        #   Update dependencies not directly managed by Guix
+        elif msg == ",update-deps":
+            _update_deps()
+
+        # Executing this script directly installs commands and fetches dependencies
+        elif msg == self._name:
+            install_link = Path(self._bin) / ",install-commands"
+            install_link.unlink(missing_ok=True)
+            install_link.symlink_to(self._name)
+            _update_deps()
+            _install_commands()
+
+        # DEVELOPMENT #
+
+        # ,help
+        #   Print commands and descriptions
+        elif msg == ",help":
+            _help()
+
+        # ,list-todo
+        #   List todos
+        elif msg == ",list-todo":
+            result = subprocess.run(["rg", "-F", "TODO", str(Fs.root())])
+            if result.returncode not in (0, 1):
+                Check.failed("rg failed", f"returncode={result.returncode}")
+            ok("List TODOs")
+
+        # DATABASE #
+
+        # ,db-init (Mode :≡ dev|test|prod)
+        #   Creates a directory for the DB data.
+        elif msg == ",db-init":
+            mode = Params.mode_check(params, 0)
+            db_data = Db.init(mode)
+            ok("The PostgreSQL cluster has been initialized",
+               f"mode={mode}", f"db_data={db_data}")
+
+        # ,db-start Mode
+        #   Start a PostgreSQL process
+        elif msg == ",db-start":
+            mode = Params.mode_check(params, 0)
+            Db.start(mode)
+            ok("The PostgreSQL instance is started")
+
+        # ,db-status Mode
+        #   Status a PostgreSQL process
+        elif msg == ",db-status":
+            mode = Params.mode_check(params, 0)
+            match Db.status(mode):
+                case ["running", status]:
+                    ok(status)
+                case _:
+                    ok(f"Database in mode {mode} is not running")
+
+        # ,db-clean
+        #   Remove PostgreSQL directories
+        elif msg == ",db-clean":
+            Db.clean()
+            ok("DB cleaned", f"DBROOT={Db.root()}")
+
+        # FRONTEND #
+
+        # ,frontend-update
+        #   Update the frontend to the last version
+        elif msg == ",frontend-update":
+            version = Frontend.update()
+            ok("The frontend has been updated", f"version={version}")
+
+        # ,frontend-dist Mode
+        #   Build a frontend distribution
+        elif msg == ",frontend-dist":
+            mode = Params.mode_check(params, 0)
+            url = Backend.url(mode)
+            dist = Frontend.dist(url)
+            ok("A frontend distribution in mode has been built", f"dist: {dist}", f"mode: {mode}")
+
+        # ,frontend-clean
+        #   Delete built files
+        elif msg == ",frontend-clean":
+            Frontend.clean()
+            ok("Frontend generated files are deleted")
+
+        # BACKEND #
+
+        # ,backend-update
+        #   Update the backend dependencies
+        elif msg == ",backend-update":
+            Backend.update()
+            ok("The backend dependencies have been updated")
+
+        # ,backend-init-db Mode
+        #   Set up database tables
+        elif msg == ",backend-init-db":
+            mode = Params.mode_check(params, 0)
+            Backend.init_db(mode)
+            ok("The database tables have been created", f"mode={mode}")
+
+        # ,backend-migrate Mode
+        #   Apply pending Ecto migrations to the database
+        elif msg == ",backend-migrate":
+            mode = Params.mode_check(params, 0)
+            Backend.migrate(mode)
+            ok("Ecto migration has been applied to the database", f"mode={mode}")
+
+        # ,backend-test
+        #   Execute all Elixir tests
+        elif msg == ",backend-test":
+            Backend.test()
+            ok("Backend tests executed")
+
+        # ,backend-dist
+        #   Build a backend distribution
+        elif msg == ",backend-dist":
+            url = Backend.url(Mode.prod())
+            info("Build the frontend distribution at url", f"url={url}")
+            frontend_dist = Frontend.dist(url)
+            ok("dist=", str(frontend_dist))
+            info("Build the backend distribution")
+            dist = Backend.dist(frontend_dist)
+            ok("A backend distribution has been built", f"dist={dist}")
+
+        # ,backend-clean
+        #   Remove the Phoenix build artifacts and dependencies
+        elif msg == ",backend-clean":
+            Backend.clean()
+            ok("Backend directory cleaned", f"PHX={Backend.root()}")
+
+        # IMAGE #
+
+        # ,image-build OS
+        #   Build an image for OS within the container (OS :≡ init | dev)
+        elif msg == ",image-build":
+            name = Params.string_check(params, 0)
+            osys = Osys.mk(name)
+            if Guix.container_is_active():
+                image = Image(osys, inside_container=True)
+                ok(f"image: {Image.qcow2(image)}")
+            else:
+                Check.failed("The image should be built from within the container")
+
+        # VM #
+
+        # ,vm-start OS Port
+        #   Start a local VM built from OS and listening for SSH connection on Port
+        elif msg == ",vm-start":
+            name = Params.string_check(params, 0)
+            ssh_port = Params.port_check(params, 1)
+            if Guix.container_is_active():
+                Check.failed("This command should run outside of the container")
+            else:
+                osys = Osys.mk(name)
+                image = Image.mk(osys, inside_container=Guix.container_is_active())
+                vm = Vm.mk(image, ssh_port)
+                Vm.start(vm)
+                port = Vm.ssh_port(vm)
+                ok("A new local VM to test deployment (as if it was a VPS) has been built")
+                ok(f"Connect to the VM from the container with: ,ssh-connect-dev-vm {port}")
+
+        # DEPLOYMENT #
+
+        # ,deploy OS Authority
+        #   Deploy OS to Authority (Authority :≡ Ip:Port)
+        elif msg == ",deploy":
+            name = Params.string_check(params, 0)
+            authority = Params.authority_check(params, 1)
+            os = Osys.mk(name)
+            Guix.deploy(os, authority)
+
+        # APP #
+
+        # ,app-repl
+        #   Start the application and drop into iex
+        elif msg == ",app-repl":
+            mode = Mode.dev()
+            Db.init(mode)
+            Db.start(mode)
+            Backend.init_db(mode)
+            Backend.migrate(mode)
+            url = Backend.url(mode)
+            frontend_dist = Frontend.dist(url)
+            Backend.install_frontend(frontend_dist)
+            Backend.repl()
+
+        # ,app-test
+        #   Execute tests
+        elif msg == ",app-test":
+            Backend.test()
+            ok("Tests have been executed")
+
+        # ,app-package
+        #   Build an application package
+        elif msg == ",app-package":
+            package = App.package()
+            ok("A package for the application has been built", f"package: {package}")
+
+        # ,app-clean
+        #   Delete all generated files
+        elif msg == ",app-clean":
+            Frontend.clean()
+            Db.clean()
+            Backend.clean()
+            root = Fs.root()
+            for item in list(root.glob("_*")):
+                if item.is_dir():
+                    shutil.rmtree(item, ignore_errors=True)
+            ok("ROOT directory cleaned", f"ROOT={root}")
+
+        # SUPPORT #
+
+        # ,guix-repl
+        #   Start the Guix repl
+        elif msg == ",guix-repl":
+            Guix.repl()
+
+        # ,ssh-connect-dev-vm Port
+        #   Connect to the init VM
+        elif msg == ",ssh-connect-dev-vm":
+            ssh_port = Params.port_check(params, 0)
+            ip = Ip.mk("127.0.0.1")
+            Ssh.connect(ssh, "root", Authority.mk(ip, ssh_port))
+
+        # ,experiment
+        #   Execute temporary code
+        elif msg == ",experiment":
+            App.service()
+
+        # ,apply-static-tools-python
+        #   Apply static code tools to python
+        elif msg == ",apply-static-tools-python":
+            python = self._root / "python"
+            # Cmd.run_if_exists(["ruff", "format", "."], cwd=python)
+            # Cmd.run_if_exists(["ruff", "check", "--fix", "."], cwd=python)
+            # Cmd.run_if_exists(["uv", "run", "pyright"], cwd=python)
+            Cmd.run_if_exists(["uv", "run", "pydeps", "lib/clocks", "-o", "/tmp/clocks-deps.png"], cwd=python)

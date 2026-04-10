@@ -1,12 +1,12 @@
 from __future__ import annotations
+
 from clocks.check import Check
-from clocks.string import String
 from clocks.maybe import Maybe
+from clocks.string import String
 
 
 class Nat:
-    """
-    [[id:33ebb50a-8871-46f5-a8f4-499282442495][Nat]]
+    """[[id:33ebb50a-8871-46f5-a8f4-499282442495][Nat]]
 
     a Nat represents a natural number
     """

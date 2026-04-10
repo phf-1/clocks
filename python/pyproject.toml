@@ -1,0 +1,35 @@
+[project]
+name = "projectctl"
+version = "0"
+requires-python = ">=3.11"
+
+[tool.pyright]
+include = ["lib"]
+
+pythonVersion = "3.11"
+typeCheckingMode = "strict"      # start with "basic", later switch to "strict"
+reportMissingImports = true
+reportMissingTypeStubs = true
+
+exclude = [
+    "**/__pycache__",
+    "**/.venv",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88          # or 100/120 — your choice
+
+[tool.ruff.lint]
+select = ["ALL"]          # or a curated list like ["E", "F", "I", "UP", "B", "SIM", "RET"]
+ignore = ["E501"]         # let Ruff format handle line length
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[dependency-groups]
+dev = [
+    "pydeps>=3.0.2",
+    "pyright>=1.1.408",
+]

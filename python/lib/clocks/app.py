@@ -3,12 +3,14 @@
 # This module represents the application.
 
 from __future__ import annotations
+
 import tempfile
-from clocks.mode import Mode
+from pathlib import Path
+
 from clocks.backend import Backend
 from clocks.frontend import Frontend
 from clocks.guix import Guix
-from pathlib import Path
+from clocks.mode import Mode
 from clocks.osys import Osys
 
 
@@ -61,8 +63,7 @@ def _os(package):
 
 
 class App:
-    """
-    package : Path :≡ Path to the application package
+    """package : Path :≡ Path to the application package
     service : Path :≡ Path to the service
     os : Path :≡ Path to the os
     """

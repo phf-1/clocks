@@ -12,13 +12,13 @@
 
 from __future__ import annotations
 
+import os
+import shutil
 import subprocess
 from pathlib import Path
 
 from clocks.check import Check
 from clocks.fs import Fs
-import shutil
-import os
 
 # Interface
 
@@ -32,6 +32,7 @@ class Frontend:
     def version() -> str:
         result = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
+            check=False,
             cwd=Frontend.root(),
             capture_output=True,
             text=True,
@@ -44,11 +45,13 @@ class Frontend:
     def update() -> str:
         root = Frontend.root()
 
-        pull = subprocess.run(["git", "pull"], cwd=root, capture_output=True)
+        pull = subprocess.run(
+            ["git", "pull"], check=False, cwd=root, capture_output=True,
+        )
         if pull.returncode != 0:
             Check.failed("Could not update the frontend")
 
-        npm = subprocess.run(["npm", "i"], cwd=root, capture_output=True)
+        npm = subprocess.run(["npm", "i"], check=False, cwd=root, capture_output=True)
         if npm.returncode != 0:
             Check.failed("Could not update frontend dependencies")
 
@@ -73,6 +76,7 @@ class Frontend:
         env["VITE_API_BASE_URL"] = url
         result = subprocess.run(
             ["npm", "run", "build"],
+            check=False,
             cwd=root,
             env=env,
         )

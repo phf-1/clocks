@@ -25,10 +25,10 @@ import subprocess
 from pathlib import Path
 
 from clocks.check import Check
-from clocks.fs import Fs
-from clocks.port import Port
-from clocks.mode import Mode
 from clocks.constant import Constant
+from clocks.fs import Fs
+from clocks.mode import Mode
+from clocks.port import Port
 
 ENCODING = Constant.encoding()
 
@@ -83,7 +83,8 @@ class Db:
                     "--auth=trust",
                     "--username=postgres",
                     "--encoding=UTF8",
-                ]
+                ],
+                check=False,
             )
             if result.returncode != 0:
                 Check.failed("initdb failed", f"db_data={db_data}")
@@ -95,12 +96,12 @@ class Db:
         db_data = Db.mode_data(mode)
         status = subprocess.run(
             ["pg_ctl", "-D", str(db_data), "status"],
+            check=False,
             capture_output=True,
         )
         if status.returncode == 0:
             return ["running", status.stdout.decode(ENCODING)]
-        else:
-            return ["stopped", "The database is not running"]
+        return ["stopped", "The database is not running"]
 
     @staticmethod
     def start(mode) -> None:
@@ -123,7 +124,8 @@ class Db:
                         "-o",
                         f"-p {db_port} -k /tmp",
                         "start",
-                    ]
+                    ],
+                    check=False,
                 )
                 if result.returncode != 0:
                     Check.failed(

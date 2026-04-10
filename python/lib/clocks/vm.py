@@ -1,17 +1,18 @@
 from __future__ import annotations
+
+import os
+import shutil
 import subprocess
 from pathlib import Path
 
+from clocks.authority import Authority
 from clocks.check import Check
 from clocks.image import Image
+from clocks.ip import Ip
+from clocks.nat import Nat
 from clocks.osys import Osys
 from clocks.port import Port
-from clocks.nat import Nat
 from clocks.ssh import Ssh
-from clocks.authority import Authority
-from clocks.ip import Ip
-import os
-import shutil
 
 _VM_TMP = Path("/tmp/clocks/vm")
 _VM_TMP.mkdir(parents=True, exist_ok=True)
@@ -36,6 +37,7 @@ def _system_check() -> None:
 def _host_key(ip, port):
     result = subprocess.run(
         ["ssh-keyscan", "-T", "1", "-t", "ed25519", "-p", str(port), str(ip)],
+        check=False,
         capture_output=True,
         text=True,
     )
@@ -57,19 +59,19 @@ def _socket(image) -> Path:
 
 
 def _purge_systemd_user_unit(unit_name):
-    """
-    Safely stops, disables, and deletes a systemd user unit and its related files.
+    """Safely stops, disables, and deletes a systemd user unit and its related files.
     Silences errors if the unit does not exist.
     """
-
     # 1. Stop and disable the unit (silently ignore if it doesn't exist/isn't running)
     subprocess.run(
         ["systemctl", "--user", "stop", unit_name],
+        check=False,
         stderr=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
     )
     subprocess.run(
         ["systemctl", "--user", "disable", unit_name],
+        check=False,
         stderr=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
     )
@@ -77,6 +79,7 @@ def _purge_systemd_user_unit(unit_name):
     # 2. Ask systemd for the exact path to the unit file
     show_cmd = subprocess.run(
         ["systemctl", "--user", "show", "-p", "FragmentPath", "--value", unit_name],
+        check=False,
         capture_output=True,
         text=True,
     )
@@ -99,6 +102,7 @@ def _purge_systemd_user_unit(unit_name):
     # 4. Reload the daemon so systemd realizes the file is gone
     subprocess.run(
         ["systemctl", "--user", "daemon-reload"],
+        check=False,
         stderr=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
     )
@@ -106,6 +110,7 @@ def _purge_systemd_user_unit(unit_name):
     # 5. Reset the failed state (silencing the specific error you were previously seeing)
     subprocess.run(
         ["systemctl", "--user", "reset-failed", unit_name],
+        check=False,
         stderr=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
     )
@@ -149,7 +154,7 @@ def _start(image, ip, ssh_port):
             "-mon",
             "chardev=mon,mode=control",
         ]
-        subprocess.run(cmd)
+        subprocess.run(cmd, check=False)
         Ssh.is_running_check(Authority.mk(ip, ssh_port), Nat.mk(20))
 
 
@@ -164,8 +169,7 @@ def _store_key(image):
 
 
 class Vm:
-    """
-    [[id:ef1de6fd-1c16-459f-9564-02bbe5917396][VM]]
+    """[[id:ef1de6fd-1c16-459f-9564-02bbe5917396][VM]]
 
     A VM represents a [[ref:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]].
     """
@@ -225,9 +229,8 @@ class Vm:
         Vm.check(vm)
         if hasattr(vm, "_host_key"):
             return vm._host_key
-        else:
-            vm._host_key = Vm.elim(lambda image, ip, port: _host_key(ip, port))(vm)
-            return vm._host_key
+        vm._host_key = Vm.elim(lambda image, ip, port: _host_key(ip, port))(vm)
+        return vm._host_key
 
     @staticmethod
     def start(vm):
@@ -239,24 +242,22 @@ class Vm:
         Vm.check(vm)
         if hasattr(vm, "_root_key"):
             return vm._root_key
-        else:
-            vm._root_key = Vm.elim(lambda image, ip, port: _root_key(image))(vm)
-            return vm._root_key
+        vm._root_key = Vm.elim(lambda image, ip, port: _root_key(image))(vm)
+        return vm._root_key
 
     @staticmethod
     def store_key(vm):
         Vm.check(vm)
         if hasattr(vm, "_store_key"):
             return vm._store_key
-        else:
-            vm._store_key = Vm.elim(lambda image, ip, port: _store_key(image))(vm)
-            return vm._store_key
+        vm._store_key = Vm.elim(lambda image, ip, port: _store_key(image))(vm)
+        return vm._store_key
 
     @staticmethod
     def is_running(vm: Vm, timeout: Nat) -> bool:
         Nat.check(timeout)
         return Vm.elim(
-            lambda image, ip, port: Ssh.is_running(Authority.mk(ip, port), timeout)
+            lambda image, ip, port: Ssh.is_running(Authority.mk(ip, port), timeout),
         )(vm)
 
     @staticmethod
@@ -264,8 +265,9 @@ class Vm:
         Nat.check(timeout)
         return Vm.elim(
             lambda image, ip, port: Ssh.is_running_check(
-                Authority.mk(ip, port), timeout
-            )
+                Authority.mk(ip, port),
+                timeout,
+            ),
         )(vm)
 
     @staticmethod

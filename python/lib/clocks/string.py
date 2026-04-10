@@ -7,8 +7,7 @@ from clocks.check import Check
 
 
 class String:
-    """
-    is_a : Boolean
+    """is_a : Boolean
     check : ∅
     """
 

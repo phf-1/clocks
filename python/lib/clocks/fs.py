@@ -5,8 +5,10 @@
 # root : Directory
 
 from __future__ import annotations
+
 import subprocess
 from pathlib import Path
+
 from clocks.check import Check
 
 # Interface
@@ -17,6 +19,7 @@ class Fs:
     def root() -> Path:
         result = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
+            check=False,
             capture_output=True,
             text=True,
         )

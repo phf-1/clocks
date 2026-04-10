@@ -9,10 +9,10 @@ import subprocess
 from pathlib import Path
 
 from clocks.check import Check
-from clocks.fs import Fs
-from clocks.db import Db
-from clocks.mode import Mode
 from clocks.constant import Constant
+from clocks.db import Db
+from clocks.fs import Fs
+from clocks.mode import Mode
 from clocks.port import Port
 
 _ENCODING = Constant.encoding()
@@ -22,8 +22,7 @@ _PROD_PORT = Port.mk(4002)
 
 
 class Backend:
-    """
-    root : Directory         :≡ Where the backend code is stored
+    """root : Directory         :≡ Where the backend code is stored
     update : Backend         :≡ Fetch dependencies.
     init_db : Mode → Backend :≡ Set up database tables
     migrate : Mode → Backend :≡ Apply pending Ecto migrations
@@ -51,7 +50,7 @@ class Backend:
             ["mix", "local.hex", "--force", "--if-missing"],
             ["mix", "deps.get"],
         ):
-            result = subprocess.run(cmd, cwd=root)
+            result = subprocess.run(cmd, check=False, cwd=root)
             if result.returncode != 0:
                 Check.failed("update failed", f"cmd={' '.join(cmd)}")
 
@@ -66,6 +65,7 @@ class Backend:
         env["MIX_ENV"] = str(mode)
         result = subprocess.run(
             ["mix", "ecto.create"],
+            check=False,
             cwd=root,
             env=env,
         )
@@ -88,6 +88,7 @@ class Backend:
 
         result = subprocess.run(
             ["mix", "ecto.migrate"],
+            check=False,
             cwd=root,
             env=env,
         )
@@ -112,6 +113,7 @@ class Backend:
         target.mkdir(parents=True, exist_ok=True)
         result = subprocess.run(
             ["rsync", "-a", "--delete", f"{frontend_dist}/", str(target)],
+            check=False,
         )
         if result.returncode != 0:
             Check.failed("Cannot install frontend dist in the backend")
@@ -134,7 +136,7 @@ class Backend:
             ["mix", "release", "--overwrite", "--path", str(release_path)],
         ]
         for cmd in cmds:
-            result = subprocess.run(cmd, cwd=root, env=env)
+            result = subprocess.run(cmd, check=False, cwd=root, env=env)
             if result.returncode != 0:
                 Check.failed("backend dist failed", f"cmd={' '.join(cmd)}")
         return release_path
@@ -144,6 +146,7 @@ class Backend:
         root = Backend.root()
         subprocess.run(
             ["iex", "--dbg", "pry", "-S", "mix", "phx.server"],
+            check=False,
             cwd=root,
         )
 
@@ -151,6 +154,6 @@ class Backend:
     def test() -> None:
         """Execute all Elixir/Phoenix tests (mix test)."""
         root = Backend.root()
-        result = subprocess.run(["mix", "test"], cwd=root)
+        result = subprocess.run(["mix", "test"], check=False, cwd=root)
         if result.returncode != 0:
             Check.failed("Backend tests failed")

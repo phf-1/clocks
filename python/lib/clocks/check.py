@@ -21,9 +21,8 @@ error = Log.error
 class CheckError(Exception):
     """Raised by Check.failed().
     The error message has already been logged via Log.error().
-    The top-level script catches this exception and exits with code 1."""
-
-    pass
+    The top-level script catches this exception and exits with code 1.
+    """
 
 
 # Interface
@@ -63,7 +62,9 @@ class Check:
     def value_in(value: str, *allowed: str) -> None:
         if value not in allowed:
             Check.failed(
-                "value is not allowed", f"value={value}", f"allowed={' '.join(allowed)}"
+                "value is not allowed",
+                f"value={value}",
+                f"allowed={' '.join(allowed)}",
             )
 
     @staticmethod

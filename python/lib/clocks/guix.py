@@ -1,17 +1,19 @@
 from __future__ import annotations
-import subprocess
+
 import os
-from clocks.fs import Fs
+import subprocess
+import tempfile
+from pathlib import Path
+
+from clocks.authority import Authority
 from clocks.check import Check
-from clocks.maybe import Maybe
-from clocks.osys import Osys
+from clocks.fs import Fs
 from clocks.ip import Ip
+from clocks.maybe import Maybe
 from clocks.nat import Nat
+from clocks.osys import Osys
 from clocks.port import Port
 from clocks.string import String
-from clocks.authority import Authority
-from pathlib import Path
-import tempfile
 
 _MACHINE_TEMPLATE = """__OS__
 
@@ -55,8 +57,7 @@ def _machine(os: Osys, authority: Authority, host_key: str) -> Path:
 
 
 class Guix:
-    """
-    [[id:184e8f75-3a8f-40d1-9c1c-fe30dd50e083][Guix]]
+    """[[id:184e8f75-3a8f-40d1-9c1c-fe30dd50e083][Guix]]
 
     This module represents Guix CLI.
 
@@ -110,7 +111,7 @@ class Guix:
         """Start a Guix REPL"""
         init = Fs.scheme() / ".guile"
         cmd = ["guix", "repl", "-i", init]
-        subprocess.run(cmd)
+        subprocess.run(cmd, check=False)
 
     @staticmethod
     def container_is_active():

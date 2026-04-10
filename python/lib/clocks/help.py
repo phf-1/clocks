@@ -3,6 +3,7 @@
 # This module extracts and prints a help from a script.
 
 from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -14,8 +15,7 @@ DESC_RE = re.compile(r" *#   (.+)")
 
 @dataclass
 class Section:
-    """
-    Name :≡ String
+    """Name :≡ String
     Command :≡ String
     Description :≡ String
     Content :≡ List(Command × Description)
@@ -31,7 +31,7 @@ class Section:
     _content: list[tuple[str, str]] = field(default_factory=list)
 
     @staticmethod
-    def mk(name: str, content: list[tuple[str, str]]) -> "Section":
+    def mk(name: str, content: list[tuple[str, str]]) -> Section:
         return Section(name, content)
 
     @staticmethod
@@ -45,39 +45,39 @@ class Section:
 
     @staticmethod
     def elim(f):
-        def use(sec: "Section"):
+        def use(sec: Section):
             Section.check(sec)
             return f(sec._name, sec._content)
 
         return use
 
     @staticmethod
-    def name(sec: "Section") -> str:
+    def name(sec: Section) -> str:
         return Section.elim(lambda n, _c: n)(sec)
 
     @staticmethod
-    def content(sec: "Section") -> list[tuple[str, str]]:
+    def content(sec: Section) -> list[tuple[str, str]]:
         return Section.elim(lambda _n, c: c)(sec)
 
     @staticmethod
-    def add(sec: "Section", cmd: str, desc: str) -> "Section":
+    def add(sec: Section, cmd: str, desc: str) -> Section:
         def _add(name, content):
             return Section.mk(name, content + [(cmd, desc)])
 
         return Section.elim(_add)(sec)
 
     @staticmethod
-    def command_width(sec: "Section") -> int:
+    def command_width(sec: Section) -> int:
         c = Section.content(sec)
         return max((len(cmd) for cmd, _ in c), default=0)
 
     @staticmethod
-    def description_width(sec: "Section") -> int:
+    def description_width(sec: Section) -> int:
         c = Section.content(sec)
         return max((len(desc) for _, desc in c), default=0)
 
     @staticmethod
-    def width(sec: "Section") -> int:
+    def width(sec: Section) -> int:
         return max(
             len(Section.name(sec)),
             Section.command_width(sec),
@@ -89,10 +89,9 @@ Doc = list[Section]
 
 
 class Help:
-    """
-    Help
-      doc    : Path → Doc
-      string : Path → String
+    """Help
+    doc    : Path → Doc
+    string : Path → String
     """
 
     @staticmethod

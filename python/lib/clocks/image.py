@@ -3,10 +3,12 @@
 # An Image represents a [[ref:2b855eac-c24c-4d19-a966-e8bf89be994c][DiskImage]].
 
 from __future__ import annotations
-from clocks.cmd import Cmd
-from pathlib import Path
-from clocks.check import Check
+
 import shutil
+from pathlib import Path
+
+from clocks.check import Check
+from clocks.cmd import Cmd
 from clocks.fs import Fs
 from clocks.osys import Osys
 
@@ -19,8 +21,7 @@ def _name_to_path(name):
 
 
 class Image:
-    """
-    mk : [[ref:b10f3eef-3767-4d1b-b690-71f36f619fd9][OS]] → Image
+    """mk : [[ref:b10f3eef-3767-4d1b-b690-71f36f619fd9][OS]] → Image
     elim : (Osys Path → C) → Image → C
     os : Image → OS
     qcow2 : Image → Path

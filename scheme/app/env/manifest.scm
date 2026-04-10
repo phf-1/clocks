@@ -65,7 +65,6 @@
   (concatenate-manifests
    (list
 
-    ;; ── Runtime ────────────────────────────────────────────────────────────────
     (packages->manifest
      (list
       erlang-with-debug-info
@@ -102,7 +101,7 @@
        "qemu-minimal"
        "ripgrep"
        "rsync"
-       "ruff"
+       ;; "ruff"
        "sed"
        "shellcheck"
        "shfmt"

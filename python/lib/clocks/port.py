@@ -13,16 +13,16 @@
 # Implementation
 
 from __future__ import annotations
+
 from clocks.check import Check
-from clocks.string import String
 from clocks.maybe import Maybe
+from clocks.string import String
 
 # Interface
 
 
 class Port:
-    """
-    [[id:c4a3e737-ebd1-4922-b57e-2f135880d3e9][Port]]
+    """[[id:c4a3e737-ebd1-4922-b57e-2f135880d3e9][Port]]
 
     Represents a [[ref:26ba86e3-8472-48b7-9701-00313fa7a030][Port]]
     """
@@ -41,7 +41,7 @@ class Port:
         return str(self._value)
 
     @staticmethod
-    def mk(value) -> "Port":
+    def mk(value) -> Port:
         return Port(value)
 
     @staticmethod

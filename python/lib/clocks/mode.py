@@ -6,6 +6,7 @@
 # Implementation
 
 from __future__ import annotations
+
 from clocks.check import Check
 from clocks.maybe import Maybe
 from clocks.string import String
@@ -16,8 +17,7 @@ _VALUES = ("dev", "test", "prod")
 
 
 class Mode:
-    """
-    dev : Mode
+    """dev : Mode
     test : Mode
     prod : Mode
     elim : C C C → Mode → C
@@ -26,7 +26,9 @@ class Mode:
     def __init__(self, value):
         if value not in _VALUES:
             Check.failed(
-                "value not in _VALUES", f"value: {value}", f"_VALUES: {_VALUES}"
+                "value not in _VALUES",
+                f"value: {value}",
+                f"_VALUES: {_VALUES}",
             )
         self._value = value
 

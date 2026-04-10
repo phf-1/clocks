@@ -1,18 +1,18 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
 class Maybe:
-    """
-    [[id:cedcd8c0-58ba-43a7-afc6-30489f5efdff][Maybe]]
+    """[[id:cedcd8c0-58ba-43a7-afc6-30489f5efdff][Maybe]]
 
     Maybe(X) represents a value of some type or the absence of it.
     """
 
     _present: bool
-    _value: Optional[Any]
+    _value: Any | None
 
     @staticmethod
     def nothing() -> Maybe:
