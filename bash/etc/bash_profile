@@ -1,4 +1,4 @@
-export PATH="$PWD/python/bin:$PATH"
+export PATH="$PATH:$PWD/python/bin"
 export CC=gcc
 export SSL_CERT_DIR="$GUIX_ENVIRONMENT/etc/ssl/certs"
 export SSL_CERT_FILE="$GUIX_ENVIRONMENT/etc/ssl/certs/ca-certificates.crt"

@@ -14,7 +14,7 @@ import re
 import shutil
 from pathlib import Path
 
-from log import Log
+from clocks.log import Log
 error = Log.error
 
 class CheckError(Exception):
@@ -41,6 +41,11 @@ class Check:
             Check.failed("value is not a directory", f"value={value}")
 
     @staticmethod
+    def int(value: any) -> None:
+        if not isinstance(value, int):
+            Check.failed("value is not an Integer", f"value={value}")
+
+    @staticmethod
     def file(value: str | Path) -> None:
         if not Path(value).is_file():
             Check.failed("value is not a regular file", f"value={value}")
@@ -56,12 +61,6 @@ class Check:
             Check.failed("value is not allowed",
                          f"value={value}",
                          f"allowed={' '.join(allowed)}")
-
-    @staticmethod
-    def nat(value: str | int) -> None:
-        # TODO(3a16): should not start by 0.
-        if not re.fullmatch(r"[0-9]+", str(value)):
-            Check.failed("value does not represent a ℕ", f"value={value}")
 
     @staticmethod
     def cmd(cmd: str) -> None:

@@ -13,12 +13,18 @@
 # Implementation
 
 from __future__ import annotations
-from check import Check
+from clocks.check import Check
+from clocks.string import String
+from clocks.maybe import Maybe
 
 # Interface
 
 class Port:
-    """Represents a valid TCP/UDP port (integer from 1 to 65535)."""
+    """
+    [[id:c4a3e737-ebd1-4922-b57e-2f135880d3e9][Port]]
+
+    Represents a [[ref:26ba86e3-8472-48b7-9701-00313fa7a030][Port]]
+    """
 
     def __init__(self, value):
         try:
@@ -57,3 +63,17 @@ class Port:
     @staticmethod
     def int(port) -> int:
         return Port.elim(lambda value: value)(port)
+
+    @staticmethod
+    def string(port: Port) -> str:
+        return Port.elim(str)(port)
+
+    @staticmethod
+    def parse(value):
+        """String → Maybe(Port)"""
+        String.check(value)
+        try:
+            port = Port.mk(value)
+            return Maybe.just(port)
+        except Exception:
+            return Maybe.nothing()

@@ -1,17 +1,15 @@
-# [[id:ef1de6fd-1c16-459f-9564-02bbe5917396][VM]]
-#
-# A VM represents a [[ref:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]].
-
 from __future__ import annotations
 import subprocess
-import time
 from pathlib import Path
 
-from check import Check
-from image import Image
-from osys import Osys
-from port import Port
-from ip import Ip
+from clocks.check import Check
+from clocks.image import Image
+from clocks.osys import Osys
+from clocks.port import Port
+from clocks.nat import Nat
+from clocks.ssh import Ssh
+from clocks.authority import Authority
+from clocks.ip import Ip
 import os
 import shutil
 
@@ -100,7 +98,7 @@ def _clean(image) -> None:
     _socket(image).unlink(missing_ok=True)
 
 def _start(image, ip, ssh_port):
-    if not _is_running(ip, ssh_port, 2):
+    if not Ssh.is_running(Authority.mk(ip, ssh_port), Nat.mk(2)):
         _system_check()
         _clean(image)
         unit = _unit(image)
@@ -123,19 +121,7 @@ def _start(image, ip, ssh_port):
             "-mon", "chardev=mon,mode=control",
         ]
         subprocess.run(cmd)
-        _is_running_check(ip, ssh_port, timeout=20)
-
-def _is_running(ip, port, timeout) -> bool:
-    start = time.time()
-    while time.time() - start < timeout:
-        time.sleep(0.5)
-        if _host_key(ip, port) is not None:
-            return True
-    return False
-
-def _is_running_check(ip, port, timeout) -> None:
-    if not _is_running(ip, port, timeout):
-        Check.failed("VM is not running", f"ip={ip}", f"port={port}", f"timeout={timeout} sec")
+        Ssh.is_running_check(Authority.mk(ip, ssh_port), Nat.mk(20))
 
 def _root_key(image):
     osys = Image.osys(image)
@@ -145,27 +131,11 @@ def _store_key(image):
     osys = Image.osys(image)
     return Osys.store_key(osys)
 
-# Interface
-
 class Vm:
     """
-    mk : [[ref:0c323aa3-4e48-4d72-83cf-9481324cf274][Image]] [[ref:bbabbbd6-cd92-44b3-91b7-095c979f7f45][Port]] → VM
-    dev : Port → VM
-    elim : (Image Ip Port → C) → VM → C
-    image : VM → Image
-    name : VM → String
-    ip : VM → Ip
-    ssh-port : VM → Port
-    host-key : VM → String
-    root-key : VM → String
-    store-key : VM → String
-    vm_system_check : ∅
-    start : VM → VM
-    running? : VM Timeout → Boolean
-    running_check : VM Timeout → Maybe(Error ∧ (exit 1))
-    status : VM → String
-    stop : VM → VM
-    clean : VM → VM (underlying filesystem has been cleaned)
+    [[id:ef1de6fd-1c16-459f-9564-02bbe5917396][VM]]
+
+    A VM represents a [[ref:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]].
     """
 
     def __init__(self, image, ssh_port):
@@ -250,13 +220,15 @@ class Vm:
             return vm._store_key
 
     @staticmethod
-    def is_running(vm, timeout):
-        return Vm.elim(lambda image, ip, port: _is_running(ip, port, timeout))(vm)
+    def is_running(vm: Vm, timeout: Nat) -> bool:
+        Nat.check(timeout)
+        return Vm.elim(lambda image, ip, port: Ssh.is_running(Authority.mk(ip, port), timeout))(vm)
 
     @staticmethod
-    def is_running_check(vm, timeout):
-        return Vm.elim(lambda image, ip, port: _is_running_check(ip, port, timeout))(vm)
+    def is_running_check(vm: Vm, timeout: Nat):
+        Nat.check(timeout)
+        return Vm.elim(lambda image, ip, port: Ssh.is_running_check(Authority.mk(ip, port), timeout))(vm)
 
     @staticmethod
-    def clean(vm):
+    def clean(vm: Vm):
         Vm.elim(lambda image, ip, port: _clean(image))(vm)

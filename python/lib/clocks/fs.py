@@ -7,7 +7,7 @@
 from __future__ import annotations
 import subprocess
 from pathlib import Path
-from check import Check
+from clocks.check import Check
 
 # Interface
 

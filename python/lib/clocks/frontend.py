@@ -15,8 +15,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from check import Check
-from fs import Fs
+from clocks.check import Check
+from clocks.fs import Fs
 import shutil
 import os
 

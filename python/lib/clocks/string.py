@@ -3,7 +3,7 @@
 # This module augments operations on strings.
 # It is named "chars" because "string" is already used somewhere in the logging module.
 
-from check import Check
+from clocks.check import Check
 
 class String:
     """

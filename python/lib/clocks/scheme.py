@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fs import Fs
+from clocks.fs import Fs
 
 # Interface
 

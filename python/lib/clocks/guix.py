@@ -1,18 +1,15 @@
-# [[id:184e8f75-3a8f-40d1-9c1c-fe30dd50e083][Guix]]
-#
-# This module represents Guix CLI.
-
 from __future__ import annotations
 import subprocess
 import os
-from fs import Fs
-from check import Check
-from log import Log
-from vm import Vm
-from osys import Osys
-from ip import Ip
-from port import Port
-from chars import String
+from clocks.fs import Fs
+from clocks.check import Check
+from clocks.maybe import Maybe
+from clocks.osys import Osys
+from clocks.ip import Ip
+from clocks.nat import Nat
+from clocks.port import Port
+from clocks.string import String
+from clocks.authority import Authority
 from pathlib import Path
 import tempfile
 
@@ -38,7 +35,9 @@ _MACHINE_TEMPLATE = """__OS__
   (operating-system os)))
 """
 
-def _machine_path(os, ip, port, host_key):
+def _machine(os: Osys, authority: Authority, host_key: str) -> Path:
+    ip = Authority.ip(authority)
+    port = Authority.port(authority)
     os_str = Osys.use_modules(os)
     ip_str = Ip.string(ip)
     port_str = str(Port.int(port))
@@ -55,26 +54,24 @@ def _machine_path(os, ip, port, host_key):
 
 class Guix:
     """
+    [[id:184e8f75-3a8f-40d1-9c1c-fe30dd50e083][Guix]]
+
+    This module represents Guix CLI.
+
     Module :≡ List(String)
     Params :≡ List(String)
-    deploy : Module Params → subprocess.CompletedProcess
-    repl : ∅
-    container_is_active : Boolean
-    container_check : Maybe(Error)
     """
 
     @staticmethod
-    def deploy(vm, os):
-        Vm.check(vm)
+    def deploy(os: Osys, authority: Authority):
+        """os:Osys auth:Authority → os is deployed on auth"""
         Osys.check(os)
-        ip = Vm.ip(vm)
-        port = Vm.ssh_port(vm)
-        if not Vm.is_running(vm, 2):
-            Log.info("Start the Dev VM outside the container with ,vm-init-start port", f"port: {port}")
-            Check.failed("Dev VM is not running.", f"ip: {ip}", f"port: {port}")
-
-        host_key = Vm.host_key(vm)
-        machine = _machine_path(os, ip, port, host_key)
+        Authority.check(authority)
+        # Python import system is kind of dumb
+        from clocks.ssh import Ssh
+        Ssh.is_running_check(authority, Nat.mk(2))
+        host_key = Maybe.value(Ssh.host_key(authority))
+        machine = _machine(os, authority, host_key)
         subprocess.run(
             ["guix", "time-machine", "-C", str(Fs.channels()), "--", "deploy", str(machine)],
             check=True
@@ -82,12 +79,14 @@ class Guix:
 
     @staticmethod
     def build(path):
+        """TODO(626d): this should return the Path of the artefact"""
         cmd = ["guix", "time-machine", "-C", str(Fs.channels()), "--", "build", "-q", "-f", f"{path}"]
         subprocess.run(cmd, check=True)
         return Guix
 
     @staticmethod
     def repl():
+        """Start a Guix REPL"""
         init = Fs.scheme() / ".guile"
         cmd = ["guix", "repl", "-i", init]
         subprocess.run(cmd)

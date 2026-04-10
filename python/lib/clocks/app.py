@@ -4,12 +4,12 @@
 
 from __future__ import annotations
 import tempfile
-from mode import Mode
-from backend import Backend
-from frontend import Frontend
-from guix import Guix
+from clocks.mode import Mode
+from clocks.backend import Backend
+from clocks.frontend import Frontend
+from clocks.guix import Guix
 from pathlib import Path
-from osys import Osys
+from clocks.osys import Osys
 
 def _package(dist):
     return f"""
@@ -72,7 +72,6 @@ class App:
         dist = Backend.dist(frontend_dist)
         app_tmp = tempfile.mkdtemp(prefix="app_")
         package_tmp = Path(app_tmp) / "package.scm"
-        breakpoint()
         with open(package_tmp, "w") as f:
             f.write(_package(dist))
         Guix.build(package_tmp)

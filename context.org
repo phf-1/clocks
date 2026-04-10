@@ -25,4 +25,6 @@
 - [[id:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]] :≡ https://grokipedia.com/page/Virtual_machine
 - [[id:56eb52ec-d0e8-4f03-8199-9ca69887c0c5][Authority]] :≡ https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL#basics_anatomy_of_a_url
 - [[id:f6b072f6-6d3c-44c3-a1e8-47e22a23a3f1][FileObject]] :≡ https://docs.python.org/3/glossary.html#term-file-object
-- Bunny.net :≡ https://jola.dev/posts/dropping-cloudflare
+- [[id:d9112676-5f0e-41ac-908d-b48e1f923538][Bunny.net]] :≡ https://jola.dev/posts/dropping-cloudflare
+- [[id:26ba86e3-8472-48b7-9701-00313fa7a030][Port]] :≡ TODO(a2f4)
+- [[id:a92112ad-648a-4ce0-b800-918c0dc71598][Ip]] :≡ TODO(7156)

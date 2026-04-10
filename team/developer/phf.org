@@ -410,9 +410,9 @@ Plan:
 4. On-boarding → Deployment
 
 Result:
-- build image inside fedora 43, fails because SELinux
-- python3.11 must be installed
-
+- On-boarding → Deployment
+  1. build image inside fedora 43, fails because SELinux
+  2. python3.11 must be installed
 
 ** shepherd service
 

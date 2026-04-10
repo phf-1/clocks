@@ -3,8 +3,8 @@
 # os : OS represents an [[ref:be4a5e39-7ec4-43ed-9d96-376db49ce782][OS]]
 
 from __future__ import annotations
-from check import Check
-from fs import Fs
+from clocks.check import Check
+from clocks.fs import Fs
 import re
 
 _SCHEME_VM = Fs.root() / "scheme" / "app" / "vm"

@@ -3,12 +3,12 @@
 # An Image represents a [[ref:2b855eac-c24c-4d19-a966-e8bf89be994c][DiskImage]].
 
 from __future__ import annotations
-from cmd import Cmd
+from clocks.cmd import Cmd
 from pathlib import Path
-from check import Check
+from clocks.check import Check
 import shutil
-from fs import Fs
-from osys import Osys
+from clocks.fs import Fs
+from clocks.osys import Osys
 
 _IMAGE_DIR = Fs.root() / "image"
 _IMAGE_DIR.mkdir(parents=True, exist_ok=True)

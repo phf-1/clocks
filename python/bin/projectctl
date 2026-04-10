@@ -19,31 +19,32 @@ SELF_NAME = SELF.name
 
 lib_dir = (SELF.parent.parent / "lib").resolve()
 if str(lib_dir) not in sys.path:
-    sys.path.insert(0, str(lib_dir))
+    sys.path.append(str(lib_dir))
 
-from log import Log      # noqa: E402
+from clocks.log import Log      # noqa: E402
 ok = Log.ok
 info = Log.info
 debug = Log.debug
 error = Log.error
-from check import Check, CheckError  # noqa: E402
+from clocks.check import Check, CheckError  # noqa: E402
 failed = Check.failed
-from fs import Fs        # noqa: E402
-from backend import Backend  # noqa: E402
-from frontend import Frontend  # noqa: E402
-from db import Db              # noqa: E402
-from mode import Mode    # noqa: E402
-from constant import Constant    # noqa: E402
-from osys import Osys      # noqa: E402
-from image import Image # noqa: E402
-from vm import Vm       # noqa: E402
-from help import Help       # noqa: E402
-from ip import Ip       # noqa: E402
-from params import Params    # noqa: E402
-from guix import Guix    # noqa: E402
-from ssh import Ssh    # noqa: E402
+from clocks.fs import Fs        # noqa: E402
+from clocks.backend import Backend  # noqa: E402
+from clocks.frontend import Frontend  # noqa: E402
+from clocks.db import Db              # noqa: E402
+from clocks.mode import Mode    # noqa: E402
+from clocks.constant import Constant    # noqa: E402
+from clocks.osys import Osys      # noqa: E402
+from clocks.image import Image # noqa: E402
+from clocks.vm import Vm       # noqa: E402
+from clocks.help import Help       # noqa: E402
+from clocks.ip import Ip       # noqa: E402
+from clocks.params import Params    # noqa: E402
+from clocks.guix import Guix    # noqa: E402
+from clocks.authority import Authority    # noqa: E402
+from clocks.ssh import Ssh    # noqa: E402
 ssh = Ssh.mk()
-from app import App    # noqa: E402
+from clocks.app import App    # noqa: E402
 
 
 ENCODING = Constant.encoding()
@@ -136,137 +137,121 @@ def _rcv(msg, params):
     #   (Re)install commands
     if msg == ",install-commands":
         _install_commands()
-        sys.exit(0)
 
     # ,update-deps
     #   Update dependencies not directly managed by Guix
-    if msg == ",update-deps":
+    elif msg == ",update-deps":
         _update_deps()
-        sys.exit(0)
 
     # Executing this script directly installs commands and fetches dependencies
-    if msg == SELF_NAME:
+    elif msg == SELF_NAME:
         install_link = Path(SELF.parent) / ",install-commands"
         install_link.unlink(missing_ok=True)
         install_link.symlink_to(SELF_NAME)
         _update_deps()
         _install_commands()
-        sys.exit(0)
 
     # DEVELOPMENT #
 
     # ,help
     #   Print commands and descriptions
-    if msg == ",help":
+    elif msg == ",help":
         _help()
-        sys.exit(0)
 
     # ,list-todo
     #   List todos
-    if msg == ",list-todo":
+    elif msg == ",list-todo":
         result = subprocess.run(["rg", "-F", "TODO", str(Fs.root())])
         if result.returncode not in (0, 1):
             Check.failed("rg failed", f"returncode={result.returncode}")
         ok("List TODOs")
-        sys.exit(0)
 
     # DATABASE #
 
     # ,db-init (Mode :≡ dev|test|prod)
     #   Creates a directory for the DB data.
-    if msg == ",db-init":
-        mode = Params.mode(params, 0)
+    elif msg == ",db-init":
+        mode = Params.mode_check(params, 0)
         db_data = Db.init(mode)
         ok("The PostgreSQL cluster has been initialized",
            f"mode={mode}", f"db_data={db_data}")
-        sys.exit(0)
 
     # ,db-start Mode
     #   Start a PostgreSQL process
-    if msg == ",db-start":
-        mode = Params.mode(params, 0)
+    elif msg == ",db-start":
+        mode = Params.mode_check(params, 0)
         Db.start(mode)
         ok("The PostgreSQL instance is started")
-        sys.exit(0)
 
     # ,db-status Mode
     #   Status a PostgreSQL process
-    if msg == ",db-status":
-        mode = Params.mode(params, 0)
+    elif msg == ",db-status":
+        mode = Params.mode_check(params, 0)
         match Db.status(mode):
             case ["running", status]:
                 ok(status)
             case _:
                 ok(f"Database in mode {mode} is not running")
-        sys.exit(0)
 
     # ,db-clean
     #   Remove PostgreSQL directories
-    if msg == ",db-clean":
+    elif msg == ",db-clean":
         Db.clean()
         ok("DB cleaned", f"DBROOT={Db.root()}")
-        sys.exit(0)
 
     # FRONTEND #
 
     # ,frontend-update
     #   Update the frontend to the last version
-    if msg == ",frontend-update":
+    elif msg == ",frontend-update":
         version = Frontend.update()
         ok("The frontend has been updated", f"version={version}")
-        sys.exit(0)
 
     # ,frontend-dist Mode
     #   Build a frontend distribution
-    if msg == ",frontend-dist":
-        mode = Params.mode(params, 0)
+    elif msg == ",frontend-dist":
+        mode = Params.mode_check(params, 0)
         url = Backend.url(mode)
         dist = Frontend.dist(url)
         ok("A frontend distribution in mode has been built", f"dist: {dist}", f"mode: {mode}")
-        sys.exit(0)
 
     # ,frontend-clean
     #   Delete built files
-    if msg == ",frontend-clean":
+    elif msg == ",frontend-clean":
         Frontend.clean()
         ok("Frontend generated files are deleted")
-        sys.exit(0)
 
     # BACKEND #
 
     # ,backend-update
     #   Update the backend dependencies
-    if msg == ",backend-update":
+    elif msg == ",backend-update":
         Backend.update()
         ok("The backend dependencies have been updated")
-        sys.exit(0)
 
     # ,backend-init-db Mode
     #   Set up database tables
-    if msg == ",backend-init-db":
-        mode = Params.mode(params, 0)
+    elif msg == ",backend-init-db":
+        mode = Params.mode_check(params, 0)
         Backend.init_db(mode)
         ok("The database tables have been created", f"mode={mode}")
-        sys.exit(0)
 
     # ,backend-migrate Mode
     #   Apply pending Ecto migrations to the database
-    if msg == ",backend-migrate":
-        mode = Params.mode(params, 0)
+    elif msg == ",backend-migrate":
+        mode = Params.mode_check(params, 0)
         Backend.migrate(mode)
         ok("Ecto migration has been applied to the database", f"mode={mode}")
-        sys.exit(0)
 
     # ,backend-test
     #   Execute all Elixir tests
-    if msg == ",backend-test":
+    elif msg == ",backend-test":
         Backend.test()
         ok("Backend tests executed")
-        sys.exit(0)
 
     # ,backend-dist
     #   Build a backend distribution
-    if msg == ",backend-dist":
+    elif msg == ",backend-dist":
         url = Backend.url(Mode.prod())
         info("Build the frontend distribution at url", f"url={url}")
         frontend_dist = Frontend.dist(url)
@@ -274,49 +259,59 @@ def _rcv(msg, params):
         info("Build the backend distribution")
         dist = Backend.dist(frontend_dist)
         ok("A backend distribution has been built", f"dist={dist}")
-        sys.exit(0)
 
     # ,backend-clean
     #   Remove the Phoenix build artifacts and dependencies
-    if msg == ",backend-clean":
+    elif msg == ",backend-clean":
         Backend.clean()
         ok("Backend directory cleaned", f"PHX={Backend.root()}")
-        sys.exit(0)
 
-    # VM #
+    # IMAGE #
 
-    # ,vm-init-image-build
-    #   Build the image of the init OS
-    if msg == ",vm-init-image-build":
-        osys = Osys("init")
+    # ,image-build OS
+    #   Build an image for OS within the container (OS :≡ init | dev)
+    elif msg == ",image-build":
+        name = Params.string_check(params, 0)
+        osys = Osys.mk(name)
         if Guix.container_is_active():
             image = Image(osys, inside_container=True)
             ok(f"image: {Image.qcow2(image)}")
-            sys.exit(0)
         else:
-            error("The image should be built from within the container")
-            sys.exit(1)
+            Check.failed("The image should be built from within the container")
 
-    # ,vm-init-start Port
-    #   Start a local VM listening for SSH on port to simulate a new VPS
-    if msg == ",vm-init-start":
-        ssh_port = Params.port(params, 0)
+    # VM #
+
+    # ,vm-start OS Port
+    #   Start a local VM built from OS and listening for SSH connection on Port
+    elif msg == ",vm-start":
+        name = Params.string_check(params, 0)
+        ssh_port = Params.port_check(params, 1)
         if Guix.container_is_active():
-            error("This command should run outside of the container")
-            sys.exit(1)
+            Check.failed("This command should run outside of the container")
         else:
-            vm = Vm.dev(ssh_port, inside_container=False)
+            osys = Osys.mk(name)
+            image = Image.mk(osys, inside_container=Guix.container_is_active())
+            vm = Vm.mk(image, ssh_port)
             Vm.start(vm)
             port = Vm.ssh_port(vm)
             ok("A new local VM to test deployment (as if it was a VPS) has been built")
             ok(f"Connect to the VM from the container with: ,ssh-connect-dev-vm {port}")
-            sys.exit(0)
+
+    # DEPLOYMENT #
+
+    # ,deploy OS Authority
+    #   Deploy OS to Authority (Authority :≡ Ip:Port)
+    elif msg == ",deploy":
+        name = Params.string_check(params, 0)
+        authority = Params.authority_check(params, 1)
+        os = Osys.mk(name)
+        Guix.deploy(os, authority)
 
     # APP #
 
     # ,app-repl
     #   Start the application and drop into iex
-    if msg == ",app-repl":
+    elif msg == ",app-repl":
         mode = Mode.dev()
         Db.init(mode)
         Db.start(mode)
@@ -326,76 +321,53 @@ def _rcv(msg, params):
         frontend_dist = Frontend.dist(url)
         Backend.install_frontend(frontend_dist)
         Backend.repl()
-        sys.exit(0)
 
     # ,app-test
     #   Execute tests
-    if msg == ",app-test":
+    elif msg == ",app-test":
         Backend.test()
         ok("Tests have been executed")
-        sys.exit(0)
 
     # ,app-package
     #   Build an application package
-    if msg == ",app-package":
+    elif msg == ",app-package":
         package = App.package()
         ok("A package for the application has been built", f"package: {package}")
-        sys.exit(0)
-
-    # ,app-deploy-dev Port
-    #   Deploy the application to the local dev VM using SSH port
-    if msg == ",app-deploy-dev":
-        ssh_port = Params.port(params, 0)
-        vm = Vm.dev(ssh_port, inside_container=Guix.container_is_active())
-        os = App.os()
-        Guix.deploy(vm, os)
-        sys.exit(0)
 
     # ,app-clean
     #   Delete all generated files
-    if msg == ",app-clean":
+    elif msg == ",app-clean":
         Frontend.clean()
         Db.clean()
         Backend.clean()
-        # Remove all top-level _* directories (exact Bash equivalent)
         root = Fs.root()
         for item in list(root.glob("_*")):
             if item.is_dir():
                 shutil.rmtree(item, ignore_errors=True)
         ok("ROOT directory cleaned", f"ROOT={root}")
-        sys.exit(0)
 
     # SUPPORT #
 
     # ,guix-repl
     #   Start the Guix repl
-    if msg == ",guix-repl":
+    elif msg == ",guix-repl":
         Guix.repl()
-        sys.exit(0)
 
     # ,ssh-connect-dev-vm Port
     #   Connect to the init VM
-    if msg == ",ssh-connect-dev-vm":
-        ssh_port = Params.port(params, 0)
+    elif msg == ",ssh-connect-dev-vm":
+        ssh_port = Params.port_check(params, 0)
         ip = Ip.mk("127.0.0.1")
-        Ssh.connect(ssh, "root", ip, ssh_port)
-        sys.exit(0)
+        Ssh.connect(ssh, "root", Authority.mk(ip, ssh_port))
 
     # ,experiment
     #   Execute temporary code
-    if msg == ",experiment":
+    elif msg == ",experiment":
         App.service()
-        sys.exit(0)
 
-    error("Unexpected message.", f"msg: {msg}")
-    sys.exit(1)
+    else:
+        Check.failed("Unexpected message.", f"msg: {msg}")
 
 if __name__ == "__main__":
-    try:
-        _rcv(Path(sys.argv[0]).name, Params(sys.argv[1:]))
-    except CheckError:
-        sys.exit(1)
-    except Exception as e:
-        Log.error("Unexpected exception", str(e))
-        Log.error("try: ,help")
-        sys.exit(1)
+    _rcv(Path(sys.argv[0]).name, Params(sys.argv[1:]))
+    sys.exit(0)

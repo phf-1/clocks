@@ -6,7 +6,9 @@
 # Implementation
 
 from __future__ import annotations
-from check import Check
+from clocks.check import Check
+from clocks.maybe import Maybe
+from clocks.string import String
 
 _VALUES = ("dev", "test", "prod")
 
@@ -19,7 +21,7 @@ class Mode:
     prod : Mode
     elim : C C C → Mode → C
     """
-    
+
     def __init__(self, value):
         if value not in _VALUES:
             Check.failed("value not in _VALUES", f"value: {value}", f"_VALUES: {_VALUES}")
@@ -65,17 +67,16 @@ class Mode:
         return closure
 
     @staticmethod
-    def parse(string):
+    def parse(string: str) -> Maybe:
+        String.check(string)
         if (string == "dev"):
-            return Mode.dev()
+            return Maybe.just(Mode.dev())
         if (string == "test"):
-            return Mode.test()
+            return Maybe.just(Mode.test())
         if (string == "prod"):
-            return Mode.prod()
-        raise ValueError(f"string is not a Mode representation. string: {string}")
+            return Maybe.just(Mode.prod())
+        raise Maybe.nothing()
 
     @staticmethod
     def string(mode):
         return Mode.elim("dev", "test", "prod")(mode)
-
-    

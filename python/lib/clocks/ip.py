@@ -1,11 +1,9 @@
-# [[id:2e06869b-d68d-4683-a3e6-84357b245e3d][Ip]]
-#
-# Represents an Ip address
-
 from __future__ import annotations
 import re
 
-from check import Check
+from clocks.check import Check
+from clocks.maybe import Maybe
+from clocks.string import String
 
 _RE = re.compile(r"^([0-9]{1,3}\.){3}[0-9]{1,3}$")
 
@@ -13,8 +11,9 @@ _RE = re.compile(r"^([0-9]{1,3}\.){3}[0-9]{1,3}$")
 
 class Ip:
     """
-    mk : IpString → Ip
-    string : Ip → IpString
+    [[id:2e06869b-d68d-4683-a3e6-84357b245e3d][Ip]]
+
+    Represents an [[ref:a92112ad-648a-4ce0-b800-918c0dc71598][Ip]]
     """
 
     def __init__(self, value):
@@ -31,10 +30,13 @@ class Ip:
 
     @staticmethod
     def parse(value):
+        """String → Maybe(Ip)"""
+        String.check(value)
         try:
-            return Ip(value)
+            ip = Ip.mk(value)
+            return Maybe.just(ip)
         except Exception:
-            return None
+            return Maybe.nothing()
 
     @staticmethod
     def is_a(value):
