@@ -61,7 +61,7 @@ main() {
     fi
 
     # see: https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
-    guix time-machine -C scheme/app/env/channels.scm -- shell \
+    guix time-machine -C scheme/channels.scm -- shell \
          -C \
          -W \
          -S /usr/bin=bin \
@@ -78,7 +78,7 @@ main() {
          --expose="$ETC_GUIX" \
          --share=/tmp \
          -N \
-         -m scheme/app/env/manifest.scm \
+         -m scheme/manifest.scm \
          -- bash -c "source bash/etc/bash_profile; projectctl; ${cmd}"
     exit 0
   fi

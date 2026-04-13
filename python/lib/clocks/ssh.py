@@ -62,7 +62,8 @@ class Ssh:
     """
 
     def __init__(self):
-        if Guix.container_is_active():
+        guix = Guix()
+        if Guix.container_is_active(guix):
             self._root = root = Fs.ssh()
             root.mkdir(parents=True, exist_ok=True)
             root.chmod(0o700)

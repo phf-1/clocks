@@ -152,6 +152,13 @@ def _start(image, ip, ssh_port, http_port, https_port):
             "-mon",
             "chardev=mon,mode=control",
         ]
+
+        # TODO(b19d): refactor
+        from clocks.guix import Guix
+
+        guix = Guix()
+        if Guix.container_is_active(guix):
+            Check.failed("A vm cannot be started inside of a container")
         subprocess.run(cmd, check=False)
         Ssh.is_running_check(Authority.mk(ip, ssh_port), Nat.mk(20))
 
@@ -189,11 +196,12 @@ class Vm:
         return Vm(image, ip, ssh_port, http_port, https_port)
 
     @staticmethod
-    def dev(inside_container: bool) -> Vm:
-        Check.bool(inside_container)
+    def dev() -> Vm:
         osys = Osys.dev()
-        image = Image.mk(osys, inside_container=inside_container)
-        return Vm.mk(image, Ip.mk("127.0.0.1"), Port.mk(2222), Port.mk(8080), Port.mk(8443))
+        image = Image.mk(osys)
+        return Vm.mk(
+            image, Ip.mk("127.0.0.1"), Port.mk(2222), Port.mk(8080), Port.mk(8443)
+        )
 
     @staticmethod
     def is_a(vm) -> bool:
@@ -209,6 +217,7 @@ class Vm:
         def closure(vm):
             Vm.check(vm)
             return func(vm._image, vm._ip, vm._ssh_port, vm._http_port, vm._https_port)
+
         return closure
 
     @staticmethod
@@ -236,12 +245,16 @@ class Vm:
         Vm.check(vm)
         if hasattr(vm, "_host_key"):
             return vm._host_key
-        vm._host_key = Vm.elim(lambda image, ip, ssh, http, https: _host_key(ip, ssh))(vm)
+        vm._host_key = Vm.elim(lambda image, ip, ssh, http, https: _host_key(ip, ssh))(
+            vm
+        )
         return vm._host_key
 
     @staticmethod
     def start(vm):
-        Vm.elim(lambda image, ip, ssh, http, https: _start(image, ip, ssh, http, https))(vm)
+        Vm.elim(
+            lambda image, ip, ssh, http, https: _start(image, ip, ssh, http, https)
+        )(vm)
         return vm
 
     @staticmethod
@@ -257,14 +270,18 @@ class Vm:
         Vm.check(vm)
         if hasattr(vm, "_store_key"):
             return vm._store_key
-        vm._store_key = Vm.elim(lambda image, ip, ssh, http, https: _store_key(image))(vm)
+        vm._store_key = Vm.elim(lambda image, ip, ssh, http, https: _store_key(image))(
+            vm
+        )
         return vm._store_key
 
     @staticmethod
     def is_running(vm: Vm, timeout: Nat) -> bool:
         Nat.check(timeout)
         return Vm.elim(
-            lambda image, ip, ssh, http, https: Ssh.is_running(Authority.mk(ip, ssh), timeout),
+            lambda image, ip, ssh, http, https: Ssh.is_running(
+                Authority.mk(ip, ssh), timeout
+            ),
         )(vm)
 
     @staticmethod

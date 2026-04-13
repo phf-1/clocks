@@ -1,9 +1,3 @@
-# [[id:b394674a-148b-4f10-9c5e-1166e8b86793][fs]]
-#
-# This module represents the filesystem.
-#
-# root : Directory
-
 from __future__ import annotations
 
 import subprocess
@@ -11,10 +5,14 @@ from pathlib import Path
 
 from clocks.check import Check
 
-# Interface
-
 
 class Fs:
+    """
+    [[id:b394674a-148b-4f10-9c5e-1166e8b86793][fs]]
+
+    This module represents the filesystem.
+    """
+
     @staticmethod
     def root() -> Path:
         result = subprocess.run(
@@ -32,9 +30,17 @@ class Fs:
         return Fs.root() / "scheme"
 
     @staticmethod
+    def python() -> Path:
+        return Fs.root() / "python"
+
+    @staticmethod
+    def python_data() -> Path:
+        return Fs.python() / "data"
+
+    @staticmethod
     def ssh() -> Path:
         return Path.home() / ".ssh"
 
     @staticmethod
     def channels() -> Path:
-        return Fs.scheme() / "app" / "env" / "channels.scm"
+        return Fs.scheme() / "channels.scm"

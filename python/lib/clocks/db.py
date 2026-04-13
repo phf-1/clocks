@@ -1,23 +1,3 @@
-# Specification
-
-# [[id:54b11ca0-d89d-4940-8295-e63f1ca94546][db]]
-#
-# This module represents the database.
-#
-# root      : Directory
-# dev_port  : Port
-# test_port : Port
-# prod_port : Port
-# port : Mode → Port
-# url  : Mode → Url
-# mode_data : Mode → Directory
-# mode_log  : Mode → Directory
-# init      : Mode → Directory  (initialize the db data directory if needed)
-# start     : Mode → ∅          (given an initialized dir, start the db)
-# clean     : ∅                  (delete all db data)
-
-# Implementation
-
 from __future__ import annotations
 
 import shutil
@@ -36,10 +16,13 @@ _DEV_PORT = Port.mk(5432)
 _TEST_PORT = Port.mk(5433)
 _PROD_PORT = Port.mk(5434)
 
-# Interface
-
-
 class Db:
+    """
+    [[id:54b11ca0-d89d-4940-8295-e63f1ca94546][Db]]
+
+    This module represents the database.
+    """
+
     @staticmethod
     def root() -> Path:
         p = Fs.root() / "_postgresql"

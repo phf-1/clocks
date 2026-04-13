@@ -1,30 +1,756 @@
-- [[id:2b855eac-c24c-4d19-a966-e8bf89be994c][DiskImage]] :≡ https://en.wikipedia.org/wiki/Disk_image
+* Computer science
+
+- [[id:9ecfad51-ad7c-461a-ac44-4ea84c8414eb][Actor]] :≡ https://phfrohring.com/d1b5724d-434c-40a0-86e9-dfc81012ae43/html 
+  
+* SSH
+
+- [[id:97eca5fe-b140-44c7-81d9-51f2a3f4454f][Ed25519Pub]] :≡ SSH public key like: =ssh-ed25519 AAAAC3NzaC1…=
+
+* Python
+
+- [[id:f6b072f6-6d3c-44c3-a1e8-47e22a23a3f1][FileObject]] :≡ https://docs.python.org/3/glossary.html#term-file-object
+  
+* Linux
+
 - [[id:563f7d83-88ec-4b3d-bf05-a8f42fe04028][Socket]] :≡ https://en.wikipedia.org/wiki/Unix_domain_socket
 - [[id:fc1bb285-c9ff-453d-beac-7a1bf1611ca4][PidFile]] :≡ https://en.wikipedia.org/wiki/Process_identifier
-- [[id:fe5c4a72-2092-45e3-b2eb-31bc68db53bc][SysdUnitName]] :≡ https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
-- [[id:be4a5e39-7ec4-43ed-9d96-376db49ce782][OS]] :≡ https://guix.gnu.org/manual/devel/en/html_node/operating_002dsystem-Reference.html
-- [[id:9f5eb7ae-fc62-4227-af9d-ffb0b93a9d9a][FrontendDistribution]] :≡ https://vite.dev/guide/cli#build
+
+* Git
+
 - [[id:88356c79-513c-4651-b3b7-ccac82e11a68][ShortCommit]] :≡ TODO(2314)
-- [[id:2e06869b-d68d-4683-a3e6-84357b245e3d][Ip]] :≡ TODO(8a23)
 - [[id:8d611509-d83d-463a-add8-36e862c83f95][Commit]] :≡ TODO(6316)
-- [[id:a99835ae-90fb-4021-8d1b-a49f741c1152][Machine]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#index-machine
-- [[id:6b498911-27ba-48b5-9115-a3744b5dc7e6][OS]] :≡ https://guix.gnu.org/manual/devel/en/html_node/operating_002dsystem-Reference.html
+
+* Phoenix
+
+- [[id:0b6d8a58-28c7-4d29-891d-b8f879659688][PhoenixDistribution]] :≡ https://hexdocs.pm/phoenix/releases.html
+- [[id:4d0d3620-0e64-4095-9af9-34bf78e05509][BackendDistribution]] :≡ [[ref:0b6d8a58-28c7-4d29-891d-b8f879659688][PhoenixDistribution]]
+
+* Virtualization
+
+- [[id:2b855eac-c24c-4d19-a966-e8bf89be994c][DiskImage]] :≡ https://en.wikipedia.org/wiki/Disk_image
+- [[id:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]] :≡ https://grokipedia.com/page/Virtual_machine
+
+* Web
+
+- [[id:9f5eb7ae-fc62-4227-af9d-ffb0b93a9d9a][FrontendDistribution]] :≡ https://vite.dev/guide/cli#build
+  
+* systemd
+
+- [[id:fe5c4a72-2092-45e3-b2eb-31bc68db53bc][SysdUnitName]] :≡ https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
+
+* Internet
+
+- [[id:2e06869b-d68d-4683-a3e6-84357b245e3d][Ip]] :≡ TODO(8a23)
+- [[id:26ba86e3-8472-48b7-9701-00313fa7a030][Port]] :≡ TODO(a2f4)
+- [[id:56eb52ec-d0e8-4f03-8199-9ca69887c0c5][Authority]] :≡ https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL#basics_anatomy_of_a_url
+- [[id:d9112676-5f0e-41ac-908d-b48e1f923538][Bunny.net]] :≡ https://jola.dev/posts/dropping-cloudflare
+    
+* GNU Shepherd
+
+- [[id:bcc97436-563a-4cde-afcd-4d414fda54c8][Shepherd]]           :≡ https://doc.guix.gnu.org/shepherd/latest/en/html_node/herd-and-shepherd.html
+- [[id:c12b81b0-eeeb-46de-9c1e-26d5113cbfdd][ShepherdService]]    :≡
+  - https://doc.guix.gnu.org/shepherd/latest/en/html_node/Defining-Services.html
+  - https://guix.gnu.org/manual/devel/en/guix.html#Shepherd-Services
+    
+* Guix
+:PROPERTIES:
+:ID:       01101480-8737-447a-8fe4-ab13e578b8b0
+:END:
+
+- [[id:4a69ece7-49dc-40b1-9ff3-419aadedf385][GuixCli]]            :≡ https://guix.gnu.org/manual/devel/en/guix.html#Getting-Started 
+- [[id:be4a5e39-7ec4-43ed-9d96-376db49ce782][OS]]                 :≡ https://guix.gnu.org/manual/devel/en/html_node/operating_002dsystem-Reference.html
+- [[id:a99835ae-90fb-4021-8d1b-a49f741c1152][Machine]]            :≡ https://guix.gnu.org/manual/devel/en/guix.html#index-machine
 - [[id:13542dc8-a522-48de-aed9-ea1b0b57a85a][postgresql-service]] :≡ https://guix.gnu.org/manual/devel/en/html_node/Database-Services.html#index-postgresql_002dservice_002dtype
 - [[id:d7676b1e-5acf-43b0-b74b-39c593389010][postgresql-package]] :≡ guix search postgresql
-- [[id:29f62d83-9846-45f2-b102-12a83cf6e0b7][app]] :≡ 🞎
-- [[id:4d0d3620-0e64-4095-9af9-34bf78e05509][PhoenixDistribution]] :≡ https://hexdocs.pm/phoenix/releases.html
-- [[id:65e6819a-31da-4ba2-a6cb-f1ee97c06020][GuixPackage]] :≡ https://guix.gnu.org/manual/devel/en/html_node/package-Reference.html
-- [[id:c12b81b0-eeeb-46de-9c1e-26d5113cbfdd][ShepherdService]] :≡ https://doc.guix.gnu.org/shepherd/latest/en/html_node/Defining-Services.html
-- [[id:e2dba26b-b5a5-426f-82a0-a7f0772c2c69][ServicesDag]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#Service-Composition
-- [[id:1690d23c-6cae-49f6-87ec-438dd153d1ae][OS]] :≡ https://guix.gnu.org/manual/devel/en/html_node/operating_002dsystem-Reference.html
-- [[id:de72f362-d3c5-4c64-aab7-59a3d427e470][Machine]] :≡ https://guix.gnu.org/manual/devel/en/html_node/Invoking-guix-deploy.html#index-machine
-- [[id:80e405db-329d-4dd1-a642-ed1bdb8e3a54][Manifest]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#Writing-Manifests
-- [[id:38345dba-d72f-49b6-9c0e-1bade9e9677a][GuixSystem]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#Introduction
-- [[id:d78940d6-33a0-4235-b094-9fa13dc27506][GuixDeployment]] :≡ https://guix.gnu.org/manual/devel/en/guix.html#Invoking-guix-deploy
-- [[id:97eca5fe-b140-44c7-81d9-51f2a3f4454f][Ed25519Pub]] :≡ SSH public key like: =ssh-ed25519 AAAAC3NzaC1…=
-- [[id:6ea36050-ce4a-44fe-b263-3ddb4a9e066c][VirtualMachine]] :≡ https://grokipedia.com/page/Virtual_machine
-- [[id:56eb52ec-d0e8-4f03-8199-9ca69887c0c5][Authority]] :≡ https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL#basics_anatomy_of_a_url
-- [[id:f6b072f6-6d3c-44c3-a1e8-47e22a23a3f1][FileObject]] :≡ https://docs.python.org/3/glossary.html#term-file-object
-- [[id:d9112676-5f0e-41ac-908d-b48e1f923538][Bunny.net]] :≡ https://jola.dev/posts/dropping-cloudflare
-- [[id:26ba86e3-8472-48b7-9701-00313fa7a030][Port]] :≡ TODO(a2f4)
-- [[id:a92112ad-648a-4ce0-b800-918c0dc71598][Ip]] :≡ TODO(7156)
+- [[id:65e6819a-31da-4ba2-a6cb-f1ee97c06020][GuixPackage]]        :≡ https://guix.gnu.org/manual/devel/en/html_node/package-Reference.html
+- [[id:e2dba26b-b5a5-426f-82a0-a7f0772c2c69][ServicesDag]]        :≡ https://guix.gnu.org/manual/devel/en/guix.html#Service-Composition
+- [[id:de72f362-d3c5-4c64-aab7-59a3d427e470][Machine]]            :≡ https://guix.gnu.org/manual/devel/en/html_node/Invoking-guix-deploy.html#index-machine
+- [[id:80e405db-329d-4dd1-a642-ed1bdb8e3a54][Manifest]]           :≡ https://guix.gnu.org/manual/devel/en/guix.html#Writing-Manifests
+- [[id:38345dba-d72f-49b6-9c0e-1bade9e9677a][GuixSystem]]         :≡ https://guix.gnu.org/manual/devel/en/guix.html#Introduction
+- [[id:d78940d6-33a0-4235-b094-9fa13dc27506][GuixDeployment]]     :≡ https://guix.gnu.org/manual/devel/en/guix.html#Invoking-guix-deploy
+- [[id:4c83a6b0-3d90-4fb2-82d4-de784150d85d][GuixStore]]          :≡ https://guix.gnu.org/manual/devel/en/html_node/The-Store.html
+- [[id:818ad4b0-1363-437a-a4e0-3489dcee40a3][Module]]             :≡ https://www.gnu.org/software/guile/manual/html_node/Using-the-Guile-Module-System.html
+- [[id:ed4949c8-a698-4e37-8352-70311a396f9b][DATABASE_URL]]       :≡ https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS
+- [[id:15399cff-1673-44ae-9992-c767f9f081d9][UnixSocket]]         :≡ https://beej.us/guide/bgipc/html//index.html#unixsock
+- [[id:f2015c64-8e4c-440a-93cc-c5dffa89126a][GuixUserAccount]]    :≡ https://guix.gnu.org/manual/devel/en/html_node/User-Accounts.html   
+
+* PostgreSQL
+:PROPERTIES:
+:ID:       f059b54e-66e9-4090-b3c3-d68f08259458
+:END:
+
+A [[https://grokipedia.com/page/PostgreSQL][PostgreSQL]] instance may be viewed as an actor that communicates through a UNIX
+domain socket or TCP connection. It allows to save/query data on disk using the [[https://www.postgresql.org/docs/current/sql.html][SQL]]
+language.
+
+To build an [[ref:be4a5e39-7ec4-43ed-9d96-376db49ce782][OS]] that offers a PostgreSQL service which supervises an instance named
+"db", we need to specify a [[https://guix.gnu.org/manual/devel/en/guix.html#PostgreSQL][PostgreSQL]] service.
+
+For a process "proc" owned by a local user named "alice" to use "db", we can use [[https://www.postgresql.org/docs/current/auth-peer.html][peer
+authentication]]. When "proc" tries to connect to "db", the following occurs:
+
+1. =psql -U postgres= which means: "Someone pretending to be Alice requests a connection to the database and act as the role postegres"
+2. DB asks the OS /who/ is trying to connect. Namely "alice".
+3. DB looks at [[https://www.postgresql.org/docs/18/auth-pg-hba-conf.html][pg_hba.conf]] and determines which authentication method applies. We assume: =map=alicemap=.
+4. DB looks at [[https://www.postgresql.org/docs/current/auth-username-maps.html][pg_ident.conf]] and determines to which PG user "alice" should be identified with. We assume: =postgres=.
+5. By default, =postgres= is a PG /super user/, so "alice" acts as a super user.
+
+* User
+:PROPERTIES:
+:ID:       3e30b0f8-ba72-4fab-a6b0-a89a032fe634
+:END:
+
+A user is an OS-level identity assigned to processes. Every process runs under
+exactly one user. That user determines what the process is allowed to do (file
+permissions, capabilities, etc.).
+
+* Group
+:PROPERTIES:
+:ID:       88b55fd6-fd20-4b65-a00f-4c6d40c42122
+:END:
+
+Why Linux defines the notion of "groups" in addition to "[[ref:3e30b0f8-ba72-4fab-a6b0-a89a032fe634][users]]" ?
+
+Groups solve the problem of sharing access between multiple users without granting
+full ownership.
+
+Without groups, file permissions on Linux offer only two levels of "other people":
+the owner, and everyone else. This is too coarse for most real systems. Consider:
+
+- A file that `alice` and `bob` both need to read, but no one else should access.
+- A device like `/dev/audio` that any logged-in human should use, but automated
+  service accounts should not.
+- A deployment directory that both the `clocks` application user and the `deploy` CI
+  user need to write to.
+
+Without groups, the only options would be to make `alice` the owner and grant
+world-readable permissions (too permissive), or to make copies of the file
+(unmaintainable). Groups give a third axis: owner, group members, and everyone else.
+
+In practice, groups serve two distinct purposes:
+
+**Access control** — files and directories have a group owner alongside a user
+owner. The `rwxrwxrwx` permission bits are split into three sets: user, group, and
+other. A process gets group-level access to a file if any of the process's groups
+match the file's group owner.
+
+**Capability gating** — membership in certain groups grants access to specific
+resources by convention. For example, membership in `audio` grants access to sound
+devices, `wheel` grants the ability to use `sudo`, `kvm` grants access to
+virtualization hardware. Adding a user to such a group is the standard way to extend
+their privileges without making them `root`.
+
+A process on Linux carries not just one group but a set of them: a primary group
+(used when creating new files) and any number of supplementary groups (checked for
+access). This is why `(supplementary-groups ...)` exists in the Guix `user-account`
+record — it lets you place `clocks` into additional groups if, say, it needs access
+to a shared resource owned by another group.
+
+* Linux OS as a collection of users
+:PROPERTIES:
+:ID:       1fd5d002-cfc2-4556-8859-f79bd94d08e3
+:END:
+
+A machine operated by the Linux OS can be viewed as an actor (identified to the [[ref:3e30b0f8-ba72-4fab-a6b0-a89a032fe634][user]]
+"Root") that mediates access to hardware on behalf of a collection of other actors
+(identified to other users).
+
+For instance, when receiving an HTTP request on the wire, the network card notifies
+the kernel (identified with Root) via a hardware interrupt.
+
+The packet then travels through the kernel's network stack, passing through packet
+filtering (e.g. nftables, which decides whether to drop or pass it), such that it may
+reach user space and hit a web server process owned by a user named "Alice" listening
+on localhost:4000.
+
+Alice's process reads the request from its socket buffer and computes a reply, then
+asks the kernel (via a system call) to send it back over the network.
+
+Pushing the abstraction to users only, we may simplify our understanding as follows:
+
+1. A client on the internet sends an HTTP request "req" to =domain.com=.
+2. The network card send a notification to Root.
+3. Root may send req to Alice; we assume it is the case.
+4. Alice reads req, computes a reply, and asks Root to send it.
+5. Root sends the reply using its network card.
+
+* nologin
+:PROPERTIES:
+:ID:       adc94f2b-b7de-4784-8e88-a992b390683e
+:END:
+
+- =/sbin/nologin= is a tiny helper binary provided by the *Shadow tool suite*. 
+- It shows a msg and exits with a status ≠ 0.
+- Acts as a *dummy login shell* for system/service accounts (e.g. =postgres=, =nginx=, build users, daemons).
+- Prevents any interactive login (SSH, console, =su=, =sudo -i=, etc.) while giving a clear, user-friendly msg.
+- [[https://man7.org/linux/man-pages/man8/nologin.8.html][nologin(8) — Linux man page]]
+
+* FHS
+:PROPERTIES:
+:ID:       ecbad34a-432d-43e1-91a3-429af5f0da56
+:END:
+
+The filesystem maps the computer memory into regular files and directories. The [[https://specifications.freedesktop.org/fhs/latest/index.html][FHS]]
+specifies a particular mapping.
+
+* Application and FHS
+:PROPERTIES:
+:ID:       109bc638-0220-4f10-8b08-82d995bc1752 
+:END:
+
+An application that executes on Linux may have its state partitioned as a set of
+files. This set of files may satisfy the [[ref:ecbad34a-432d-43e1-91a3-429af5f0da56][FHS]].
+
+For instance, given an application named =app=, then the part of its state that maps to
+files is:
+
+|----------------+-----------------------------------------------------|
+| FHS Location   | Objective                                           |
+|----------------+-----------------------------------------------------|
+| =/etc/app=       | Store host-specific configuration files             |
+| =/var/lib/app=   | Store persistent data                               |
+| =/run/app=       | Store non-persistent data                           |
+| =/var/log/app=   | Store log files                                     |
+| =/var/cache/app= | Store cached data                                   |
+| =/usr/share/app= | Store architecture-independent, read-only data      |
+| =/usr/lib/app=   | Store Architecture-dependent libraries and binaries |
+|----------------+-----------------------------------------------------|
+
+If =app = postgresql=, then we have:
+
+|-----------------------+----------------------------------------------------------|
+| FHS Location          | PostgreSQL usage                                         |
+|-----------------------+----------------------------------------------------------|
+| =/etc/postgresql=       | =postgresql.conf=, =pg_hba.conf=, =pg_ident.conf=              |
+| =/var/lib/postgresql=   | PGDATA: database cluster files, WAL, tablespaces         |
+| =/run/postgresql=       | Unix-domain socket (=.s.PGSQL.5432=), PID file             |
+| =/var/log/postgresql=   | Server log files                                         |
+| =/var/cache/postgresql= | N/A — caching is in-memory (shared_buffers), not on disk |
+| =/usr/share/postgresql= | Extension SQL scripts, timezone data, =tsearch= data       |
+| =/usr/lib/postgresql=   | =postgres=, =pg_dump=, =pg_ctl= and shared libraries           |
+|-----------------------+----------------------------------------------------------|
+
+* Service
+
+An actor under the supervision of Shepherd is called a /service/. Shepherd knows
+how to start and stop it, and does so when appropriate. Given an executable =app=,
+we define a service by filling a service data structure.
+
+See: [[https://doc.guix.gnu.org/shepherd/latest/en/shepherd.html#Defining-Services][Defining Services (Shepherd manual)]]
+
+/Extending/ an existing service means modifying it by adding more things to do.
+Starting from a service ~s : S~, we add an additional task and obtain ~s' : S~.
+
+Example — activating FHS directories for an application:
+
+#+begin_src scheme
+(define app-fhs (list "/etc/app" "/var/lib/app" …))
+
+(define app-fhs-service
+  (simple-service
+   'app-fhs
+   activation-service-type
+   #~(begin
+       (use-modules (guix build utils))
+       (for-each
+        (lambda (dir) (mkdir-p dir) (chmod dir #o700))
+        #$app-fhs))))
+#+end_src
+
+See: [[https://guix.gnu.org/manual/devel/en/html_node/Service-Types-and-Services.html][Service Types and Services (Guix manual)]]
+
+* Service type
+:PROPERTIES:
+:ID:       500290c0-845f-4db6-8220-a2182793385f
+:END:
+
+To extend the functionality of the operating system we must add a /service type/.
+An initial set is provided by [[https://guix.gnu.org/manual/devel/en/guix.html#index-_0025base_002dservices-1][%base-services]]. Given an operating system ~os~, we
+define ~os'~ = ~os + s~ where ~s~ is a new service type.
+
+** Defining a new service type
+
+A new service type is created with [[https://guix.gnu.org/manual/devel/en/guix.html#index-service_002dtype][service-type]]. All that says is: given an instance
+of some configuration type (a map of values really), then extend the graph of
+services in such a way. Collectively, these extensions form a new service provided by
+the operating system.
+
+*** Hello service type
+
+=hello= is a non-extensible service type. To define such a type, we need a
+configuration type to call =service-type=. 
+
+**** Configuration
+
+~HelloConf~ encapsulates the parameters for one service instance:
+
+| Constructor | ~hello-conf : :msg × String → HelloConf~              |
+| Default     | ~hello-conf() :≡ hello-conf(<:msg, "Hello, world!">)~ |
+| Predicate   | ~hello-conf? : Any → Boolean~                         |
+| Accessor    | ~hello-conf-msg : HelloConf → String~                 |
+
+#+begin_src scheme
+(define-record-type* <hello-conf>
+  hello-conf make-hello-conf
+  hello-conf?
+  (msg hello-conf-msg (default "Hello, world!")))
+#+end_src
+
+**** Service type
+
+Given ~conf : HelloConf~, adding ~(service hello-service-type conf)~ to an operating
+system's service list causes ~hello-conf-msg(conf)~ to be printed at activation time.
+
+~(service hello-service-type)~ is shorthand for ~(service hello-service-type (hello-conf))~.
+
+#+begin_src scheme
+(define hello-service-type
+  (service-type
+   (name 'hello)
+   (extensions
+    (list
+     (service-extension
+      activation-service-type
+      (lambda (config)
+        #~(display #$(hello-conf-msg config))))))
+   (default-value (hello-conf))))
+#+end_src
+
+*** Extensible service type example (message of the day)
+
+#+begin_src scheme
+(define motd-service-type
+  (service-type
+   (name 'motd)
+   (extensions
+    (list (service-extension
+           activation-service-type
+           (lambda (lines)
+             #~(for-each display '#$lines)))))
+   (compose concatenate)   ; merge all contributed line-lists by concatenation
+   (extend  append)        ; fold the merged list back into the service value
+   (default-value '("Welcome to Guix System!\n"))))
+
+;; Other services can contribute lines:
+(simple-service 'add-ssh-motd    motd-service-type '("SSH is enabled.\n"))
+(simple-service 'add-update-motd motd-service-type '("System is up to date.\n"))
+#+end_src
+
+*** Shepherd-integrated service type
+
+#+begin_src scheme
+(use-modules (gnu)
+             (gnu services)
+             (gnu services shepherd)
+             (guix gexp))
+
+;; 1. Configuration record — holds parameters for one service instance.
+
+(define-record-type* <hello-configuration>
+  hello-configuration make-hello-configuration
+  hello-configuration?
+  (message hello-configuration-message (default "Hello from Shepherd!")))
+
+;; 2. Procedure that produces a <shepherd-service>.
+;;    service-extension calls this with the <hello-configuration>; it must
+;;    return a LIST of shepherd services.
+
+(define (hello-shepherd-service config)
+  (list
+   (shepherd-service
+    (provision      '(hello))
+    (documentation  "A minimal greeting service.")
+    (start  #~(lambda _
+                (display #$(hello-configuration-message config))
+                (newline)
+                #t))        ; #t → started successfully
+    (stop   #~(lambda _
+                (display "Goodbye!")
+                (newline)
+                #t))
+    (one-shot? #t))))       ; runs once; not a long-running daemon
+
+;; 3. Service type — wires hello-shepherd-service into shepherd-root-service-type.
+
+(define hello-service-type
+  (service-type
+   (name 'hello)
+   (extensions
+    (list (service-extension
+           shepherd-root-service-type  ; target: Shepherd daemon manager
+           hello-shepherd-service)))   ; config → list of shepherd services
+   (default-value (hello-configuration))))
+#+end_src
+
+** Adding a service type to an operating system
+
+#+begin_src scheme
+(use-modules (gnu)
+             (gnu system)
+             (gnu services)
+             (gnu services base)
+             (gnu services networking)
+             (gnu packages base))
+
+;; Load or inline the hello-service definitions above before this block.
+
+(operating-system
+  (host-name "guix-demo")
+  (timezone  "Europe/Paris")
+  (locale    "fr_FR.utf8")
+
+  (bootloader (bootloader-configuration
+               (bootloader grub-bootloader)
+               (targets    '("/dev/sda"))))
+
+  (file-systems
+   (cons (file-system
+           (mount-point "/")
+           (device      (file-system-label "my-root"))
+           (type        "ext4"))
+         %base-file-systems))
+
+  (services
+   (cons*
+    ;; Custom service with a French greeting.
+    (service hello-service-type
+             (hello-configuration
+              (message "Bonjour depuis Shepherd!\n")))
+
+    ;; Standard baseline: dhcp, udev, login, etc.
+    %base-services)))
+#+end_src
+
+** Incremental service type definition
+
+- A way to improve development speed is to have a quick iteration loop: objective,
+  attempt, result.
+
+- Depending on the result the objective may be expanded until a final objective is
+  reached.
+
+- So, we start with a simple os extended by a simple service type: [[ref:26064235-162b-423e-b978-8797f786f3bf][1.scm]], then
+  iterate by just copying the os ~n.scm~ to ~n+1.scm~ until satisfactory result is
+  obtained and so on.
+
+- We make sure that ~n.scm~ can compiles using ~,guix-repl~ then ~(load "scheme/os-experiment/n.scm")~.
+
+- We make sure that ~n.scm~ is satisfactory by executing ~guix system vm
+  scheme/os-experiment/n.scm~ and testing the resulting os.
+
+- Then, we move to ~n+1.scm~.
+
+You may want to remap port of the host to the vm. For instance:
+#+begin_src bash :eval no
+$(guix system vm scheme/os-experiment/7.scm) \
+  -nic user,model=virtio-net-pci,hostfwd=tcp::8080-:80,hostfwd=tcp::8443-:443
+#+end_src 
+    
+* activation-service-type
+
+#+begin_src scheme
+(define activation-service-type
+  (service-type (name 'activate)
+                (extensions
+                 (list (service-extension boot-service-type gexps->activation-gexp)
+                       (service-extension system-service-type activation-profile-entry)))
+                (compose identity)
+                (extend second-argument)
+                (default-value #f)
+                (description
+                 "Run @dfn{activation} code at boot time and upon
+@command{guix system reconfigure} completion.")))
+#+end_src
+
+Interpretation
+1. An "extension" can be understood as a process that sends a message to the activation-service-type
+2. The message is a gexp
+3. After receiving a gexp:
+   1. value :≡ the current value
+   2. gexp' :≡ second-value(value gexp)
+   3. gexp' = gexp
+   4. value :≡ value + [gexp']
+4. after boot-service-type:
+   1. value' :≡ identity(value)
+   2. value' = value
+   3. gexp :≡ gexps->activation-gexp(value')
+   4. send gexp to the daemon
+
+* /etc* owned by root
+:PROPERTIES:
+:ID:       15f603ef-6046-448d-a203-c8712313b8d1
+:END:
+
+** Why it should be the case?
+
+- You do not want a supply chain attack to update its own configuration.
+- Some parts should only be readable by root: who wants someone else to read API keys
+  without root permission?
+
+* Virtio
+
+VirtIO is an open standard (OASIS) for paravirtualized I/O devices in virtual
+machines. It defines a standardized protocol (rings, queues, features) between a
+guest driver (frontend) and a hypervisor-provided device (backend). This enables
+efficient, low-overhead communication compared to fully emulated devices.
+
+* virtio_pci
+
+It implements the transport layer that allows VirtIO devices to be discovered and
+accessed over a PCI bus. During PCI enumeration, the kernel matches devices with
+vendor ID 0x1AF4 (Red Hat/Qumranet) and specific device IDs against the virtio_pci
+driver. It handles PCI configuration space, legacy vs. modern VirtIO interfaces,
+MSI/MSI-X interrupts, and mapping of VirtIO queues.
+
+* virtio_scsi
+
+virtio_scsi is a VirtIO device type implementing a paravirtualized SCSI Host Bus Adapter (HBA).
+
+It follows the VirtIO specification for the SCSI host device (device ID 8 in the spec).
+The guest Linux kernel uses the virtio_scsi driver (which relies on the underlying transport, commonly virtio_pci in KVM/QEMU setups).
+Function: It presents virtual disks (and other SCSI devices) to the guest using the standard SCSI protocol stack (scsi_mod). This allows the guest to see devices as /dev/sd* (instead of /dev/vd* used by virtio_blk).
+Advantages over virtio_blk (the simpler block device):
+Supports many more devices (up to 256 targets × 16,384 LUNs per controller).
+Full SCSI command set, including features like hotplug, multipathing, TRIM/UNMAP, and SCSI passthrough.
+Better scalability for VMs with dozens of disks.
+Performance is comparable or better in many workloads due to reuse of the guest's mature SCSI layer.
+
+In QEMU/KVM, you typically add a virtio-scsi-pci controller and then attach scsi-hd or scsi-block devices to it.
+
+* initrd
+
+initrd stands for initial ramdisk (sometimes used interchangeably with the more modern initramfs).
+
+It is a temporary root filesystem loaded into RAM by the bootloader (GRUB, etc.) and passed to the kernel at boot.
+The kernel mounts this ramdisk (or cpio archive in the initramfs case) as the initial / (root).
+Purpose: Enable a two-stage boot process.
+Stage 1: Kernel boots with only a minimal set of built-in drivers.
+The initrd provides early userspace (scripts, tools, modules) to:
+Load additional kernel modules.
+Detect and configure hardware (disk controllers, RAID, LVM, encrypted root, network for NFS root, etc.).
+Mount the real root filesystem.
+Then pivot_root (or switch_root) to the real root and exec the real init (systemd, etc.).
+
+
+After switching, the initrd is usually discarded (unmounted) to free memory.
+
+* initrd module
+
+"initrd modules" refers to loadable kernel modules (.ko files) that are included
+inside the initrd/initramfs image.
+
+These are the drivers and supporting code required early in the boot process, before
+the real root filesystem is mounted.  Typical examples: Storage drivers: virtio_pci,
+virtio_scsi, virtio_blk, ahci, nvme, sd_mod, scsi_mod, RAID/LVM modules (dm-*),
+filesystem modules (ext4, xfs, btrfs if needed for root).  Firmware files, crypto
+modules (for LUKS), network drivers (if root is on NFS/iSCSI).
+
+Why they are needed: If the root device is behind a controller that is only available
+as a module (not built-in), the kernel cannot mount the real root without loading
+that module first. The initrd solves this chicken-and-egg problem by packing the
+necessary modules into the early filesystem.  Tools like mkinitrd, dracut,
+mkinitcpio, or update-initramfs automatically detect the hardware/root setup and
+include the required modules (and userspace tools like insmod, modprobe, udev,
+scripts).
+
+In virtualization (KVM/QEMU):
+
+A common minimal initrd for a VM using VirtIO storage will include virtio_pci +
+virtio_scsi (or virtio_blk) + sd_mod/scsi_mod + the root filesystem driver.
+
+* Hetzner deployment
+
+** Proposition
+:PROPERTIES:
+:ID:       81303dea-8de5-40ab-968c-d0821db06ea6
+:END:
+
+Given a Hetzner account, ~build-hetzner-vps~ is a procedure that builds a Hetzner VPS
+that can be deployed to using ~guix deploy …~.
+
+*** Implementation
+
+1. https://console.hetzner.com/projects/14288998/servers/create
+   1. Cost-Optimized
+   2. Nuremberg
+   3. Debian 12
+   4. IPv4 & IPv6
+   5. SSH key choosen so that can be connected as root
+   6. Attach a volume (/dev/sdb)
+   7. i : ℕ, name = deployment-target-i
+   8. ip : IPv4
+2. ~,hetzner-init-target ip~ :≡ [[ref:fb35cd89-2d1e-4d24-96a7-95baf7dd9ed6]]
+3. Reboot the vps from https://console.hetzner.com/projects/14288998/servers/127739962/overview
+
+** Proposition
+
+Given os : OS, ip : IPv4 that points to an [[ref:81303dea-8de5-40ab-968c-d0821db06ea6][initialized vps]] with key : HostKey, then
+~,deploy-os os ip key~ deploys os to the machine addressed by ip and identified by key.
+
+*** Example
+
+os :≡ [[ref:865ae034-b9c2-4c72-a4c3-dbf4877ed4f5][init-hetzner]]
+
+ip :≡ 168.119.224.132
+
+key :≡ AAAAC3NzaC1lZDI1NTE5AAAAIM+fLy+tCy5ucoEOPyJmq21wPUy5toSWO/hTJhTPjLrg
+
+#+begin_src bash :eval no
+,deploy-os INIT-HETZNER 168.119.224.132 AAAAC3NzaC1lZDI1NTE5AAAAIM+fLy+tCy5ucoEOPyJmq21wPUy5toSWO/hTJhTPjLrg
+#+end_src 
+
+*** Implementation
+
+[[ref:28d9d785-4659-46b4-9383-4c25f470e16f]]
+
+
+* Cloud-init
+
+cloud-init is the industry-standard mechanism for first-boot initialisation of cloud
+VMs. It is an agent that runs as a systemd service on the first boot of a new
+instance, reads a user data payload you supply at provisioning time, and executes it
+before the machine is considered ready. Hetzner passes this payload to the VM via a
+metadata HTTP endpoint (169.254.169.254) or a virtual CD-ROM; cloud-init fetches and
+executes it exactly once.
+
+#+begin_src conf
+#cloud-config
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - wget
+  - gpg
+  - xz-utils
+  - uidmap
+
+runcmd:
+  - cd /tmp && wget -q https://guix.gnu.org/guix-install.sh
+  - chmod +x /tmp/guix-install.sh
+  - yes '' | GUIX_ALLOW_OVERWRITE=1 /tmp/guix-install.sh
+
+#+end_src 
+
+* Block device
+
+A device that can be read from and written to in fixed-size blocks (usually 512 bytes or 4096 bytes).
+Examples: hard disks, SSDs, NVMe drives, USB sticks, volumes.
+
+* Disk (or whole disk)
+The entire physical or virtual storage device.
+In Linux naming convention: /dev/sda, /dev/nvme0n1, /dev/vda, etc.
+
+* Partition
+A contiguous, non-overlapping region of a disk that is treated as a separate logical block device.
+A partition is created by writing a partition table (GPT or MBR) at the beginning of the disk.
+Partitions allow you to divide one physical disk into multiple independent filesystems.
+
+* Partition device name
+Linux creates a separate block device node for each partition.
+Naming rule for SCSI/SATA/SAS/virtual disks:
+Whole disk: /dev/sda
+First partition: /dev/sda1
+Second partition: /dev/sda2
+...
+10th partition would be /dev/sda10
+(For NVMe the naming is different: /dev/nvme0n1p1, /dev/nvme0n1p2, etc.)
+
+* Mountpoint
+An empty directory in the existing filesystem tree where the content of a filesystem (residing on a partition or other block device) is made visible.
+Mounting is the act of attaching a filesystem to the directory tree.
+
+* Boot sequence
+
+1. Power On
+2. Firmware starts
+   - Firmware = BIOS (legacy)  OR  UEFI (modern)
+3. Firmware selects the boot device
+   - The firmware uses its own internal naming (not Linux /dev/sda yet).
+   - You configured it to boot from the disk that Linux will later call /dev/sda.
+4. Firmware reads the boot information from that disk
+
+   ┌─────────────────────────────────────────────────────────────┐
+   │                    BIOS (Legacy / MBR)                      │
+   │  Reads sector 0 (512 bytes) = Master Boot Record (MBR)      │
+   │  → contains GRUB Stage 1 (first 446 bytes)                  │
+   └─────────────────────────────────────────────────────────────┘
+
+   ┌─────────────────────────────────────────────────────────────┐
+   │                    UEFI (Modern / GPT)                      │
+   │  Does NOT read a "boot sector" like BIOS.                   │
+   │  Instead:                                                   │
+   │  • Looks for the EFI System Partition (usually /dev/sda1)   │
+   │  • Loads the file: /EFI/BOOT/BOOTX64.EFI  (or similar)      │
+   │    → This file IS the full GRUB bootloader                  │
+   └─────────────────────────────────────────────────────────────┘
+
+5. GRUB Stage 1 (BIOS only) loads the rest of GRUB
+
+   BIOS path:
+   GRUB Stage 1  →  loads  core.img  (from a known sector on disk)
+                    ↓
+                 GRUB core (full GRUB with filesystem drivers, menu, etc.)
+
+   UEFI path:
+   The .efi file already contains the full GRUB.
+6. GRUB is now running (full bootloader)
+
+   GRUB does:
+   • Reads grub.cfg
+   • Shows the boot menu (if configured)
+   • Loads the chosen:
+     - Linux kernel (vmlinuz-...)
+     - Initramfs / initrd image
+     - Kernel command line parameters (root=..., ro, quiet, etc.)
+
+7. GRUB hands over control to the Linux kernel
+   (GRUB is now finished)
+
+8. Kernel starts
+   • Decompresses itself
+   • Initializes CPU, memory, basic hardware
+   • Mounts the initramfs (the file GRUB loaded) as temporary root
+   • Runs the init script inside the initramfs
+
+9. Initramfs (early userspace) takes over
+   • Discovers all disks and partitions (including /dev/sda)
+   • Reads the partition table on /dev/sda
+   • Loads extra kernel modules if needed (storage, encryption, LVM, RAID…)
+   • Unlocks encrypted disks, assembles RAID/LVM if present
+   • Mounts the real root filesystem (the one specified by root=UUID=... or root=/dev/sdaX)
+   • Performs switch_root → hands control to the real root
+
+10. Real root filesystem
+    • systemd (or your init system) starts
+    • Mounts remaining filesystems from /etc/fstab
+    • Starts all services
+    • You get a login prompt / desktop
+
+** Relation to Guix
+
+#+begin_src scheme
+(bootloader
+ (bootloader-configuration
+  (bootloader grub-bootloader)           ; ← legacy GRUB (BIOS/MBR)
+  (targets '("/dev/sda"))                ; ← install GRUB to MBR of /dev/sda
+  ...))
+#+end_src
+ 
+#+begin_src scheme
+(file-systems
+ (cons (file-system
+        (device "/dev/sda1")
+        (mount-point "/")
+        (type "ext4"))
+       %base-file-systems))
+#+end_src
+ 
+- Partition 1 on /dev/sda (/dev/sda1) will be formatted ext4 and become the real root
+  filesystem (/).
+  
+- The kernel, initramfs, grub.cfg, and all system files live on this same partition
+  (no separate /boot partition in this minimal config).
+  
+- When the initramfs runs (step 9), it will mount exactly /dev/sda1 as the real root
+  — this is what the root= kernel parameter (generated by Guix) will point to.

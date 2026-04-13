@@ -105,6 +105,8 @@ defmodule Clocks.MixProject do
 
       # ── Test ──────────────────────────────────────────────────────────────────
       {:floki, ">= 0.30.0", only: :test},
+
+      {:cors_plug, "~> 3.0"},
     ]
   end
 

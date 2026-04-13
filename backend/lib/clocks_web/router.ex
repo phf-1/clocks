@@ -16,6 +16,7 @@ defmodule ClocksWeb.Router do
   scope "/api", ClocksWeb do
     pipe_through :api
 
+    options "/*path", AuthController, :options
     get "/health", HealthController, :health
     post "/auth/signup", AuthController, :signup
     post "/auth/signin", AuthController, :signin

@@ -7,36 +7,40 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from clocks.check import Check
 from clocks.maybe import Maybe
 from clocks.string import String
 
 _VALUES = ("dev", "test", "prod")
 
-# Interface
 
-
+@dataclass(frozen=True)
 class Mode:
-    """dev : Mode
-    test : Mode
-    prod : Mode
-    elim : C C C → Mode → C
+    """
+    [[id:06a72258-237c-4cc0-9171-64af1b06c0cb][Mode]]
+
+    A mode represents the context in which the application is run. Depending on the
+    context the application should behave differently.
+
+    For instance, in dev mode, the application might return error logs to the user
+    because users are developers, but not in production mode since users are
+    customers.
     """
 
-    def __init__(self, value):
-        if value not in _VALUES:
+    value: str
+
+    def __post_init__(self):
+        if self.value not in _VALUES:
             Check.failed(
                 "value not in _VALUES",
-                f"value: {value}",
+                f"value: {self.value}",
                 f"_VALUES: {_VALUES}",
             )
-        self._value = value
-
-    def __eq__(self, x):
-        return Mode.is_a(x) and self._value == x._value
 
     def __str__(self):
-        return self._value
+        return self.value
 
     @staticmethod
     def dev():
@@ -63,11 +67,11 @@ class Mode:
     def elim(ifdev, iftest, ifprod):
         def closure(mode):
             Mode.check(mode)
-            if mode._value == "dev":
+            if mode.value == "dev":
                 return ifdev
-            if mode._value == "test":
+            if mode.value == "test":
                 return iftest
-            if mode._value == "prod":
+            if mode.value == "prod":
                 return ifprod
 
         return closure
@@ -81,7 +85,7 @@ class Mode:
             return Maybe.just(Mode.test())
         if string == "prod":
             return Maybe.just(Mode.prod())
-        raise Maybe.nothing()
+        return Maybe.nothing()
 
     @staticmethod
     def string(mode):

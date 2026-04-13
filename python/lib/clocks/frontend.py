@@ -1,15 +1,3 @@
-# Specification
-
-# [[id:dc574829-4e8a-46cb-94c8-09ab64d85a1a][frontend]]
-#
-# This module represents the frontend.
-#
-# root    : Directory
-# version : Version  (current git short SHA)
-# update  : Version  (pull + npm i, return new version)
-
-# Implementation
-
 from __future__ import annotations
 
 import os
@@ -20,10 +8,16 @@ from pathlib import Path
 from clocks.check import Check
 from clocks.fs import Fs
 
-# Interface
-
 
 class Frontend:
+    """
+    [[id:dc574829-4e8a-46cb-94c8-09ab64d85a1a][frontend]]
+
+    This module represents the frontend, an [[ref:9ecfad51-ad7c-461a-ac44-4ea84c8414eb][Actor]] that is in direct contact with the
+    user and translates interactions into messages that are sent to the [[ref:e80d728f-2522-43ed-8d41-a509a6372828][Backend]] for
+    further processing, if needed.
+    """
+
     @staticmethod
     def root() -> Path:
         return Fs.root() / "frontend"
@@ -73,7 +67,14 @@ class Frontend:
 
     @staticmethod
     def dist(url: str) -> Path:
-        """Build frontend distribution pointing to the given API url (VITE_API_BASE_URL)."""
+        """String → Path
+
+        Given a string that represents the URL where the [[ref:e80d728f-2522-43ed-8d41-a509a6372828][Backend]] listens for
+        messages, return a path to a directory of a [[ref:9f5eb7ae-fc62-4227-af9d-ffb0b93a9d9a][FrontendDistribution]]. When
+        executed by the client, the makes request to the backend through the provided
+        URL.
+        """
+
         root = Frontend.root()
         env = os.environ.copy()
         env["VITE_API_BASE_URL"] = url

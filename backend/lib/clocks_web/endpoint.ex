@@ -20,6 +20,18 @@ defmodule ClocksWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
+  # TODO(de80): in prod
+  # plug CORSPlug,
+  #      origin: ["https://your-frontend-origin.com"],
+  #      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  #      headers: ["Content-Type", "Authorization", "Accept"]
+
+  # TODO(de80): in dev
+  plug CORSPlug,
+       origin: "*",
+       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+       headers: ["Content-Type", "Authorization", "Accept"]
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest

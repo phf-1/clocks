@@ -2,6 +2,10 @@ defmodule ClocksWeb.AuthController do
   use ClocksWeb, :controller
   alias Clocks.{Accounts, Auth.Token}
 
+  def options(conn, _params) do
+    send_resp(conn, 204, "")
+  end
+
   def signup(conn, params) do
     case Accounts.create_user(params) do
       {:ok, user} ->
@@ -25,7 +29,7 @@ defmodule ClocksWeb.AuthController do
   end
 
   def signout(conn, _params),
-    do: conn |> send_resp(204, "")
+      do: conn |> send_resp(204, "")
 
   def me(conn, _params) do
     user = conn.assigns.current_user

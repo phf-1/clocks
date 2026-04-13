@@ -78,7 +78,10 @@ class App:
         package_tmp = Path(app_tmp) / "package.scm"
         with open(package_tmp, "w") as f:
             f.write(_package(dist))
-        Guix.build(package_tmp)
+
+        # TODO(910d): Refactor
+        guix = Guix()
+        Guix.build(guix, package_tmp)
         return package_tmp
 
     @staticmethod

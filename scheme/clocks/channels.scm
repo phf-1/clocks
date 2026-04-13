@@ -1,0 +1,23 @@
+;; [[id:de35545c-ebb7-41db-b7c7-c8fcff0422f2][Channels]]
+;;
+;; This objective is to define the current set of Guix packages we have access to.
+
+(define-module (clocks channels))
+
+(use-modules
+ (guix channels))
+
+(define-public channels
+  (list
+   (channel
+    (name 'guix)
+    (url "https://git.guix.gnu.org/guix.git")
+    (commit "230aa373f315f247852ee07dff34146e9b480aec") ; v1.5.0
+    (introduction
+     (make-channel-introduction
+      "9edb3f66fd807b096b48283debdcddccfea34bad"
+      (openpgp-fingerprint
+       "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))))
+
+;; So that: 'guix time-machine -C channels.scm' works
+channels

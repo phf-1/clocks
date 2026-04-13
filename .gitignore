@@ -23,3 +23,5 @@ phoenix/priv/static/
 .venv
 
 /backend/priv/static/*
+
+/experiment

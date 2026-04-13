@@ -16,21 +16,17 @@ from clocks.mode import Mode
 from clocks.port import Port
 
 _ENCODING = Constant.encoding()
-_DEV_PORT = Port.mk(4000)
+_DEV_PORT = Port.mk(4002)
 _TEST_PORT = Port.mk(4001)
-_PROD_PORT = Port.mk(4002)
+_PROD_PORT = Port.mk(8443)
 
 
 class Backend:
-    """root : Directory         :≡ Where the backend code is stored
-    update : Backend         :≡ Fetch dependencies.
-    init_db : Mode → Backend :≡ Set up database tables
-    migrate : Mode → Backend :≡ Apply pending Ecto migrations
-    port : Mode → Port       :≡ Port when backend operates in mode
-    install_frontend : [[ref:9f5eb7ae-fc62-4227-af9d-ffb0b93a9d9a][FrontendDistribution]] → Backend :≡ Install the frontend in the backend
-    dist : [[ref:9f5eb7ae-fc62-4227-af9d-ffb0b93a9d9a][FrontendDistribution]] → [[ref:4d0d3620-0e64-4095-9af9-34bf78e05509][PhoenixDistribution]] :≡ Path to a backend distribution
-    repl : TODO
-    test : TODO
+    """
+    [[id:e80d728f-2522-43ed-8d41-a509a6372828][Backend]]
+
+    The backend is the program that implements an [[ref:9ecfad51-ad7c-461a-ac44-4ea84c8414eb][Actor]] that receives messages from
+    the [[ref:dc574829-4e8a-46cb-94c8-09ab64d85a1a][frontend]] and should reply accordingly.
     """
 
     @staticmethod
@@ -100,10 +96,22 @@ class Backend:
             )
 
     @staticmethod
-    def url(mode) -> str:
+    def url(mode: Mode) -> str:
+        """Mode → String
+
+        Given a mode, return the URL where the backend listens for messages.
+
+        For instance: http://localhost:4000/api
+        """
+
         Mode.check(mode)
-        port = Backend.port(mode)
-        return f"http://localhost:{port}/api"
+        if mode == Mode.prod():
+            # TODO(d1b8): should be a parameter.
+            return f"https://todo.test.phfrohring.com/api"
+        else:
+            # TODO(15aa): prod => https, dev => http, else CORS issues
+            port = Backend.port(mode)
+            return f"https://localhost:{port}/api"
 
     @staticmethod
     def install_frontend(frontend_dist: Path) -> None:
@@ -121,6 +129,13 @@ class Backend:
 
     @staticmethod
     def dist(frontend_dist: Path) -> Path:
+        """Path → Path
+
+        Given a path to a directory that contains a [[ref:9f5eb7ae-fc62-4227-af9d-ffb0b93a9d9a][FrontendDistribution]], then
+        return a directory that contains a [[ref:4d0d3620-0e64-4095-9af9-34bf78e05509][BackendDistribution]]. The frontend will be
+        served by the backend.
+        """
+
         Check.dir(frontend_dist)
         Backend.install_frontend(frontend_dist)
         root = Backend.root()
@@ -139,7 +154,7 @@ class Backend:
             result = subprocess.run(cmd, check=False, cwd=root, env=env)
             if result.returncode != 0:
                 Check.failed("backend dist failed", f"cmd={' '.join(cmd)}")
-        return release_path
+        return release_path.parent
 
     @staticmethod
     def repl() -> None:

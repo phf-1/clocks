@@ -26,10 +26,11 @@ def _caller_chain(max_frames: int = 4) -> str:
         if filename.endswith("/log.py") or "/logging/" in filename:
             continue
         short_file = Path(filename).name
-        chain.append(f"{short_file}:{frame.lineno} {frame.name}")
+        # chain.append(f"{short_file}:{frame.lineno} {frame.name}")
+        chain.append(f"{short_file}#{frame.name}")
         if len(chain) >= max_frames:
             break
-    return " → ".join(chain) if chain else "<unknown>"
+    return " ← ".join(chain) if chain else "<unknown>"
 
 
 class _PipeFormatter(logging.Formatter):

@@ -14,7 +14,7 @@ _RE = re.compile(r"^([0-9]{1,3}\.){3}[0-9]{1,3}$")
 class Ip:
     """[[id:2e06869b-d68d-4683-a3e6-84357b245e3d][Ip]]
 
-    Represents an [[ref:a92112ad-648a-4ce0-b800-918c0dc71598][Ip]]
+    Represents an [[ref:2e06869b-d68d-4683-a3e6-84357b245e3d][Ip]]
     """
 
     def __init__(self, value):

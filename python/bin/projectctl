@@ -9,11 +9,14 @@ lib_dir = (PATH.parent.parent / "lib").resolve()
 if str(lib_dir) not in sys.path:
     sys.path.append(str(lib_dir))
 
-from clocks.params import Params # noqa: E402
-from clocks.projectctl import Projectctl # noqa: E402
+from clocks.params import Params  # noqa: E402
+from clocks.projectctl import Projectctl  # noqa: E402
+from clocks.message import Message  # noqa: E402
 
 if __name__ == "__main__":
     projectctl = Projectctl.mk(PATH, PATH.parent.parent.parent, PATH.parent, PATH.name)
-    # TODO(20e3): introduce Message?
-    projectctl.rcv(projectctl, Path(sys.argv[0]).name, Params(sys.argv[1:]))
+    prop = Path(sys.argv[0]).name
+    params = Params(sys.argv[1:])
+    msg = Message.mk(prop, params)
+    Projectctl.rcv(projectctl, msg)
     sys.exit(0)

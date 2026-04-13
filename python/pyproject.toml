@@ -4,16 +4,18 @@ version = "0"
 requires-python = ">=3.11"
 
 [tool.pyright]
+venvPath = "."
+venv = ".venv"
 include = ["lib"]
-
 pythonVersion = "3.11"
-typeCheckingMode = "strict"
+typeCheckingMode = "basic"
+
 reportMissingImports = true
 reportMissingTypeStubs = true
 
 exclude = [
-"**/__pycache__",
-"**/.venv",
+    "**/__pycache__",
+    "**/.venv",
 ]
 
 [tool.ruff]

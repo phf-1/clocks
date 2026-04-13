@@ -5,6 +5,7 @@ from typing import Any, Generic, TypeVar
 
 A = TypeVar("A")
 
+
 @dataclass
 class Maybe(Generic[A]):
     """[[id:cedcd8c0-58ba-43a7-afc6-30489f5efdff][Maybe]]
@@ -26,9 +27,18 @@ class Maybe(Generic[A]):
         return Maybe(_present=True, _value=value)
 
     @staticmethod
-    def is_a(x):
-        """Object → Boolean"""
-        return isinstance(x, Maybe)
+    def is_a(x, inner_type=None):
+        """Object [Type] → Boolean"""
+        if isinstance(x, Maybe):
+            if x._present:
+                if inner_type:
+                    return isinstance(x._value, inner_type)
+                else:
+                    return True
+            else:
+                return True
+        else:
+            return False
 
     @staticmethod
     def is_nothing(x):
@@ -36,9 +46,14 @@ class Maybe(Generic[A]):
         return not x._present  # noqa: SLF001
 
     @staticmethod
-    def check(value):
+    def is_just(x):
+        """Maybe(X) → Boolean"""
+        return x._present  # noqa: SLF001
+
+    @staticmethod
+    def check(value, inner_type=None):
         """Object → None"""
-        if not Maybe.is_a(value):
+        if not Maybe.is_a(value, inner_type):
             msg = f"value is not a Maybe. value: {value}"
             raise ValueError(msg)
 
