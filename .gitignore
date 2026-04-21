@@ -4,6 +4,7 @@ discussion.org
 
 # Secrets.
 *.gpg
+ssh/ed25519
 
 # Frontend build output (if present at root level).
 /frontend

@@ -38,6 +38,7 @@ def _host_key(authority: Authority) -> Maybe:
 _ssh_config = """# begin([[ref:3946d10f-4ba6-4848-97d8-ed3d00893cf3][Ssh]])
 Host 127.0.0.1 localhost
     User root
+    IdentityFile {project_root}/ssh/ed25519
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
     LogLevel ERROR
@@ -63,9 +64,10 @@ class Ssh:
             root.mkdir(parents=True, exist_ok=True)
             root.chmod(0o700)
             config = root / "config"
-            if not config.exists() or _ssh_config.strip() not in config.read_text(encoding="utf-8"):
+            ssh_config_content = _ssh_config.format(project_root=Fs.root())
+            if not config.exists() or ssh_config_content.strip() not in config.read_text(encoding="utf-8"):
                 with config.open("a", encoding="utf-8") as f:
-                    f.write("\n" + _ssh_config)
+                    f.write("\n" + ssh_config_content)
             config.chmod(0o600)
             for pattern in ["id_*", "*.pub", "known_hosts"]:
                 for f in root.glob(pattern):
