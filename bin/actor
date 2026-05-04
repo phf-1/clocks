@@ -3,11 +3,75 @@ set -euo pipefail
 IFS=$'\n\t'
 
 MSG="${0##*/}"
-PARAMS="$@"
 
 if [[ "$MSG" == ",install-node-binaries" ]]; then
   # [[ref:220179a9-aa3e-490d-ab6e-3ef02d759bee][Specification]]
   npm install -g bash-language-server
+
+elif [[ "$MSG" == ",frontend-fetch" ]]; then
+  # [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94][Specification]]
+  URL="$1"
+  SERVER="$2"
+  # TODO(c783): take into account the fact that URL may change
+  if [[ ! -d "$FRONTEND" ]]; then
+    git clone "$URL" "$FRONTEND"
+  fi
+  cd "$FRONTEND"
+  git pull
+  npm install
+  export VITE_API_BASE_URL="$SERVER"
+  npm run build
+
+elif [[ "$MSG" == ",db-start" ]]; then
+  # [[ref:01add4d6-2dca-4100-a17a-b947ad5b25ca][Specification]]
+  mkdir -p "$DB_RUN"
+  chmod 700 "$DB_RUN"
+
+  if pg_ctl -D "$DB_DATA" status >/dev/null 2>&1; then
+    echo "PostgreSQL is already running. Stopping it first..."
+    pg_ctl -D "$DB_DATA" stop -m fast
+    sleep 1
+  fi
+
+  if [[ ! -e "$DB_VERSION" ]]; then
+    initdb -D "$DB_DATA" --locale=C.UTF-8 --encoding=UTF8
+    cat <<'EOF' >"$DB_HBA"
+# TYPE  DATABASE  USER  ADDRESS  METHOD
+local   all       all            peer  map=appmap
+EOF
+    cat <<EOF >"$DB_INDENT"
+# MAPNAME  SYSTEM-USERNAME PG-USERNAME
+appmap     $USER           postgres
+appmap     root            postgres
+EOF
+  fi
+  pg_ctl -D "$DB_DATA" -l "$DB_LOG" -o "-k $DB_RUN -p $DB_PORT" start
+  # test the connection.
+  psql -h "$DB_RUN" -U postgres -c "\q"
+
+elif [[ "$MSG" == ",backend-iex-start" ]]; then
+  # [[ref:56e0e558-5ea0-4ca3-9f75-0129149aa702][Specification]]
+  cd "$BACKEND"
+
+  ,db-start
+
+  # [[ref:97be4e51-e157-424c-9ada-5a77ef7a6274][Specification]]
+  mix local.hex --force --if-missing
+  mix deps.get
+
+  # [[ref:e441c65a-8849-44d4-a4ba-343fbc1f0ada][Specification]]
+  mix ecto.create
+  mix ecto.migrate
+
+  # [[ref:cabe2c64-40f8-41f4-9078-95f71eac25da][Specification]]
+  iex --dbg pry -S mix phx.server
+
+elif [[ "$MSG" == ",app-start" ]]; then
+  # [[ref:3a2b4174-ea2e-4ed2-97b3-23b562be59a2][Specification]]
+  URL="$1"
+  ,frontend-fetch "$URL" "$BACKEND_URL"
+  ,backend-iex-start
+
 else
   echo "Unexpected message: $MSG"
   exit 1

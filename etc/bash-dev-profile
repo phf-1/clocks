@@ -12,9 +12,22 @@ function _cmd_check() {
 _cmd_check git
 _cmd_check gpg
 
+##########
+# Locale #
+##########
+
+# We prefer standard uniform conventions.
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
+########
+# Root #
+########
+
 # The set of necessary environment variable is defined.
 ROOT="$(git rev-parse --show-toplevel)"
 export ROOT
+export README="$ROOT/README.org"
 
 # Stores various configuration files.
 export ETC="$ROOT/etc"
@@ -34,8 +47,16 @@ export DEV_SESSION="$ETC/bash-dev-session"
 # Stores this project binaries
 export BIN="$ROOT/bin"
 
+########
+# PATH #
+########
+
 # Make the project binaries available from PATH
 export PATH="$PATH:$BIN"
+
+###########
+# Secrets #
+###########
 
 # Secret environment variables
 export XAI_API_KEY=sk-000000
@@ -54,18 +75,48 @@ else
   echo "INFO | SECRET file does not exist. Using default values. SECRET: $SECRET"
 fi
 
-# We prefer standard uniform conventions.
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
+########
+# Guix #
+########
+
+# https://guix.gnu.org/manual/devel/en/html_node/Invoking-guix-archive.html#index-signing_002c-archives
+export HOST_ETC_GUIX="/etc/guix"
+
+##########
+# Editor #
+##########
+
+export EMACSD="$ROOT/emacs.d"
+export EDITOR="emacs --init-dir $EMACSD"
+
+############
+# Frontend #
+############
+
+export FRONTEND="$ROOT/frontend"
+
+###########
+# Backend #
+###########
+
+# Stores the backend
+export BACKEND="$ROOT/backend"
+# The address of the backend
+export BACKEND_URL="http://localhost:4000/api"
 
 # The Phoenix application is in dev mode. See:
 # https://hexdocs.pm/mix/Mix.html#module-environments
 export MIX_ENV="dev"
 
-# https://guix.gnu.org/manual/devel/en/html_node/Invoking-guix-archive.html#index-signing_002c-archives
-export HOST_ETC_GUIX="/etc/guix"
+############
+# Database #
+############
 
-export EMACSD="$ROOT/emacs.d"
-export EDITOR="emacs --init-dir $EMACSD"
-
-export README="$ROOT/README.org"
+export DB="$ROOT/_postgresql"
+export DB_DATA="$DB/data"
+export DB_LOG="$DB/postgres.log"
+export DB_VERSION="$DB_DATA/PG_VERSION"
+export DB_HBA="$DB_DATA/pg_hba.conf"
+export DB_INDENT="$DB_DATA/pg_indent.conf"
+export DB_RUN="$DB/run"
+export DB_PORT=5432
