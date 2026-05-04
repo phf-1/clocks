@@ -120,3 +120,36 @@ export DB_HBA="$DB_DATA/pg_hba.conf"
 export DB_INDENT="$DB_DATA/pg_indent.conf"
 export DB_RUN="$DB/run"
 export DB_PORT=5432
+
+#######
+# Key #
+#######
+
+export KEY_SSH_PUB="$ETC/dev-key.pub"
+export KEY_STORE="$HOST_ETC_GUIX/signing-key.pub"
+
+######
+# OS #
+######
+
+export OS="$ROOT/os"
+export OS_INIT="$OS/init.scm"
+
+#########
+# Image #
+#########
+
+export IMAGE="$ROOT/image"
+export IMAGE_INIT="$IMAGE/init.qcow2"
+
+######
+# VM #
+######
+
+export VM="$ROOT/vm"
+export VM_RUN="$VM/run"
+export VM_SOCKET="$VM_RUN/vm.sock"
+export VM_UNIT="vm.service"
+export VM_PORT_SSH=2222
+export VM_PORT_HTTP=8080
+export VM_PORT_HTTPS=8443

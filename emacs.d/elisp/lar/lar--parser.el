@@ -22,7 +22,7 @@
   (property () (bol) ":" tag ":" (* space) (substring id) (opt (+ space) (substring name)))
   (inline () "[" "[" tag ":" (substring id) "]" (opt "[" (opt (substring name)) "]") "]")
   (id () (+ alpha))
-  (name () (+ (or alpha " " ":" ">" "<" "→")))
+  (name () (+ (or alpha " " ":" ">" "<" "→" ",")))
   (tag () (or loc ref))
   (loc () (or "id" "ID") `(-- :loc))
   (ref () (or "ref" "REF") `(-- :ref))

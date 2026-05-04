@@ -4,8 +4,6 @@
 ;; VPS. Then, it can be used as a target for deploying applications to. So, it is
 ;; minimal in nature, with just enough code to allow deployment.
 
-(define-module (clocks init-os))
-
 (use-modules
  (gnu system)
  (gnu system locale)
@@ -23,8 +21,7 @@
  (gnu packages emacs-xyz)
  (gnu services guix)
  (gnu home)
- (guix gexp)
- ((clocks constant) #:prefix cst:))
+ (guix gexp))
 
 ;; A [[ref:38345dba-d72f-49b6-9c0e-1bade9e9677a][GuixSystem]] can be viewed as a network of services ([[ref:e2dba26b-b5a5-426f-82a0-a7f0772c2c69][ServicesDag]]).
 (define services '())
@@ -40,7 +37,7 @@
 ;; root can connect to the machine using an ssh connection. Variables names starting
 ;; with % are targets to scripts. See: [[ref:317882b2-8907-4bda-89ed-a1d60793ddc3]]
 (define %user "root")
-(define %root-pub-key cst:dev-public-key-path)
+(define %root-pub-key (getenv "KEY_SSH_PUB"))
 (define %ssh-port 22)
 (define ssh-service
   (service
@@ -77,7 +74,7 @@
 ;; For this system to accept to be deployed to, it needs to trust the programs it
 ;; receives from the emitter ([[ref:d78940d6-33a0-4235-b094-9fa13dc27506][GuixDeployment]]). So, it trusts the current machine.
 ;; TODO(b1e3): use guix-extension
-(define %store-pub-key cst:store-public-key)
+(define %store-pub-key (getenv "KEY_STORE"))
 (define init-base-services
   (modify-services
    %base-services
@@ -91,7 +88,7 @@
 
 ;; Finally, the os is fully specified
 (define %host-name "init")
-(define-public os
+(define os
   (operating-system
    (host-name %host-name)
    (timezone "Etc/UTC")
