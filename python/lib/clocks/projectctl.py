@@ -102,6 +102,18 @@ def _help(self):
     print(Help.string(Path(os.path.realpath(__file__))))
 
 
+def _emacs(self, path=None):
+    init_dir = self._root / "emacs.d"
+    cmd = ["emacs", "--init-directory", str(init_dir)]
+    if path is not None:
+        cmd.append(str(path))
+    Cmd.run(cmd)
+
+
+def _doc(self):
+    _emacs(self, "doc/doc.org")
+
+
 def _update_deps():
     Backend.update()
     version = Frontend.update()
@@ -137,28 +149,28 @@ class Projectctl:
     the CLI. It is also self-documenting, see: _help.
     """
 
-    # TODO(4401): remove _path
-    def __init__(self, _path, root, bin, name):
+    def __init__(self, root, bin, name):
         self._root = root
         self._bin = bin
         self._name = name
+        self._guix = Guix()
 
     @staticmethod
-    def mk(_path, root, bin, name):
+    def mk(root, bin, name):
         # Project root
         Check.dir(root)
         # Project binaries
         Check.dir(bin)
         # Name of the CLI, e.g. "projectctl"
         String.check(name)
-        return Projectctl(_path, root, bin, name)
+        return Projectctl(root, bin, name)
 
     @staticmethod
     def rcv(self, msg: Message):
         Message.check(msg)
         prop = Message.prop(msg)
         params = Message.params(msg)[0]
-        guix = Guix()
+        guix = self._guix
 
         # INSTALLATION #
 
@@ -186,6 +198,11 @@ class Projectctl:
         #   Print commands and descriptions
         elif prop == ",help":
             _help(self)
+
+        # ,doc
+        #   Display the project documentation
+        elif prop == ",doc":
+            _doc(self)
 
         # ,list-todo
         #   List todos
@@ -405,6 +422,13 @@ class Projectctl:
         #   Start the Guix repl
         elif prop == ",guix-repl":
             Guix.repl(guix)
+
+        # ,emacs [Path]
+        #   Start Emacs
+        elif prop == ",emacs":
+            maybe = Params.string(params, 0)
+            path = Maybe.elim(None, lambda string: Path(string))(maybe)
+            _emacs(self, path)
 
         # ,ssh-connect-dev-vm Port
         #   Connect to the init VM

@@ -92,6 +92,7 @@ class Guix:
                 str(tmp_d),
                 str(file),
             ]
+            breakpoint()
             subprocess.run(cmd, check=True)
         finally:
             if tmp_d is not None:

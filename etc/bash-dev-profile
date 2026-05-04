@@ -1,0 +1,71 @@
+# [[ref:c86dd881-e3c4-4f73-9084-b80a02a7e581][Specification]]
+# [[id:a66120e2-beb6-4490-8653-ba20bf8568ef]]
+
+# We check that all necessary commands are available, else an error is raised.
+function _cmd_check() {
+  local name="$1"
+  if ! command -v "$name" &>/dev/null; then
+    echo "ERROR | $name is not available"
+    exit 1
+  fi
+}
+_cmd_check git
+_cmd_check gpg
+
+# The set of necessary environment variable is defined.
+ROOT="$(git rev-parse --show-toplevel)"
+export ROOT
+
+# Stores various configuration files.
+export ETC="$ROOT/etc"
+
+# [[ref:c67a176b-59c5-4439-82ad-619652648941][Specification]]
+export CHANNELS="$ETC/channels.scm"
+
+# [[ref:f37c9e20-2ccb-4f68-858f-df3068260078][Specification]]
+export MANIFEST="$ETC/manifest.scm"
+
+# [[ref:c86dd881-e3c4-4f73-9084-b80a02a7e581][Specification]]
+export DEV_PROFILE="$ETC/bash-dev-profile"
+
+# [[ref:e529b076-4540-4c26-97f9-d42e4a2ef30e][Specification]]
+export DEV_SESSION="$ETC/bash-dev-session"
+
+# Stores this project binaries
+export BIN="$ROOT/bin"
+
+# Make the project binaries available from PATH
+export PATH="$PATH:$BIN"
+
+# Secret environment variables
+export XAI_API_KEY=sk-000000
+export SECRET_KEY_BASE=""
+
+# Stores secret values like API keys. In addition from being encrypted, this file
+# should be ignored by Git. this file should overwrite the secret environment
+# variables values.
+export SECRET="$ETC/secret.gpg"
+if [[ -f "$SECRET" ]]; then
+  set +xv
+  set -a
+  eval "$(gpg --quiet --batch --yes --decrypt "$SECRET" 2>/dev/null)"
+  set +a
+else
+  echo "INFO | SECRET file does not exist. Using default values. SECRET: $SECRET"
+fi
+
+# We prefer standard uniform conventions.
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
+# The Phoenix application is in dev mode. See:
+# https://hexdocs.pm/mix/Mix.html#module-environments
+export MIX_ENV="dev"
+
+# https://guix.gnu.org/manual/devel/en/html_node/Invoking-guix-archive.html#index-signing_002c-archives
+export HOST_ETC_GUIX="/etc/guix"
+
+export EMACSD="$ROOT/emacs.d"
+export EDITOR="emacs --init-dir $EMACSD"
+
+export README="$ROOT/README.org"

@@ -1,0 +1,7 @@
+# key: scm
+# name: block-scheme
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+#+begin_src scheme
+$0
+#+end_src

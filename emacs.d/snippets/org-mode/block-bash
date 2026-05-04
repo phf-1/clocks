@@ -1,0 +1,7 @@
+# key: bash
+# name: block-bash
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+#+begin_src bash
+$0
+#+end_src

@@ -43,4 +43,4 @@ class Fs:
 
     @staticmethod
     def channels() -> Path:
-        return Fs.scheme() / "channels.scm"
+        return Fs.scheme() / "clocks" / "channels.scm"

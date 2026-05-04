@@ -105,7 +105,7 @@ class Module:
         """
 
         id = Module.id(module)
-        return "(use-modules" + "(" + " ".join(id) + ")" + ")"
+        return "(use-modules " + "(" + " ".join(id) + ")" + ")"
 
     @staticmethod
     def install(module: Module, dir: Path) -> str:

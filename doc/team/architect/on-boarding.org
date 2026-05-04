@@ -1,0 +1,295 @@
+* On-boarding
+:PROPERTIES:
+:ID:       e4a12ee6-a0a1-4ffd-9031-28b4a00b5ca7
+:END:
+
+** Development environment
+*** Guix
+
+To make the development environment fully reproducible, we use Guix.
+
+**** Install a name server
+
+We need Guix binaries to be able to find values associated to some names on the host
+system. To that end, a name server should be installed.
+
+***** If apt is used, then install nscd
+
+#+begin_src bash :eval no
+sudo apt install nscd
+sudo systemctl status nscd
+#+end_src
+
+***** If dnf is used, then install nsncd
+
+#+begin_src bash :eval no
+sudo dnf copr enable kanata/nsncd -y
+sudo dnf install nsncd -y
+sudo systemctl enable --now nsncd
+sudo systemctl status nsncd.service
+#+end_src
+
+**** Install Guix
+
+#+begin_src bash :eval no
+cd /tmp
+wget https://guix.gnu.org/guix-install.sh
+chmod +x guix-install.sh
+sudo ./guix-install.sh
+#+end_src
+
+If desired, Guix may be uninstalled with:
+
+#+begin_src bash :eval no
+sudo ./guix-install.sh --uninstall
+#+end_src
+
+*** Fork the repo
+
+- Fork the repository: https://github.com/phf-1/clocks
+- clone it locally, for instance under =~/src/clocks/=,
+- then =cd ~/src/clocks=.
+
+*** Add a frontend
+
+A frontend is an application that uses the Vite, a Web build tool (e.g. Lovable
+application). For instance:
+
+#+begin_src bash :eval no
+git clone git@github.com:phf-1/my-lovely-tasks.git frontend
+#+end_src
+
+*** Secrets
+
+Your secrets are stored encrypted in ~.env.gpg~ at the root of the repository.
+~make dev-env~ decrypts this file and loads its variables into the environment
+automatically.
+
+**** Creating ~.env.gpg~ for the first time
+
+Write a plain ~.env~ file:
+
+#+begin_src bash :eval no
+XAI_API_KEY=xai-YOUR-KEY-HERE
+#+end_src
+
+Encrypt it with your GPG key:
+
+#+begin_src bash :eval no
+gpg --encrypt --recipient your@email.com .env
+#+end_src
+
+This produces ~.env.gpg~. Delete the plaintext file immediately:
+
+#+begin_src bash :eval no
+# Note: shred is ineffective on SSDs and copy-on-write filesystems (btrfs, zfs) — on
+# those, avoiding writing the plaintext to disk at all.
+shred -u .env
+#+end_src
+
+**** Editing existing secrets
+
+Decrypt, edit, then re-encrypt:
+
+#+begin_src bash :eval no
+gpg --decrypt .env.gpg > .env
+# edit .env
+gpg --encrypt --recipient your@email.com .env
+rm .env
+#+end_src
+
+*** Start the application
+
+Start the development environment:
+
+#+begin_src bash :eval no
+./start-dev
+#+end_src
+
+Then start a REPL:
+
+#+begin_src bash :eval no
+,app-repl
+#+end_src
+
+The application should now be live.
+
+** Deployment
+
+The objective is to simulate a production deployment.
+
+Once the application reaches some satisfactory state, it is necessary to deploy it
+for customers to benefit from it. Customers connect to a server through their
+browsers, so we simulate a production server with a VM, and a deployment to that
+server.
+
+*** Virtual machine capabilities
+
+The objective is to ensure that the current system can run virtual machines. We need
+QEMU and KVM.
+
+**** Fedora 43
+
+#+begin_src bash :eval no
+sudo dnf update
+sudo dnf install @virtualization
+sudo systemctl enable --now libvirtd
+sudo reboot
+#+end_src
+
+*** Initial server image
+
+The objective is to build an initial server image.
+
+Within the container, build a server image using:
+
+#+begin_src bash :eval no
+,vm-init-image-build
+#+end_src
+
+*** Initial server vm
+
+The objective is to start an initial server vm.
+
+Start a new terminal session outside the container and in the same directory.
+
+Add the project binaries to the PATH:
+
+#+begin_src bash :eval no
+export PATH="$PATH:$PWD/python/bin"
+#+end_src
+
+Choose a port:
+
+#+begin_src bash :eval no
+PORT=2222
+#+end_src
+
+Start an initial VM using:
+
+#+begin_src bash :eval no
+,vm-init-start $PORT
+#+end_src
+
+*** TODO Certificates
+
+#+begin_src bash :eval no
+sudo apt update
+sudo apt install mkcert libnss3-tools
+#+end_src
+
+#+begin_src bash :eval no
+cd certs/
+mkcert -key-file dev-key.pem -cert-file dev-cert.pem example.dev localhost 127.0.0.1 ::1
+mkcert -install
+#+end_src
+
+*** Application deployment
+
+The objective is to deploy the application to the initial server vm.
+
+Within the container, run:
+
+#+begin_src bash :eval no
+,app-deploy-dev $PORT
+#+end_src
+
+Now, you should be able to connect through SSH:
+
+#+begin_src bash :eval no
+,ssh-connect-dev-vm $PORT
+#+end_src
+
+And check the status of services:
+
+#+begin_src bash :eval no
+herd status
+#+end_src
+
+which should include all the services necessary for the application to run in
+production: the application itself, a database, a syslogd, log rotation service and
+so on.
+
+** TODO Authenticated commits
+*** Generate a keypair
+
+If you do not already have one, generate a GPG keypair. This is used to sign and
+identify your commits:
+
+#+begin_src bash :eval no
+gpg --batch --full-generate-key <<EOF
+Name-Real: "$NAME"
+Name-Email: "$EMAIL"
+Key-Type: eddsa
+Key-Curve: ed25519
+Key-Usage: cert
+Subkey-Type: eddsa
+Subkey-Curve: ed25519
+Subkey-Usage: sign
+Subkey-Expire-Date: 2y
+%commit
+EOF
+#+end_src
+
+Add an encryption subkey:
+
+#+begin_src bash :eval no
+# Get your key fingerprint
+gpg --list-keys YOUR@EMAIL.COM
+
+# Add the cv25519 encryption subkey
+gpg --quick-add-key YOURFINGERPRINT cv25519 encr 2y
+#+end_src
+
+Verify the result:
+
+#+begin_src bash :eval no
+gpg --list-keys --with-subkey-fingerprint YOUR@EMAIL.COM
+#+end_src
+
+*** Configure Git to sign commits
+
+Tell Git to sign commits and tags with your key:
+
+#+begin_src bash :eval no
+# Note: you may want to use --global so that it is applied to all git projects.
+git config user.signingkey 0x… # your signing key handle
+git config commit.gpgsign true
+git config tag.gpgsign true
+#+end_src
+
+Verify:
+
+#+begin_src bash :eval no
+git config --list | grep sign
+#+end_src
+
+*** Add your public key to your profile
+
+Export your public key:
+
+#+begin_src bash :eval no
+gpg --armor --export your@email.com
+#+end_src
+
+Then:
+- Copy [[ref:1446c391-2c77-4290-be29-b4fa76a751c9][this developer profile]] and its associated directory, updating names and IDs as appropriate.
+- Complete your identification. Example: [[ref:73a7c491-ef86-4523-bfad-f024fef4fa07][Identification]].
+
+*** Open a PR
+
+Send a pull request.
+
+*** Key signing by the architect
+
+Once your PR is merged, the [[ref:87e740ec-6036-4154-968d-625196f90ee4][architect]] will sign your public key and configure the
+platform to accept commits signed by you. Your contributions will then be
+authenticated by a chain of trust.
+
+** TODO Next steps
+
+- To learn what the application does and how it works, see [[ref:94a78f42-9098-4796-90c1-725e20a07fbd][Architecture]].
+- To run tests, format code, and similar tasks, see the [[ref:b80c22c9-2eed-4eea-a469-136e7666ea96][Makefile]].
+- To learn how we use Elixir to implement specifications, see [[ref:9f24d713-ff38-4659-aff9-d3eb36482109][Elixir]].
+- To see pending work, see the [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][Backlog]].
+- To learn how to contribute, see [[ref:43c6d99c-908e-4bed-967a-d3609ded65ed][Contributing]].

@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: inline-id
+# key: id
+# --
+[[id:`(org-id-new)`]]

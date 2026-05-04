@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+# [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf][Specification]]
+# [[id:b80c22c9-2eed-4eea-a469-136e7666ea96][env-start]]
+
+set -euo pipefail
+IFS=$'\n\t'
+[[ "${VERBOSE:-false}" == "true" ]] && { export VERBOSE; set -x; }
+
+if [[ -v GUIX_ENVIRONMENT ]]; then
+  echo "INFO | The development environment is active."
+  exit 0
+fi
+
+# If a command named cmd is not available; then: write an error message to stdout and
+# exit.
+function _cmd_check() {
+  local name="$1"
+  if ! command -v "$name" &>/dev/null; then
+    echo "ERROR | $name is not available"
+    exit 1
+  fi
+}
+_cmd_check git
+_cmd_check ssh-add
+_cmd_check guix
+
+# TODO(55c8): add other checks. For instance, KVM and QEMU should be available
+
+# The script current directory is set to the root of the project and environment
+# variables are loaded (see: [[ref:c86dd881-e3c4-4f73-9084-b80a02a7e581][profile]]).
+ROOT="$(git rev-parse --show-toplevel)"
+ETC="$ROOT/etc"
+ENV="$ETC/bash-dev-profile"
+source "$ENV"
+
+if ! ssh-add -l &>/dev/null; then
+  echo "ERROR | The SSH agent is necessary to connect to a VPS"
+  exit 1
+fi
+
+# If the host has not signing key; then: build it. This signature should be accepted
+# by the receiving VPS in order to deploy builds. See:
+# https://guix.gnu.org/manual/devel/en/html_node/Invoking-guix-archive.html#index-signing_002c-archives
+if [[ ! -f "$HOST_ETC_GUIX/signing-key.pub" ]]; then
+  sudo -k guix archive --generate-key
+fi
+
+# If SSL certificates are placed in a known directory, then OTP can use them.
+# see:
+# https://github.com/erlang/otp/blob/f1944a13c33f7214d498270ed2f09f39152d6952/lib/public_key/src/pubkey_os_cacerts.erl#L221
+# In order to use SSH from within the container and using the host keys,
+# SSH_AUTH_SOCK is shared.
+guix time-machine -C "$CHANNELS" -- shell \
+     -C \
+     -m "$MANIFEST" \
+     -N \
+     -W \
+     --expose="$HOST_ETC_GUIX" \
+     -E ^SSH_AUTH_SOCK \
+     --share="${SSH_AUTH_SOCK:-}" \
+     --share=/tmp=/host/tmp \
+     -S /usr/bin=bin \
+     -S /etc/ssl/certs/ca-certificates.crt=etc/ssl/certs/ca-certificates.crt \
+     -E ^TERM \
+     --expose=/usr/share/bash-completion=/host/usr/share/bash-completion \
+     -E '^WAYLAND_DISPLAY$' \
+     -E '^XDG_RUNTIME_DIR$' \
+     --expose="$XDG_RUNTIME_DIR" \
+     --share="/run/user/$UID" \
+     -- bash --init-file "$DEV_SESSION" -i

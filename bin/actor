@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+MSG="${0##*/}"
+PARAMS="$@"
+
+if [[ "$MSG" == ",install-node-binaries" ]]; then
+  # [[ref:220179a9-aa3e-490d-ab6e-3ef02d759bee][Specification]]
+  npm install -g bash-language-server
+else
+  echo "Unexpected message: $MSG"
+  exit 1
+fi

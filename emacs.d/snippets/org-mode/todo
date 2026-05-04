@@ -1,0 +1,4 @@
+# key: todo
+# name: todo
+# --
+TODO(`(downcase (nth 1 (split-string (org-id-new) "-")))`)

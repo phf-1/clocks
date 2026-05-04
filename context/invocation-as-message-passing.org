@@ -1,0 +1,116 @@
+* Invocation as message passing
+:PROPERTIES:
+:ID:       928555e0-35c1-449b-919a-e08a06c29d94
+:END:
+
+** One message, one process
+
+Premises
+- actor : Executable name in PATH
+- path : Path to an executable file containing: exec actor "${0##*/}" "$@"
+- msg : Symlink to path
+- msg param …
+
+Conclusion
+- a Linux process executing actor is started with its command line arguments (argv) set to
+  the list of strings: "actor" "msg" "param" …
+- If actor interprets argv[1…] as a message; then: actor is started with message ["msg"
+  "param" …]
+
+Example
+#+begin_src bash :results raw :wrap example
+tmp_d="$(mktemp -d)"
+path="/$tmp_d/path"
+cat <<'EOF' >"$path"
+#!/usr/bin/env bash
+set -x
+actor="echo"
+exec "$actor" "${0##*/}" "$@"
+EOF
+chmod +x "$path"
+bin="$tmp_d/bin"
+mkdir -p "$bin"
+cd "$bin"
+ln -s ../path msg
+cd ..
+./bin/msg param1 param2
+#+end_src
+
+#+RESULTS:
+#+begin_example
+msg param1 param2
+#+end_example
+
+** One process, n messages
+
+Premises
+- ~address~ is a FIFO
+- ~./bin/actor address &~ starts a process that reads a line from ~address~, /e.g./ ~"msg param …"~,
+  then echoes that line to its stdout.
+- ~./bin/send~ is an executable such that if ~./bin/msg~ is a symlink to ~./bin/send~, then: ~$
+  ./bin/msg param~ writes the line ~"msg param"~ to ~address~.
+- ~./bin/msg param~
+
+Conclusion
+- ~"msg param"~ is written to stdout
+
+Example
+#+begin_src bash :results raw :wrap example
+set -euo pipefail
+IFS=$'\n\t'
+
+# workdir is the cwd and is cleaned-up after execution
+workdir="$(mktemp -d)"
+function cleanup() {
+    rm -rvf "$workdir"
+}
+trap cleanup EXIT
+cd "$workdir"
+
+# FIFO where messages are sent to and read from. It acts as the address of the actor.
+ADDRESS_P=$PWD/address
+
+# directory that stores executables
+BIN_D=$PWD/bin
+mkdir -p "$BIN_D"
+
+# symlink to this program sends a message to the actor.
+# $ADDRESS_P is embedded by value at write time (unquoted heredoc).
+# ${0##*/} and $@ are escaped so they expand at send's runtime.
+SEND_P=$BIN_D/send
+cat <<EOF >"$SEND_P"
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=\$'\\n\\t'
+echo "\${0##*/}" "\$@" <> "$ADDRESS_P"
+EOF
+chmod +x "$SEND_P"
+
+# given an address, the actor reads messages from it and echoes each one until killed
+ACTOR_P=$BIN_D/actor
+cat <<'EOF' >"$ACTOR_P"
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+address=$1
+rm -f "$address"
+mkfifo "$address"
+while IFS= read -r line; do
+    echo "$line"
+done <> "$address"
+EOF
+chmod +x "$ACTOR_P"
+
+# It suffices to symlink "send" to send a message to the actor.
+pushd "$BIN_D"; ln -s send msg; popd
+./bin/actor "$ADDRESS_P" &
+PID=$!
+sleep 0.1
+# Note that this blocks only on a read syscall from the socket which means that when the
+# second message is sent, the actor may not have finished processing the message.
+./bin/msg param1
+./bin/msg param2
+sleep 0.1
+kill "$PID"
+wait "$PID" 2>/dev/null || true
+#+end_src

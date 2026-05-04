@@ -1,0 +1,22 @@
+* Contributing
+:PROPERTIES:
+:ID:       43c6d99c-908e-4bed-967a-d3609ded65ed
+:END:
+
+1. From the master branch:
+   1. pick the highest possible [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][backlog]] task marked as TODO,
+   2. mark it as DOING,
+   3. mark yourself as the owner,
+   4. push the commit on master,
+   5. fork the repo.
+
+2. Implement the task on the fork
+   - open a new iteration and log your time as well as anything else that helps
+     implementing the task, make it simple and easy to understand and
+     maintain. Example: [[ref:e3eff8db-1d6e-4e93-8820-4e8168678ade][Iteration]].
+
+3. Check that all [[ref:5deb7507-29b1-44da-9286-a81ced5f594c][PR invariants]] are satisfied.
+
+4. Send a pull request.
+
+5. Adjust until the PR is accepted.

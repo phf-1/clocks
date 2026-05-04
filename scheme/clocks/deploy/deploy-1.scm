@@ -1,4 +1,4 @@
-;; guix time-machine -C scheme/channels.scm -- deploy scheme/clocks/deploy/deploy-1.scm
+;; guix time-machine -C scheme/clocks/channels.scm -- deploy scheme/clocks/deploy/deploy-1.scm
 (define-module (clocks deploy deploy-1))
 
 (use-modules

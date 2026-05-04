@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: log-var
+# key: logv
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+(format #t "$1: ~a~%" $1)

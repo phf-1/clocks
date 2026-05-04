@@ -1,1 +1,107 @@
-team.org
+#+STARTUP: overview
+
+* README
+:PROPERTIES:
+:VISIBILITY: children
+:END:
+
+This file describes this directory. Its intended use is to develop a Phoenix application
+with a Lovable generated frontend.
+
+The development occurs in a reproducible container in order to maximize team efficiency as
+we all share the exact same development environment, irrespective of our particular setup.
+
+This environment attempt to be documented enough so that AI can easily be used accurately
+within the boundaries of the container.
+
+Given this intented use, some parts of the directory are marked as PUBLIC as they should
+be directly used in order to reach the stated goal. Others are private by default as they
+exist only to support the public parts.
+
+This editor basic commands:
+- Move the point using the arrows.
+- Place the point on a section and press <tab> to unfold it.
+- Click on a link to view references to it.
+- A link that starts with "⊙" defines a location, /i.e./ it says "here".
+- A link that starts with "→" defines a reference to a location, /i.e./ it says "got to the
+  referenced location".
+- Quit the editor using C-x C-c.
+- It means: press on <control> and "x", then: press on <control> and "c".
+
+** etc/
+
+This directory stores various configuration files.
+
+*** bash-dev-profile
+:PROPERTIES:
+:ID:       c86dd881-e3c4-4f73-9084-b80a02a7e581
+:END:
+
+This file defines environment variables necessary in the development
+environment. These are documented within the file itself. See: [[ref:a66120e2-beb6-4490-8653-ba20bf8568ef]]
+
+*** bash-dev-session
+:PROPERTIES:
+:ID:       e529b076-4540-4c26-97f9-d42e4a2ef30e
+:END:
+
+Premises
+- source bash-dev-session
+
+Conclusion  
+- The current bash environment has be configured for development purposes:
+  - [[ref:c86dd881-e3c4-4f73-9084-b80a02a7e581][bash-dev-profile]] has been sourced
+  - additional shell configurations makes for a confortable interactive session.
+
+** PUBLIC context/
+
+This directory stores various definitions and pointer to definitions that are used within
+the project but are part of how common culture.
+
+It ensures that when we are invoking a concept like "Actor Model" or "Natural Deduction"
+then we are referencing one of these definitions which help reduce misunderstanding.
+
+It also clarify what we mean for the AI reading this directory.
+
+See: [[file:context/][context/]]
+
+** PUBLIC ./bin/env-start
+:PROPERTIES:
+:ID:       d8afe12e-f756-4c33-a7dd-f380004f91bf
+:END:
+
+Premises
+- ./bin/env-start
+  
+Conclusion
+- A reproducible development environment within a container has been started. It implies that:
+  - [[ref:e529b076-4540-4c26-97f9-d42e4a2ef30e][bash-dev-session]] has been sourced.
+  - [[id:c67a176b-59c5-4439-82ad-619652648941]] A reproducible set of packages definitions as defined.
+  - [[id:f37c9e20-2ccb-4f68-858f-df3068260078]] From this set, a sub-set of packages are installed.
+  - [[id:220179a9-aa3e-490d-ab6e-3ef02d759bee]] node binaries are installed
+  - Host networking capabilities are usable from the container.
+  - Host Guix daemon is accessible in order to share builds.
+  - Host Guix archive keys are accessible in order to send builds to external resources /e.g./ VPS.
+  - Host SSH agent can be used in order to connect to external resources.
+  - /tmp is shared with the host as /host/tmp to provide an escape hatch whith the host.
+  - Local SSL certificates are used.
+- The README is displayed using the default editor.    
+
+** PUBLIC ./bin/,frontend-fetch
+:PROPERTIES:
+:ID:       c6dfad7d-72df-4788-ac6f-97c297f6df94
+:END:
+** PUBLIC ./bin/,backend-iex-start
+:PROPERTIES:
+:ID:       56e0e558-5ea0-4ca3-9f75-0129149aa702
+:END:
+
+** PUBLIC ./bin/,app-start
+
+Premises
+- The development environment is active. See: [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf][./bin/env-start]]
+- ./bin/app-start
+
+Conclusion
+- [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94][./bin/frontend-fetch]]
+- [[ref:56e0e558-5ea0-4ca3-9f75-0129149aa702][./bin/backend-iex-start]]

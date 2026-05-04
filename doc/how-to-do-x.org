@@ -1,0 +1,33 @@
+* How to do X?
+:PROPERTIES:
+[[id:f12fb8ad-d77a-4229-b0c5-7b90dc6f2fb9]]
+:END:
+
+** How to print help about the CLI?
+
+#+begin_src bash
+,help
+#+end_src
+
+** How to list available CLI tools?
+
+Use Bash tab completion: type =,= then =<tab>=. Bash will list all the project CLI tools.
+
+** How to simulate a production deployment?
+*** Initial VM started
+
+Start an initial VM using =,vm-start=. Use =,help= for its documentation. For instance,
+within the development environment:
+
+#+begin_src bash
+,image-build init
+#+end_src
+
+Then, within the same directory but in another shell:
+
+#+begin_src bash
+export PATH="$PATH:python/bin"
+,vm-start init 127.0.0.1 2222 8080 8433
+#+end_src
+
+*** Production application deployed to the VM

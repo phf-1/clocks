@@ -1,0 +1,45 @@
+# [[ref:e529b076-4540-4c26-97f9-d42e4a2ef30e][Specification]]
+# [[id:7cab5b80-5358-4093-b9fa-9d23665ab64a]]
+
+ROOT="$(git rev-parse --show-toplevel)"
+source $ROOT/etc/bash-dev-profile
+
+alias ls='ls -p --color=auto'
+alias ll='ls -l'
+alias emacs="$EDITOR"
+
+PS1='\u@\h \w${GUIX_ENVIRONMENT:+ [env]}\$ '
+
+shopt -s checkwinsize
+
+if ! shopt -oq posix; then
+  if [ -f /host/usr/share/bash-completion/bash_completion ]; then
+    . /host/usr/share/bash-completion/bash_completion
+  fi
+fi
+
+export PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ '
+
+if [ -n "$GUIX_ENVIRONMENT" ]; then
+    if [[ $PS1 =~ (.*)"\\$" ]]; then
+        PS1="${BASH_REMATCH[1]} [env]\\\$ "
+    fi
+fi
+
+# Only one Bash history.
+shopt -s histappend
+HISTSIZE=10000
+HISTFILESIZE=10000
+HISTCONTROL=ignoredups:ignorespace
+HISTTIMEFORMAT="%F %T "
+
+# Load fonts in case a graphical application is started.
+fc-cache -r
+
+# Install node binaries
+npm config delete prefix
+npm config set prefix ~/.npm-global
+,install-node-binaries
+export PATH="$PATH:$HOME/.npm-global/bin"
+
+$EDITOR "$README" &
