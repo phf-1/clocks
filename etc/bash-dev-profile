@@ -133,7 +133,7 @@ export KEY_STORE="$HOST_ETC_GUIX/signing-key.pub"
 ######
 
 export OS="$ROOT/os"
-export OS_INIT="$OS/init.scm"
+export OS_PATH_INIT="$OS/init.scm"
 
 #########
 # Image #
@@ -153,3 +153,10 @@ export VM_UNIT="vm.service"
 export VM_PORT_SSH=2222
 export VM_PORT_HTTP=8080
 export VM_PORT_HTTPS=8443
+
+##############
+# Deployment #
+##############
+
+export DEPLOY="$ROOT/deployment"
+export DEPLOY_VM="$DEPLOY/vm.scm"

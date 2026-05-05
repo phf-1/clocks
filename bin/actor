@@ -18,6 +18,56 @@ function outside_container_check() {
   fi
 }
 
+function image_mk() {
+  inside_container_check
+
+  # /path/to/os/name.scm
+  local os_path="$1"
+
+  # /path/to/image/name.qcow2
+  local image_type="qcow2"
+  local image_path="${os_path##*/}"
+  image_path="${image_path%.*}"
+  image_path="$IMAGE/$image_path.$image_type"
+  local image_hash=""
+  if [[ -f "$image_path" ]]; then
+    image_hash=$(sha256sum "$image_path" | cut -d' ' -f1)
+  fi
+
+  # os_path → image_path
+  local store_path=""
+  local store_hash=""
+  store_path="$(guix time-machine -C "$CHANNELS" -- system image -t "$image_type" --image-size=20G "$os_path")"
+  store_hash=$(sha256sum "$store_path" | cut -d' ' -f1)
+
+  # Compare hashes – skip copy if identical (TODO 0d40)
+  if [[ "$store_hash" != "$image_hash" ]]; then
+    cp -f "$store_path" "$image_path"
+    chmod +w "$image_path"
+  fi
+
+  echo "$image_path"
+}
+
+host_key() {
+  # 127.0.0.1
+  local host="$1"
+  # 2222
+  local port="$2"
+  local key=""
+
+  key=$(ssh-keyscan -p "$port" -t ed25519 "$host" 2>/dev/null |
+    rg '.*(ssh-ed25519.*)' --trim -r '$1' |
+    head -n 1)
+
+  if [[ -n "$key" ]]; then
+    echo "$key"
+  else
+    echo "ERROR | Failed to retrieve ssh-ed25519 host key for '$host'" >&2
+    return 1
+  fi
+}
+
 if [[ "$MSG" == ",install-node-binaries" ]]; then
   # [[ref:220179a9-aa3e-490d-ab6e-3ef02d759bee][Specification]]
 
@@ -105,10 +155,7 @@ elif [[ "$MSG" == ",image-init-build" ]]; then
 
   inside_container_check
 
-  IMG_PATH="$(guix time-machine -C "$CHANNELS" -- system image -t qcow2 --image-size=20G "$OS_INIT")"
-  # TODO(1ce3): maybe compare hashes if existance to save time?
-  cp -f "$IMG_PATH" "$IMAGE_INIT"
-  chmod +w "$IMAGE_INIT"
+  image_mk "$OS_PATH_INIT"
 
 elif [[ "$MSG" == ",vm-init-start" ]]; then
   # [[ref:518d54c7-3288-4b71-a951-e612dfab5cb2][Specification]]
@@ -158,7 +205,20 @@ elif [[ "$MSG" == ",vm-init-start" ]]; then
     root@localhost
 
 elif [[ "$MSG" == ",vm-deploy" ]]; then
-  echo "$MSG" "$@"
+  # [[ref:62d66eb4-c006-4f3b-86a0-1675191325cb][Specification]]
+
+  inside_container_check
+
+  OS_NAME="$1"
+  export OS_PATH="$OS/$OS_NAME.scm"
+  if [[ ! -f "$OS_PATH" ]]; then
+    echo "ERROR | OS_NAME not found in OS. OS_NAME: $OS_NAME. OS_PATH: $OS_PATH"
+    exit 1
+  fi
+  export HOST_KEY=""
+  HOST_KEY="$(host_key 127.0.0.1 "$VM_PORT_SSH")"
+  export HOST_PORT_SSH="$VM_PORT_SSH"
+  guix time-machine -C "$CHANNELS" -- deploy "$DEPLOY_VM"
 
 else
   echo "Unexpected message: $MSG"

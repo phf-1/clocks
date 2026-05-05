@@ -193,6 +193,9 @@ Conclusion
 - An ssh connection to the VM is opened
 
 ** TODO ./bin/,vm-deploy
+:PROPERTIES:
+:ID:       62d66eb4-c006-4f3b-86a0-1675191325cb
+:END:
 
 Premises
 - [[ref:518d54c7-3288-4b71-a951-e612dfab5cb2][,vm-init-start]]
