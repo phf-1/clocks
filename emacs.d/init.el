@@ -374,7 +374,7 @@
 ;; first. When two Dired buffers are open, operations default to the other
 ;; window as the target. Buffers auto-revert, and opening a subdirectory
 ;; reuses the current Dired buffer rather than spawning a new one.
-(setq dired-listing-switches "-alh --group-directories-first"
+(setq dired-listing-switches "-alh"
       dired-dwim-target t
       dired-auto-revert-buffer t
       dired-kill-when-opening-new-dired-buffer t)

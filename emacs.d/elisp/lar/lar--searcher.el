@@ -15,7 +15,6 @@
   "Build ripgrep command list for PATTERN search under ROOT.
 RG-PATH is the path to the ripgrep executable."
   (list rg-path
-        "-u"
         "-i"
         "--block-buffered"
         "--color=never"

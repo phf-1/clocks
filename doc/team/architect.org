@@ -23,4 +23,4 @@ the Sales Rep can sell and what the developers can reliably deliver.
 - *Maximizes extensibility*. Adding new features, customers, or markets can be added
   with minimal cost.
 
-- *Owns the development process*. See: [[ref:43c6d99c-908e-4bed-967a-d3609ded65ed][Contributing]].
+- *Owns the development process*. See: [[ref:5513764b-8595-4e2d-bcf9-8e8214ee901b][Contributing]].

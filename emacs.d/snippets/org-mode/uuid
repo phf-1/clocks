@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: uuid
+# key: uuid
+# --
+`(org-id-new)`

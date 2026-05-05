@@ -292,4 +292,4 @@ authenticated by a chain of trust.
 - To run tests, format code, and similar tasks, see the [[ref:b80c22c9-2eed-4eea-a469-136e7666ea96][Makefile]].
 - To learn how we use Elixir to implement specifications, see [[ref:9f24d713-ff38-4659-aff9-d3eb36482109][Elixir]].
 - To see pending work, see the [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][Backlog]].
-- To learn how to contribute, see [[ref:43c6d99c-908e-4bed-967a-d3609ded65ed][Contributing]].
+- To learn how to contribute, see [[ref:5513764b-8595-4e2d-bcf9-8e8214ee901b][Contributing]].

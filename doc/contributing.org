@@ -1,0 +1,10 @@
+* Contributing
+:PROPERTIES:
+:ID:       5513764b-8595-4e2d-bcf9-8e8214ee901b
+:END:
+
+1. Fork the repository.
+2. Define or choose a task in the [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][backlog]].
+3. Assign yourself to the task.
+4. Implement.
+5. Send a [[ref:5deb7507-29b1-44da-9286-a81ced5f594c][PR]].

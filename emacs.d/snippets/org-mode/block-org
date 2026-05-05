@@ -1,0 +1,7 @@
+# key: org
+# name: block-org
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+#+begin_src org
+$0
+#+end_src

@@ -1,4 +1,4 @@
-* Elixir
+* Elixir conventions
 :PROPERTIES:
 :ID:       9f24d713-ff38-4659-aff9-d3eb36482109
 :END:

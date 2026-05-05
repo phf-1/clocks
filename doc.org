@@ -1,0 +1,8 @@
+* doc/
+** contributing.org
+:PROPERTIES:
+:ID:       6d4e036b-f846-4fe5-8246-363287aafe77
+:END:
+
+[[ref:5513764b-8595-4e2d-bcf9-8e8214ee901b][This file]] answers the following question: given a small team; then how to contribute
+collectively to the project?
