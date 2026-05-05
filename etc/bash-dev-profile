@@ -101,8 +101,12 @@ export FRONTEND="$ROOT/frontend"
 
 # Stores the backend
 export BACKEND="$ROOT/backend"
+
 # The address of the backend
 export BACKEND_URL="http://localhost:4000/api"
+
+# Where the backend distributions ends up
+export BACKEND_DIST="$BACKEND/_build/prod/rel"
 
 # The Phoenix application is in dev mode. See:
 # https://hexdocs.pm/mix/Mix.html#module-environments
@@ -142,6 +146,14 @@ export OS_PATH_INIT="$OS/init.scm"
 export IMAGE="$ROOT/image"
 export IMAGE_INIT="$IMAGE/init.qcow2"
 
+####################
+# SSL Certificates #
+####################
+
+export CERTS="$ROOT/certs"
+export CERTS_LOCAL_PUB="$CERTS/dev-cert.pem"
+export CERTS_LOCAL_PRV="$CERTS/dev-key.pem"
+
 ######
 # VM #
 ######
@@ -153,6 +165,7 @@ export VM_UNIT="vm.service"
 export VM_PORT_SSH=2222
 export VM_PORT_HTTP=8080
 export VM_PORT_HTTPS=8443
+export VM_ROOT_KEY="$KEY_SSH_PUB"
 
 ##############
 # Deployment #
@@ -160,3 +173,16 @@ export VM_PORT_HTTPS=8443
 
 export DEPLOY="$ROOT/deployment"
 export DEPLOY_VM="$DEPLOY/vm.scm"
+
+###############
+# Application #
+###############
+
+export APP_NAME="application"
+export APP_VERSION="0.1.0"
+export APP_DIST="$BACKEND_DIST"
+export APP_HOST_NAME="localhost"
+export APP_HOST_ROOT_KEY="$KEY_SSH_PUB"
+export APP_HOST_CERT_PUB="$CERTS_LOCAL_PUB"
+export APP_HOST_CERT_PRV="$CERTS_LOCAL_PRV"
+export APP_STORE_KEY="$KEY_STORE"

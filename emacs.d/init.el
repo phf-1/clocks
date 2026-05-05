@@ -68,6 +68,9 @@
 (add-hook 'org-mode-hook  #'auto-replace-characters-mode)
 (add-hook 'prog-mode-hook #'auto-replace-characters-mode)
 
+;; Stop Emacs from asking retarted questions
+(setq disabled-command-function nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Memory & subprocess I/O
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

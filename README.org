@@ -103,6 +103,30 @@ Conclusion
 - [[id:e441c65a-8849-44d4-a4ba-343fbc1f0ada]] the DB is created and migrations have been applied
 - [[id:cabe2c64-40f8-41f4-9078-95f71eac25da]] The application is executing locally and offering iex REPL
 
+** os/
+*** dev.scm
+:PROPERTIES:
+:ID:       631ab476-0770-4049-94df-32e7c3197a0c
+:END:
+
+Represents an approximation of a production operating system intented to be deployed
+locally for testing purposes.
+
+Premises
+- Defined environment variables
+  - APP_NAME :≡ "application"
+  - APP_VERSION :≡ "0.1.0"
+  - APP_DIST :≡ "backend/_build/prod/rel"
+  - APP_HOST_NAME :≡ "application.com"
+  - APP_HOST_ROOT_KEY :≡ "ssh-ed25519 AAAAC3NzaC1…"
+  - APP_HOST_CERT_PUB :≡ "/etc/letsencrypt/live/application.com/fullchain.pem"
+  - APP_HOST_CERT_PRV :≡ "/etc/letsencrypt/live/application.com/privkey.pem"
+  - APP_STORE_KEY :≡ "/etc/guix/signing-key.pub"
+
+Conclusion
+- ~$ guix repl -- "os/dev.scm"~ evaluates without
+- ~(load "os/dev.scm")~ evaluates to an ~operating-system~
+
 ** PUBLIC context/
 
 This directory stores various definitions and pointer to definitions that are used within
@@ -200,7 +224,7 @@ Conclusion
 Premises
 - [[ref:518d54c7-3288-4b71-a951-e612dfab5cb2][,vm-init-start]]
 - [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf][./bin/env-start]]
-- os-name :≡ "init"  
+- os-name :≡ "init"
 - ,vm-deploy os-name
 
 Conclusion

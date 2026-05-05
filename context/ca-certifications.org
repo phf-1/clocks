@@ -1,0 +1,38 @@
+* Simple Explanation of HTTPS (Updated)
+
+Chrome looks up ~example.com~ in DNS and gets an IP address (192.1.2.3). It connects to that
+IP over TCP.
+
+The server sends its certificate, which says:
+
+"A Certificate Authority you already trust has checked that I control the domain
+example.com. Here is my public key. I will now prove I own the matching private key."
+
+**How certbot proves the Certificate Authority can trust the server**
+
+certbot is a free tool that talks directly to Let's Encrypt (a trusted Certificate
+Authority).
+
+To prove you really control ~example.com~, certbot does one of these two simple things:
+
+- It creates a secret file on your website. Let's Encrypt visits the website and checks
+  that the file is there.
+- Or it adds a special secret code in your DNS settings. Let's Encrypt checks the DNS
+  record.
+
+If Let's Encrypt sees the proof, it knows "this person controls the domain". It then signs
+the certificate with its own private key and gives the signed certificate back to you.
+
+This signed certificate is what the server later sends to Chrome. Because Chrome already
+trusts Let's Encrypt, it believes the certificate is real.
+
+**What Chrome checks**
+
+- The certificate is signed by someone it trusts (the CA chain).
+- The domain name ~example.com~ is written inside the certificate.
+- The certificate is still valid (not expired).
+- The server can actually sign messages using the private key that matches the public key
+  in the certificate.
+
+If everything checks out, Chrome and the server switch to encrypted communication using
+keys created during the handshake. All future data is protected.

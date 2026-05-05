@@ -22,7 +22,8 @@ function image_mk() {
   inside_container_check
 
   # /path/to/os/name.scm
-  local os_path="$1"
+  local os_path
+  os_path="$(realpath "$1")"
 
   # /path/to/image/name.qcow2
   local image_type="qcow2"
@@ -219,6 +220,41 @@ elif [[ "$MSG" == ",vm-deploy" ]]; then
   HOST_KEY="$(host_key 127.0.0.1 "$VM_PORT_SSH")"
   export HOST_PORT_SSH="$VM_PORT_SSH"
   guix time-machine -C "$CHANNELS" -- deploy "$DEPLOY_VM"
+
+elif [[ "$MSG" == ",ca-build" ]]; then
+  # Specification
+  # - make chrome accept my local CA → HTTPS local tests
+
+  # 1. Create local CA key + self-signed CA cert
+  openssl genrsa -out certs/ca-key.pem 4096
+  openssl req -new -x509 -days 3650 -key certs/ca-key.pem \
+    -subj "/CN=clocks-dev-CA" \
+    -out certs/ca-cert.pem
+
+  # 2. Create leaf key + CSR
+  openssl genrsa -out certs/dev-key.pem 2048
+  openssl req -new -key certs/dev-key.pem \
+    -subj "/CN=localhost" \
+    -out certs/dev-csr.pem
+
+  # 3. Sign the leaf cert with your CA
+  #    SAN is mandatory — Chrome ignores CN for hostname validation since 2017
+  cat >certs/dev-ext.cnf <<EOF
+subjectAltName=DNS:localhost,IP:127.0.0.1
+basicConstraints=CA:FALSE
+keyUsage=digitalSignature,keyEncipherment
+extendedKeyUsage=serverAuth
+EOF
+
+  openssl x509 -req -days 825 -in certs/dev-csr.pem \
+    -CA certs/ca-cert.pem -CAkey certs/ca-key.pem -CAcreateserial \
+    -extfile certs/dev-ext.cnf \
+    -out certs/dev-cert.pem
+
+  certutil -d sql:"$HOME"/.pki/nssdb -A \
+    -n "clocks-dev-CA" \
+    -t "CT,," \
+    -i certs/ca-cert.pem
 
 else
   echo "Unexpected message: $MSG"
