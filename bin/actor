@@ -256,6 +256,15 @@ EOF
     -t "CT,," \
     -i certs/ca-cert.pem
 
+elif [[ "$MSG" == ",synchronize-with-upstream" ]]; then
+  # [[ref:c5d59ff9-cc78-4f98-a7f6-22d19c39caff][Specification]]
+
+  inside_container_check
+  git fetch upstream
+  git checkout master
+  git rebase upstream/master
+  git push origin master
+
 else
   echo "Unexpected message: $MSG"
   exit 1

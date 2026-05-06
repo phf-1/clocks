@@ -1,0 +1,12 @@
+* ,synchronize-with-upstream
+:PROPERTIES:
+:ID:       c5d59ff9-cc78-4f98-a7f6-22d19c39caff
+:END:
+
+Premises
+- remote upstream must exist
+
+Conclusion
+- The local master branch points to the same commit as the remote
+  - upstream/master branch,
+  - origin/master branch.
