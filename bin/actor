@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# [[id:119d5773-63cc-4add-b4d2-d5001b367677]]
+
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -260,10 +263,33 @@ elif [[ "$MSG" == ",synchronize-with-upstream" ]]; then
   # [[ref:c5d59ff9-cc78-4f98-a7f6-22d19c39caff][Specification]]
 
   inside_container_check
+
+  force="false"
+  if [[ "${1:-}" == "-f" ]]; then
+    force="true"
+  fi
+
+  if [[ "$force" == "false" ]]; then
+    echo "WARNING | the objective is to have an exact copy of upstream"
+    echo "WARNING | this operation will delete any local commits"
+    echo "WARNING | as well as on origin/master that are not on upstream/master"
+    read -r -p "Are you sure you want to continue? [y/N] " reply
+    case "$reply" in
+    [Yy]*) ;;
+    *)
+      echo "Aborted."
+      return 1
+      ;;
+    esac
+    echo "INFO | You may remove this warning using the -f flag"
+  fi
+
   git fetch upstream
   git checkout master
-  git rebase upstream/master
-  git push origin master
+  git reset --hard upstream/master
+  git push --force-with-lease origin master
+
+  echo "INFO | DONE: Your local master and origin/master are now exact copy of upstream/master."
 
 else
   echo "Unexpected message: $MSG"
