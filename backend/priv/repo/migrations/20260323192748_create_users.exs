@@ -1,4 +1,4 @@
-defmodule Clocks.Repo.Migrations.CreateUsers do
+defmodule Backend.Repo.Migrations.CreateUsers do
   use Ecto.Migration
 
   def change do

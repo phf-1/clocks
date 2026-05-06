@@ -1,4 +1,4 @@
-defmodule Clocks.DataCase do
+defmodule Backend.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule Clocks.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use Clocks.DataCase, async: true`, although
+  by setting `use Backend.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -19,17 +19,17 @@ defmodule Clocks.DataCase do
 
   using do
     quote do
-      alias Clocks.Repo
+      alias Backend.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Clocks.DataCase
+      import Backend.DataCase
     end
   end
 
   setup tags do
-    Clocks.DataCase.setup_sandbox(tags)
+    Backend.DataCase.setup_sandbox(tags)
     :ok
   end
 
@@ -37,7 +37,7 @@ defmodule Clocks.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Sandbox.start_owner!(Clocks.Repo, shared: not tags[:async])
+    pid = Sandbox.start_owner!(Backend.Repo, shared: not tags[:async])
     on_exit(fn -> Sandbox.stop_owner(pid) end)
   end
 

@@ -1,11 +1,11 @@
 import Config
 
 # Configure your database
-config :clocks, Clocks.Repo,
+config :backend, Backend.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "clocks_dev",
+  database: "backend_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -16,7 +16,7 @@ config :clocks, Clocks.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
-config :clocks, ClocksWeb.Endpoint,
+config :backend, BackendWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   # [[id:d4a51e4e-d5a1-403c-940e-07f520fc531c]]
@@ -26,8 +26,8 @@ config :clocks, ClocksWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "5pu/xSez821gmMY1DfpbYrynLn6e9Ijcj1eeclv753LgU1Qz+FjqOMU5aRrZwtH9",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:clocks, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:clocks, ~w(--watch)]}
+    esbuild: {Esbuild, :install_and_run, [:backend, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:backend, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -54,17 +54,17 @@ config :clocks, ClocksWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :clocks, ClocksWeb.Endpoint,
+config :backend, BackendWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/clocks_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/backend_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :clocks, dev_routes: true
+config :backend, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

@@ -7,12 +7,12 @@
 # General application configuration
 import Config
 
-config :clocks,
-  ecto_repos: [Clocks.Repo],
+config :backend,
+  ecto_repos: [Backend.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
-config :clocks, ClocksWeb.Endpoint,
+config :backend, BackendWeb.Endpoint,
   url: [host: "localhost"],
 
   # [[id:eb404cfc-7d96-4a09-bc36-d27597e937f1]]
@@ -20,10 +20,10 @@ config :clocks, ClocksWeb.Endpoint,
 
   # [[id:4f602ea4-697e-47d2-befb-dcd3ff79f212]]
   render_errors: [
-    formats: [html: ClocksWeb.ErrorHTML, json: ClocksWeb.ErrorJSON],
+    formats: [html: BackendWeb.ErrorHTML, json: BackendWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Clocks.PubSub,
+  pubsub_server: Backend.PubSub,
   live_view: [signing_salt: "VPAwCmpr"]
 
 # Configures the mailer
@@ -33,12 +33,12 @@ config :clocks, ClocksWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :clocks, Clocks.GenServer.Mailer, adapter: Swoosh.Adapters.Local
+config :backend, Backend.GenServer.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
-  clocks: [
+  backend: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
@@ -48,7 +48,7 @@ config :esbuild,
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "3.4.3",
-  clocks: [
+  backend: [
     args: ~w(
       --config=tailwind.config.js
       --input=css/app.css
@@ -65,7 +65,7 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :clocks, Clocks.Auth.Token,
+config :backend, Backend.Auth.Token,
   secret: System.get_env("JWT_SECRET") || "dev-secret-change-in-prod"
 
 # [[id:1228a3b7-6b81-4698-b046-cf657657d079]]

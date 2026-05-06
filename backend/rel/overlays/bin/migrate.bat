@@ -1,1 +1,1 @@
-call "%~dp0\clocks" eval Clocks.Release.migrate
+call "%~dp0\backend" eval Backend.Release.migrate

@@ -1,9 +1,9 @@
-defmodule Clocks.MixProject do
+defmodule Backend.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :clocks,
+      app: :backend,
       version: "0.1.0",
       elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -30,7 +30,7 @@ defmodule Clocks.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Clocks.Application, []},
+      mod: {Backend.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -123,10 +123,10 @@ defmodule Clocks.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind clocks", "esbuild clocks"],
+      "assets.build": ["tailwind backend", "esbuild backend"],
       "assets.deploy": [
-        "tailwind clocks --minify",
-        "esbuild clocks --minify",
+        "tailwind backend --minify",
+        "esbuild backend --minify",
         "phx.digest"
       ]
     ]
