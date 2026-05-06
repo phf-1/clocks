@@ -1,0 +1,11 @@
+* ,todos
+:PROPERTIES:
+:ID:       a3f2c1d8-7e4b-4f9a-b6c5-2d1e8f3a5b9c
+:END:
+
+Premises
+- The development environment is started [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf]]
+- ./,todos
+
+Conclusion
+- All TODO comments in the project are listed.

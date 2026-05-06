@@ -49,6 +49,12 @@ if [[ ! -f "$HOST_ETC_GUIX/signing-key.pub" ]]; then
   sudo -k guix archive --generate-key
 fi
 
+CLAUDE="$HOME/.claude"
+
+if [[ ! -d "$CLAUDE" ]]; then
+  mkdir -vp "$CLAUDE"
+fi
+
 # [[id:21b4b68a-aef7-44e5-ac79-a26a7100cbdd]]
 # If SSL certificates are placed in a known directory, then OTP can use them.
 # see:
@@ -65,6 +71,7 @@ guix time-machine -C "$CHANNELS" -- shell \
   --share="${SSH_AUTH_SOCK:-}" \
   --share=/tmp=/host/tmp \
   -S /usr/bin=bin \
+  -S /lib64=lib \
   -S /etc/ssl/certs/ca-certificates.crt=etc/ssl/certs/ca-certificates.crt \
   -E ^TERM \
   --expose=/usr/share/bash-completion=/host/usr/share/bash-completion \
@@ -72,4 +79,5 @@ guix time-machine -C "$CHANNELS" -- shell \
   -E '^XDG_RUNTIME_DIR$' \
   --expose="$XDG_RUNTIME_DIR" \
   --share="/run/user/$UID" \
+  --share="$CLAUDE" \
   -- bash --init-file "$DEV_SESSION" -i

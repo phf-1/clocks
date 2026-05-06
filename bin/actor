@@ -77,6 +77,7 @@ if [[ "$MSG" == ",install-node-binaries" ]]; then
 
   inside_container_check
   npm install -g bash-language-server
+  npm install -g @anthropic-ai/claude-code
 
 elif [[ "$MSG" == ",frontend-fetch" ]]; then
   # [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94][Specification]]
@@ -290,6 +291,13 @@ elif [[ "$MSG" == ",synchronize-with-upstream" ]]; then
   git push --force-with-lease origin master
 
   echo "INFO | DONE: Your local master and origin/master are now exact copy of upstream/master."
+
+elif [[ "$MSG" == ",todos" ]]; then
+  # [[ref:a3f2c1d8-7e4b-4f9a-b6c5-2d1e8f3a5b9c][Specification]]
+
+  inside_container_check
+
+  rg --with-filename --line-number 'TODO' "$ROOT"
 
 else
   echo "Unexpected message: $MSG"
