@@ -1,0 +1,27 @@
+* env-start
+:PROPERTIES:
+:ID:       d8afe12e-f756-4c33-a7dd-f380004f91bf
+:END:
+
+Premises
+- git is installed
+- ssh-add is installed
+- guix is installed
+- ./env-start
+
+Conclusion
+- A development environment has been started.
+- The current bash session occurs within a container.
+- The session is configured for development.
+- It is isolated from the host except for:
+  - network access,
+  - Guix daemon access to share build capabilities with the host,
+  - read access to /etc/guix to sign builds,
+  - access to the underlying ssh agent in order to push commits to the remote repository,
+  - /tmp is whared with the host,
+  - can lunch graphical applications (Wayland),
+  - Host Guix archive keys are accessible in order to send builds to external resources /e.g./ VPS.
+  - Host SSH agent can be used in order to connect to external resources.
+- A set of packages are installed.
+- Installed packages have a fixed version.
+- The README is displayed using the default editor.

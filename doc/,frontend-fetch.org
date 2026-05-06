@@ -1,0 +1,15 @@
+* ,frontend-fetch
+:PROPERTIES:
+:ID:       c6dfad7d-72df-4788-ac6f-97c297f6df94
+:END:
+
+Premises
+- The development environment is started [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf]]
+- URL=git@github.com:phf-1/my-lovely-tasks.git
+- SERVER=http://localhost:4000/api
+- ./,frontend-fetch $URL $SERVER
+
+Conclusion
+- The last version of the frontend is fetched from $URL.
+- As well as its dependencies,
+- A distribution is built such that requests are made by the frontend to $SERVER

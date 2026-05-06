@@ -1,0 +1,21 @@
+* Git config
+:PROPERTIES:
+:ID: 569897c4-183b-441d-b268-4b4efa24af6d
+:END:
+
+- map every branch on =origin= to a corresponding remote-tracking branch locally, with
+  forced update (=+=) permitted.
+
+- Local commits are rebased on top of the fetched upstream commits. No merge commits
+  are introduced by a pull operation.
+
+- remote-tracking branches that no longer exist on =origin= are deleted locally
+
+- If the local branch name differs from the upstream branch name, the push is
+  rejected. This prevents accidental pushes to wrongly-named remotes.
+
+- automatically sets the upstream of b to origin/b This eliminates the need to
+  explicitly pass =--set-upstream= on first push.
+
+- =git pull= on =master= fetches =origin/master= and rebases; =git push= on =master= targets
+  =origin=.

@@ -1,0 +1,14 @@
+* ,backend-iex-start
+:PROPERTIES:
+:ID:       56e0e558-5ea0-4ca3-9f75-0129149aa702
+:END:
+
+Premises
+- The frontend has been fetched and built. See: [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94]].
+- ,backend-iex-start
+
+Conclusion
+- [[id:01add4d6-2dca-4100-a17a-b947ad5b25ca]] db is started
+- [[id:e441c65a-8849-44d4-a4ba-343fbc1f0ada]] the DB is created and migrations have been applied
+- [[id:97be4e51-e157-424c-9ada-5a77ef7a6274]] backend dependencies are fetched
+- [[id:cabe2c64-40f8-41f4-9078-95f71eac25da]] The application is executing locally and offering an iex REPL

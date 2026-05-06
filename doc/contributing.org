@@ -3,8 +3,32 @@
 :ID:       5513764b-8595-4e2d-bcf9-8e8214ee901b
 :END:
 
+** Specification
+
+Given a small team; maybe augmented by AI; then how to contribute collectively to the
+project?
+
+** How
+
 1. Fork the repository.
 2. Define or choose a task in the [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][backlog]].
 3. Assign yourself to the task.
-4. Implement.
+4. Add/update/delete relevant [[ref:1f6eeb40-6e6b-4e19-9d5d-23af3858023d][specifications]] and implementations.
 5. Send a [[ref:5deb7507-29b1-44da-9286-a81ced5f594c][PR]].
+
+** Pull request
+:PROPERTIES:
+:ID:       5deb7507-29b1-44da-9286-a81ced5f594c
+:END:
+
+Before sending a PR, check that:
+- [ ] The code compiles cleanly.
+- [ ] The code is formatted.
+- [ ] All tests pass.
+- [ ] Relevant code conventions are satisfied.
+- [ ] Documentation has been updated.
+- [ ] Your task is marked as =DONE=.
+
+** TODO References
+
+- Add reference to ZeroMQ (Pieter Hintjens)

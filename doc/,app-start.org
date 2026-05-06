@@ -1,0 +1,14 @@
+* ,app-start
+:PROPERTIES:
+:ID:       3a2b4174-ea2e-4ed2-97b3-23b562be59a2
+:END:
+
+Premises
+- The development environment is started [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf]]
+- URL=git@github.com:phf-1/my-lovely-tasks.git
+- ./,app-start $URL
+
+Conclusion
+- SERVER=http://localhost:4000/api
+- [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94][./,frontend-fetch]] $URL $SERVER
+- [[ref:56e0e558-5ea0-4ca3-9f75-0129149aa702][./,backend-iex-start]]

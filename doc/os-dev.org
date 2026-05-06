@@ -1,0 +1,23 @@
+* dev.scm
+:PROPERTIES:
+:ID:       631ab476-0770-4049-94df-32e7c3197a0c
+:END:
+
+Represents an approximation of a production operating system intented to be deployed
+locally for testing purposes.
+
+Premises
+- Defined environment variables
+  - APP_NAME :≡ "application"
+  - APP_VERSION :≡ "0.1.0"
+  - APP_DIST :≡ "backend/_build/prod/rel"
+  - APP_HOST_NAME :≡ "application.com"
+  - APP_HOST_ROOT_KEY :≡ "ssh-ed25519 AAAAC3NzaC1…"
+  - APP_HOST_CERT_PUB :≡ "/etc/letsencrypt/live/application.com/fullchain.pem"
+  - APP_HOST_CERT_PRV :≡ "/etc/letsencrypt/live/application.com/privkey.pem"
+  - APP_STORE_KEY :≡ "/etc/guix/signing-key.pub"
+
+Conclusion
+- ~$ guix repl -- "os/dev.scm"~ evaluates without errors
+- ~(load "os/dev.scm")~ evaluates to an ~operating-system~
+- …

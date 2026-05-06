@@ -1,0 +1,42 @@
+* ,vm-init-start
+** Private
+*** VM spec
+:PROPERTIES:
+:ID:       9952e0a0-6fe0-40cb-97fd-1d56074ab2a5
+:END:
+
+*Guest Virtual Machine Specifications*
+
+- Architecture :: x86_64 virtual machine
+- Chipset & Acceleration :: Modern Q35 PCIe-based machine model with full KVM hardware virtualization acceleration (near-native performance)
+- CPU Model :: Exact host CPU feature passthrough (complete CPUID match including AVX-512 and all host extensions; zero emulation overhead for supported instructions)
+- Memory Allocation :: Exactly 8 GiB of guest physical RAM
+- CPU Topology :: Exactly 4 virtual CPUs visible inside the guest (configured as 1 socket with 1 thread per core)
+- Storage Backend :: QCOW2 disk image; all guest writes are collected into a temporary overlay that is automatically discarded on VM exit (original image remains completely unchanged)
+- Block Device :: Paravirtualized virtio-blk-pci device connected to the QCOW2 image (high-throughput, low-overhead I/O)
+- Networking Backend :: User-mode (SLIRP/NAT) networking with three explicit TCP port forwards from host to guest:
+  - SSH: host port → guest port 22
+  - HTTP: host port → guest port 80
+  - HTTPS: host port → guest port 443
+- Network Device :: Paravirtualized virtio-net-pci interface with checksum offload and multi-queue support
+- Control Interface :: QEMU Machine Protocol (QMP) monitor exposed on a Unix domain socket; external tools can connect and issue JSON commands (query-status, system_powerdown, etc.)
+
+*Host Process & Management Specifications*
+
+- Execution Context :: Runs as a transient systemd user unit (named after the supplied unit variable)
+- Environment Inheritance :: Full user environment, cgroups, and resource limits
+- Lifecycle Behavior :: Automatic cleanup on user logout unless remain-after-exit is explicitly requested
+
+** Public
+:PROPERTIES:
+:ID:       518d54c7-3288-4b71-a951-e612dfab5cb2
+:END:
+
+Premises
+- The current shell runs OUTSIDE of the container
+- [[ref:ead19c86-d75c-45d6-8aa7-00cea2f049b0][init os image has been built]]
+- ,vm-init-start
+
+Conclusion
+- A VM is running locally as if it was a VPS ready to be deployed to in production.
+- An ssh connection to the VM is opened

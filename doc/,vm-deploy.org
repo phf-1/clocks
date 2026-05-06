@@ -1,0 +1,14 @@
+* ,vm-deploy
+:PROPERTIES:
+:ID:       62d66eb4-c006-4f3b-86a0-1675191325cb
+:END:
+
+Premises
+- [[ref:518d54c7-3288-4b71-a951-e612dfab5cb2][,vm-init-start]]
+- [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf][./bin/env-start]]
+- os-name :≡ "init"
+- ,vm-deploy os-name
+
+Conclusion
+- The OS associated to the OS specification named os-name has been deployed to the
+  VM.

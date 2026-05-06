@@ -1,0 +1,12 @@
+* ,image-init-build
+:PROPERTIES:
+:ID:       ead19c86-d75c-45d6-8aa7-00cea2f049b0
+:END:
+
+Premises
+- The development environment is started. See: [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf]].
+- ./,image-init-build
+
+Conclusion
+- An initial VM image has been built configured to run on the local machine and ready to
+  be deployed to.
