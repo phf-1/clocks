@@ -7,6 +7,16 @@ A backlog is a list of [[ref:3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc][tasks]] organ
 we know what needs to be done, and who works on what.
 
 ** Tasks
+*** DOING Test contributing cycle
+:PROPERTIES:
+:ID: 70b6d0d4-20b1-44bd-ba93-d793339d6a3d
+:OWNER: phf
+:END:
+
+**** Objective
+
+Test [[ref:5513764b-8595-4e2d-bcf9-8e8214ee901b][Contributing]]
+
 *** DONE Task
 :PROPERTIES:
 :ID:       3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc
