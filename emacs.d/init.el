@@ -723,3 +723,24 @@ Height is set to the full usable monitor height."
 (add-to-list 'eglot-server-programs
   '((sh-mode bash-ts-mode) . ("bash-language-server" "start")))
 (add-hook 'sh-mode-hook #'eglot-ensure)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Copy path of heading to clipboard ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun org-copy-outline-path-to-kill-ring ()
+  "Copy current heading's full outline path (Org syntax) to kill ring."
+  (interactive)
+  (let* ((filename (file-name-nondirectory (buffer-file-name)))
+         (outline-path (org-get-outline-path))
+         (current-heading (org-get-heading t t t t))
+         (todo-keyword (org-get-todo-state))
+         (heading-with-todo (if todo-keyword
+                                (concat todo-keyword " " current-heading)
+                              current-heading))
+         (full-path (append outline-path (list heading-with-todo)))
+         (path (org-format-outline-path full-path 10000 nil " → ")))
+    (kill-new path)
+    (message "Outline path → kill-ring: %s" path)))
+
+(define-key org-mode-map (kbd "M-p") #'org-copy-outline-path-to-kill-ring)
