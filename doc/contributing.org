@@ -19,11 +19,13 @@ Fork
 
 PR
 1. Define or choose a task in the [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][backlog]].
-2. Assign yourself to the task.
-3. Add/update/delete relevant [[ref:1f6eeb40-6e6b-4e19-9d5d-23af3858023d][specifications]] and implementations.
-4. Send a [[ref:5deb7507-29b1-44da-9286-a81ced5f594c][PR]].
-5. Wait for the PR to be merged. You may work on an other local branch in the meantime.
-6. Synchronize with upstream.
+2. Make sure that the task is well understood, talk with the team: update the task
+   accordingly.
+3. Assign yourself to the task.
+4. Add/update/delete relevant [[ref:1f6eeb40-6e6b-4e19-9d5d-23af3858023d][specifications]] and implementations.
+5. Send a [[ref:5deb7507-29b1-44da-9286-a81ced5f594c][PR]].
+6. Wait for the PR to be merged. You may work on an other local branch in the meantime.
+7. Synchronize with upstream.
    - ./bin/,synchronize-with-upstream
 
 ** Ruleset
