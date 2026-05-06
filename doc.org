@@ -1,3 +1,64 @@
+#+ID: 0493fd15-8aeb-45cb-b8d9-2046ccfab2da
+#+STARTUP: overview
+
+Start the development environment with:
+
+#+begin_src bash
+./bin/env-start
+#+end_src 
+
+Once started, an editor opens this very file. Its basic commands are:
+- Move the point using the arrows.
+- Place the point on a section and press <tab> to unfold it.
+- Click on a link to view references to it.
+- A link that starts with "⊙" defines a location, /i.e./ it says "here".
+- A link that starts with "→" defines a reference to a location, /i.e./ it says "got to the
+  referenced location".
+- Quit the editor using C-x C-c.
+- It means: press on <control> and "x", then: press on <control> and "c".
+
+To understand /what/ ~./bin/env-start~ is supposed to do, you may consult its /spec/, /i.e./
+/specification/, which is referenced from its source code. See: [[ref:b80c22c9-2eed-4eea-a469-136e7666ea96]]. To understand /how/ it
+does what it is supposed to do, read the source code.
+
+To introduce a new piece of code or data, we first write its specification.
+
+* bin/
+
+This directory stores executables.
+
+** env-start
+:PROPERTIES:
+:ID:       d8afe12e-f756-4c33-a7dd-f380004f91bf
+:END:
+
+Premises
+- git is installed
+- ssh-add is installed
+- guix is installed
+- ./env-start
+  - [[ref:b80c22c9-2eed-4eea-a469-136e7666ea96]]
+
+Conclusion
+- A development environment has been started.
+- The current bash session occurs within a container.
+- The session is configured for development.
+  - It's init file is: [[ref:7cab5b80-5358-4093-b9fa-9d23665ab64a]]
+- It is isolated from the host except for:
+  - network access,
+  - Guix daemon access to share build capabilities with the host,
+  - read access to /etc/guix to sign builds,
+  - access to the underlying ssh agent in order to push commits to the remote repository,
+  - /tmp is whared with the host,
+  - can lunch graphical applications (Wayland),
+  - Host Guix archive keys are accessible in order to send builds to external resources /e.g./ VPS.
+  - Host SSH agent can be used in order to connect to external resources.
+- A set of packages are installed.
+  - [[ref:ddced880-d052-4730-afd1-51fa39d7404c]]
+- Installed packages have a fixed version.
+  - [[ref:de35545c-ebb7-41db-b7c7-c8fcff0422f2]].
+- The README is displayed using the default editor
+
 * doc/
 ** contributing.org
 :PROPERTIES:
@@ -6,3 +67,183 @@
 
 [[ref:5513764b-8595-4e2d-bcf9-8e8214ee901b][This file]] answers the following question: given a small team; then how to contribute
 collectively to the project?
+
+* etc/
+
+This directory stores various configuration files.
+
+** bash-dev-profile
+:PROPERTIES:
+:ID:       c86dd881-e3c4-4f73-9084-b80a02a7e581
+:END:
+
+This file defines environment variables necessary in the development
+environment. These are documented within the file itself. See: [[ref:a66120e2-beb6-4490-8653-ba20bf8568ef]]
+
+** bash-dev-session
+:PROPERTIES:
+:ID:       e529b076-4540-4c26-97f9-d42e4a2ef30e
+:END:
+
+Premises
+- source bash-dev-session
+
+Conclusion
+- The current bash environment has be configured for development purposes:
+  - [[ref:c86dd881-e3c4-4f73-9084-b80a02a7e581][bash-dev-profile]] has been sourced
+  - additional shell configurations makes for a confortable interactive session.
+
+** TODO dev-key.pub
+
+TODO(c73a): There should be a private key as well
+
+The public key used to connect to the [[ref:518d54c7-3288-4b71-a951-e612dfab5cb2][init VM]].
+
+* ./bin/,frontend-fetch
+:PROPERTIES:
+:ID:       c6dfad7d-72df-4788-ac6f-97c297f6df94
+:END:
+
+Premises
+- [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf][./bin/env-start]]
+- URL=git@github.com:phf-1/my-lovely-tasks.git
+- SERVER=http://localhost:4000/api
+- ./bin/,frontend-fetch $URL $SERVER
+
+Conclusion
+- $FRONTEND stores the last version of the frontend from URL.
+- dependencies are fetched
+- distribution is built such that requests are made by the frontend to $SERVER
+
+* ./bin/,image-init-build
+:PROPERTIES:
+:ID:       ead19c86-d75c-45d6-8aa7-00cea2f049b0
+:END:
+
+Premises
+- [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf][./bin/env-start]]
+- ./bin/,image-init-build
+
+Conclusion
+- An initial VM image has been built configured to run on the local machine and ready to
+  be deployed to.
+
+* ./bin/,backend-iex-start
+:PROPERTIES:
+:ID:       56e0e558-5ea0-4ca3-9f75-0129149aa702
+:END:
+
+Premises
+- [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94][./bin/frontend-fetch]] $URL $SERVER
+- ,backend-iex-start
+
+Conclusion
+- [[id:01add4d6-2dca-4100-a17a-b947ad5b25ca]] db is started
+- [[id:97be4e51-e157-424c-9ada-5a77ef7a6274]] backend dependencies are fetched
+- [[id:e441c65a-8849-44d4-a4ba-343fbc1f0ada]] the DB is created and migrations have been applied
+- [[id:cabe2c64-40f8-41f4-9078-95f71eac25da]] The application is executing locally and offering iex REPL
+
+* os/
+** dev.scm
+:PROPERTIES:
+:ID:       631ab476-0770-4049-94df-32e7c3197a0c
+:END:
+
+Represents an approximation of a production operating system intented to be deployed
+locally for testing purposes.
+
+Premises
+- Defined environment variables
+  - APP_NAME :≡ "application"
+  - APP_VERSION :≡ "0.1.0"
+  - APP_DIST :≡ "backend/_build/prod/rel"
+  - APP_HOST_NAME :≡ "application.com"
+  - APP_HOST_ROOT_KEY :≡ "ssh-ed25519 AAAAC3NzaC1…"
+  - APP_HOST_CERT_PUB :≡ "/etc/letsencrypt/live/application.com/fullchain.pem"
+  - APP_HOST_CERT_PRV :≡ "/etc/letsencrypt/live/application.com/privkey.pem"
+  - APP_STORE_KEY :≡ "/etc/guix/signing-key.pub"
+
+Conclusion
+- ~$ guix repl -- "os/dev.scm"~ evaluates without
+- ~(load "os/dev.scm")~ evaluates to an ~operating-system~
+
+* PUBLIC context/
+
+This directory stores various definitions and pointer to definitions that are used within
+the project but are part of how common culture.
+
+It ensures that when we are invoking a concept like "Actor Model" or "Natural Deduction"
+then we are referencing one of these definitions which help reduce misunderstanding.
+
+It also clarify what we mean for the AI reading this directory.
+
+See: [[file:context/][context/]]
+
+* PUBLIC ./bin/,app-start
+:PROPERTIES:
+:ID:       3a2b4174-ea2e-4ed2-97b3-23b562be59a2
+:END:
+
+Premises
+- URL=git@github.com:phf-1/my-lovely-tasks.git
+- ./bin/app-start $URL
+
+Conclusion
+- [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94][./bin/frontend-fetch]] $URL
+- [[ref:56e0e558-5ea0-4ca3-9f75-0129149aa702][./bin/backend-iex-start]]
+* PUBLIC ./bin/,vm-init-start
+:PROPERTIES:
+:ID:       518d54c7-3288-4b71-a951-e612dfab5cb2
+:END:
+
+** VM spec
+:PROPERTIES:
+:ID:       9952e0a0-6fe0-40cb-97fd-1d56074ab2a5
+:END:
+
+*Guest Virtual Machine Specifications*
+
+- Architecture :: x86_64 virtual machine
+- Chipset & Acceleration :: Modern Q35 PCIe-based machine model with full KVM hardware virtualization acceleration (near-native performance)
+- CPU Model :: Exact host CPU feature passthrough (complete CPUID match including AVX-512 and all host extensions; zero emulation overhead for supported instructions)
+- Memory Allocation :: Exactly 8 GiB of guest physical RAM
+- CPU Topology :: Exactly 4 virtual CPUs visible inside the guest (configured as 1 socket with 1 thread per core)
+- Storage Backend :: QCOW2 disk image; all guest writes are collected into a temporary overlay that is automatically discarded on VM exit (original image remains completely unchanged)
+- Block Device :: Paravirtualized virtio-blk-pci device connected to the QCOW2 image (high-throughput, low-overhead I/O)
+- Networking Backend :: User-mode (SLIRP/NAT) networking with three explicit TCP port forwards from host to guest:
+  - SSH: host port → guest port 22
+  - HTTP: host port → guest port 80
+  - HTTPS: host port → guest port 443
+- Network Device :: Paravirtualized virtio-net-pci interface with checksum offload and multi-queue support
+- Control Interface :: QEMU Machine Protocol (QMP) monitor exposed on a Unix domain socket; external tools can connect and issue JSON commands (query-status, system_powerdown, etc.)
+
+*Host Process & Management Specifications*
+
+- Execution Context :: Runs as a transient systemd user unit (named after the supplied unit variable)
+- Environment Inheritance :: Full user environment, cgroups, and resource limits
+- Lifecycle Behavior :: Automatic cleanup on user logout unless remain-after-exit is explicitly requested
+
+** ■
+
+Premises
+- The current shell runs OUTSIDE of the container
+- [[ref:ead19c86-d75c-45d6-8aa7-00cea2f049b0][init os image has been built]]
+- ,vm-init-start
+
+Conclusion
+- A VM is running locally as if it was a VPS ready to be deployed to in production.
+- An ssh connection to the VM is opened
+
+* TODO ./bin/,vm-deploy
+:PROPERTIES:
+:ID:       62d66eb4-c006-4f3b-86a0-1675191325cb
+:END:
+
+Premises
+- [[ref:518d54c7-3288-4b71-a951-e612dfab5cb2][,vm-init-start]]
+- [[ref:d8afe12e-f756-4c33-a7dd-f380004f91bf][./bin/env-start]]
+- os-name :≡ "init"
+- ,vm-deploy os-name
+
+Conclusion
+- The OS associated to the OS specification named os-name has been deployed to the VM.

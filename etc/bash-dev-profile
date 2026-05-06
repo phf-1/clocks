@@ -62,17 +62,19 @@ export PATH="$PATH:$BIN"
 export XAI_API_KEY=sk-000000
 export SECRET_KEY_BASE=""
 
-# Stores secret values like API keys. In addition from being encrypted, this file
-# should be ignored by Git. this file should overwrite the secret environment
+# Read secret values like API keys within the container. In addition from being encrypted,
+# this file should be ignored by Git. this file should overwrite the secret environment
 # variables values.
 export SECRET="$ETC/secret.gpg"
-if [[ -f "$SECRET" ]]; then
-  set +xv
-  set -a
-  eval "$(gpg --quiet --batch --yes --decrypt "$SECRET" 2>/dev/null)"
-  set +a
-else
-  echo "INFO | SECRET file does not exist. Using default values. SECRET: $SECRET"
+if [[ -v GUIX_ENVIRONMENT ]]; then
+    if [[ -f "$SECRET" ]]; then
+        set +xv
+        set -a
+        eval "$(gpg --quiet --batch --yes --decrypt "$SECRET" 2>/dev/null)"
+        set +a
+    else
+        echo "INFO | SECRET file does not exist. Using default values. SECRET: $SECRET"
+    fi
 fi
 
 ########

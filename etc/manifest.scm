@@ -1,5 +1,4 @@
-;; [[ref:f37c9e20-2ccb-4f68-858f-df3068260078][Specification]]
-;; [[id:ddced880-d052-4730-afd1-51fa39d7404c][Manifest]]
+;; [[id:ddced880-d052-4730-afd1-51fa39d7404c]]
 
 (use-modules
   (guix packages)

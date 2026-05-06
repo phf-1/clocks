@@ -1,4 +1,3 @@
-;; [[ref:c67a176b-59c5-4439-82ad-619652648941][Specification]]
 ;; [[id:de35545c-ebb7-41db-b7c7-c8fcff0422f2][Channels]]
 
 (use-modules

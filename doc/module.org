@@ -1,0 +1,9 @@
+* Module
+
+1. a module identifier
+2. imported modules
+3. private implementations
+4. zero or more public constructors
+5. an optional public eliminator
+6. optional functions that take an instance of T as their first argument, a.k.a. the /API/.
+7. other public functions, /e.g./ predicates.

@@ -1,0 +1,220 @@
+* Specification
+:PROPERTIES:
+:ID:       1f6eeb40-6e6b-4e19-9d5d-23af3858023d
+:END:
+
+- One of the main challenge of programming is to understand each others programs in a
+  clear, unambiguous and efficient way: we should know what a program does and at
+  what cost.
+
+- For this reason, we /what/ a piece of code is supposed to do by writing its
+  specification. A specification in this context is not totally explicit: it conveys
+  just enough information so that *we* have a *reasonnable* idea of what is being done.
+
+- *reasonnable* means that we are convinced to share a common understanding and that we
+  can reason using the definitions introduced without having to deal with excessive
+  formalism. In case of disagreement, it is always possible to refine such and such
+  definitions or reasonning step; or even aknowledge an inconsistency.
+
+- The code itself tells /how/ the program does /what/ it is supposed to do, we say that
+  /the program implements its specification/.
+
+- Assuming that the code implements its specification, then it is often enough to
+  think in terms of specifications instead of implementations.
+
+- A specification is usually orders of magnitudes shorter than an implementation.
+  Note that a specification is also independant from any particular programming
+  language.
+
+- A specification is also useful because it allows A.I. to generate code more
+  efficiently.
+
+** Example
+
+How do we build a specification concretly? Let's look at an example:
+
+#+begin_src org
+,* Point
+
+Represents points on a plane.
+
+,** Point#mk
+
+Premises
+- x,y : ℚ
+- p :≡ Point#mk x y
+
+Conclusion
+- p : Point
+- <x,y> :≡ p
+
+,** Point#elim
+
+Premises
+- f : ℚ ℚ → C
+- φ :≡ Point#elim(f)
+
+Conclusion
+- φ : Point → C
+- φ <x,y> :≡ f x y
+
+,** Point#x
+
+Point#x :≡ Point#elim(x _ ↦ x)
+
+,** Point#y
+
+Point#y :≡ Point#elim(_ y ↦ y)
+#+end_src
+
+In addition, given a term "p", if we know that p : Point, then p#x :≡ Point#x p, p#y
+:≡ Point#y p, and so on.
+
+** Structure
+
+So, the most general form of a specification is:
+
+#+begin_src org
+,* <Name>
+:PROPERTIES:
+:ID: <UUIDv4>
+:END:
+
+<Description of what it represents.>
+
+,** Private
+
+<private definitions, /i.e./ not to be referenced>
+
+,** Public
+
+<public definitions, /i.e./ may be referenced>
+
+,*** <Constructor> (0 or more)
+
+<definition>
+
+,*** <Eliminator> (0 or more)
+
+<definition>
+
+,*** <Procedure|Function> (0 or more)
+
+<definition>
+#+end_src
+
+It reads top to bottom. The =Public= and =Private= may be omitted if they are not
+necessary as shown by the =Point= example.
+
+** Premises and conclusion
+:PROPERTIES:
+:ID:       8b8c3d71-19de-4632-b96e-62734e7160ac
+:END:
+
+- To convey a meaning of the form /if X; then: Y/, we use Gentzen-style natural
+  deduction format. We write:
+  - a /Premises/ section,
+  - a /Conclusion/ section stating what holds if all premises are satisfied.
+  - The Conclusion is a *partial correctness* statement: it specifies what is supposed to
+    have happened *IF EVERYTHING WENT AS PLANNED*, /i.e./ premises executions terminate
+    without error.
+
+    #+begin_example
+    "+" represents addition over the natural numbers.
+
+    Premises
+    - x : ℕ :≡ 1
+    - y : ℕ :≡ 2
+    - z :≡ x + y
+
+    Conclusion
+    - z : ℕ
+    - z = 3
+    #+end_example
+
+** Notation
+
+- x : X :: "x : X" means: "x is a X". For instance, "x : ℕ" means t
+
+- :≡ :: "x :≡ 2" means: "x is a symbol for 2", the definition of "x" is "2".
+
+- Constructor :: Assume that "T" is a specification. Then, we may define an algorithm
+  to build something that is a T. We call this algorithm a constructor of T.
+  - For instance, we need two integers "x" and "y" to define a point "<x,y>". Then,
+    we define the constructor Point#mk : ℤ ℤ → Point and the notation "<x,y> :≡
+    Point#mk(x y)"
+
+- Eliminator :: Assume that t : T, then what can we do with "t" ?
+
+  To do something with t means that there is an algorithm that starts from t and then
+  does something with it. In other words, it uses t: it is a usage of instances of T.
+
+  An eliminator is an algorithm that introduces usages of T. Its signature is:
+  T#elim : … → T → C.
+
+  - For instance, we may define the eliminator of Point like so:
+    - Point#elim : (ℤ ℤ → C) → Point → C :≡ f ↦ <x,y> ↦ f(x y)
+    - Then, we can define an "accessor" to extract the x coordinate of a point like
+      so:
+      - Point#x :≡ Point#elim (x y ↦ x)
+    - Then, given p :≡ <1,2>; Point#x(p) = 1.
+      - Proof:
+        1. Point#x(p) ≡ (Point#elim (x y ↦ x))(p)
+           - by definition
+        2. Point#x(p) ≡ (x y ↦ x)(1 2)
+           - by definition
+        3. Point#x(p) ≡ 1
+           - by application
+        4. 1 = 1
+           - by definition
+        5. Point#x(p) = 1
+           - by 3. and substitution
+        6. ■
+
+- Procedure :: A procedure is a sequence of instructions. We denote p : A B … ⇝ Z the
+  procedures that starts from instances of A, B and other specifications an ends with
+  an instance of Z. So: z : Z :≡ p(a b …). If p has side effects, then they are
+  documented using [[ref:8b8c3d71-19de-4632-b96e-62734e7160ac][Premises and conclusion]].
+
+- Function :: A function is procedure without side effects: its result is entirely
+  defined by its inputs. We write: f : A B … → Z to denote a function that starts
+  from an instance of A, B and other instances and results in an instance of Z.
+
+- API :: Given a specification "T", then a set of predefined procedures starting from
+  T may be defined. These functions may satisfy some invariant. Such a set is called
+  an API.
+
+  More generally, T may offer functions of the form Any … → C, /e.g./ predicates. These
+  are exported using the same convention, /e.g./ T#? : Any → Boolean.
+
+** Identifier and reference
+
+- Identifier :: The =:ID: uuid= property provides a unique identifier to the
+  specification. An inline id may be provided using the =[[id:uuid]]= notation. A global
+  property for the whole file may be introduced using =#+ID: uuid= notation.
+
+- Reference :: An identifier may be referenced using the =[[ref:uuid]]= or =[[ref:uuid][name]]= notations.
+
+** Specification and implementations
+
+- A specification should *NEVER* reference an implementation, else: implementations and
+  specifications are entangled, destroying the clean separations that allowed us to
+  think /above/ the code.
+
+- Any non-trivial piece of code implements a specification, else we do not know what
+  it is supposed to do. As a consequence, every piece of code should be directly or
+  indirectly implementing a specification. To make that link explicit, modules should
+  at least provide a reference to a specification.
+
+- Note that a specification may have multiple competing implementations; which one is
+  used at runtime depends on the particular runtime context.
+
+- When implementing a specification, it is useful to have the specification on the
+  left and the implementation on the right using your favorite editor. I practice,
+  editing one usually implies modifying the other. It takes practice and careful
+  thinking to choose what should be written where.
+
+** TODO References
+
+- TODO(1789): add references to literate programming, Leslie Lamport, Alan Kay, Joe
+  Armstrong, Liskov, Gerald Sussman, Martin Löf, etc.

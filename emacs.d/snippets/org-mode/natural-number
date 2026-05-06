@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: natural-number
+# key: N
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+ℕ
