@@ -7,6 +7,7 @@ A backlog is a list of [[ref:3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc][tasks]] organ
 we know what needs to be done, and who works on what.
 
 ** Tasks
+*** DONE Refine the contributing guide
 *** DONE Fix ,synchronize-with-upstream
 **** Objective
 
