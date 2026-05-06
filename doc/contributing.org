@@ -8,13 +8,21 @@
 Given a small team; maybe augmented by AI; then how to contribute collectively to the
 project?
 
-** How
+** Fork and pull request
+:PROPERTIES:
+:ID:       c8f29915-b70c-4ca7-b0de-ecd01406112b
+:END:
 
 1. Fork the repository.
 2. Define or choose a task in the [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][backlog]].
 3. Assign yourself to the task.
 4. Add/update/delete relevant [[ref:1f6eeb40-6e6b-4e19-9d5d-23af3858023d][specifications]] and implementations.
 5. Send a [[ref:5deb7507-29b1-44da-9286-a81ced5f594c][PR]].
+
+** Ruleset
+
+The [[ref:c8f29915-b70c-4ca7-b0de-ecd01406112b][Fork and pull request]] is enforced by a rule set:
+- https://github.com/org-00000/infra/settings/rules/16035411
 
 ** Pull request
 :PROPERTIES:
