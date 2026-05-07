@@ -7,28 +7,242 @@ A backlog is a list of [[ref:3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc][tasks]] organ
 we know what needs to be done, and who works on what.
 
 ** Tasks
+*** TODO Define ShortCommit
+:PROPERTIES:
+:OWNER: nobody
+:ID:       aef0d902-9aee-4099-a3be-395c1b4a94e0
+:END:
+
+- Objective :: Replace =TODO(2314)= in =doc/definitions.org= with a proper definition of =ShortCommit=.
+
+*** TODO Define Commit
+:PROPERTIES:
+:OWNER: nobody
+:ID:       641fc820-fefd-45de-ac7d-db7eb02631e3
+:END:
+
+- Objective :: Replace =TODO(6316)= in =doc/definitions.org= with a proper definition of =Commit=.
+
+*** TODO Define Ip
+:PROPERTIES:
+:OWNER: nobody
+:ID:       bb0ff784-2050-485a-815b-38f4417a6441
+:END:
+
+- Objective :: Replace =TODO(8a23)= in =doc/definitions.org= with a proper definition of =Ip=.
+
+*** TODO Define Port
+:PROPERTIES:
+:OWNER: nobody
+:ID:       fc3c0f62-4620-43c7-94d2-613789b1317b
+:END:
+
+- Objective :: Replace =TODO(a2f4)= in =doc/definitions.org= with a proper definition of =Port=.
+
+*** TODO Add references to specification.org
+:PROPERTIES:
+:OWNER: nobody
+:ID:       58480e83-1ec1-46ff-9691-afd0673c9202
+:END:
+
+- Objective :: Resolve =TODO(1789)= in =doc/specification.org=: add references to literate programming, Leslie Lamport, Alan Kay, Joe Armstrong, Liskov, Gerald Sussman, Martin Löf, and others.
+
+*** TODO Restrict CORS to specific origin in production
+:PROPERTIES:
+:OWNER: nobody
+:ID:       9cb912ad-32a5-45d8-ab77-166adffde37f
+:END:
+
+- Objective :: Resolve =TODO(de80)= in =backend/lib/backend_web/endpoint.ex=: enable the restrictive CORS plug in production and disable the wildcard =origin: "*"= configuration used in dev.
+
+*** TODO Determine if port field is needed in application-conf
+:PROPERTIES:
+:OWNER: nobody
+:ID:       9eab79c9-f638-4049-873f-d95ebe938359
+:END:
+
+- Objective :: Resolve =TODO(be35)= in =os/12.scm=: decide whether the =port= field in =application-conf= is still needed and remove it if not.
+
+*** TODO Use guix-extension in os/1.scm
+:PROPERTIES:
+:OWNER: nobody
+:ID:       62b5b081-2b6e-4838-8f21-f4a3c8485538
+:END:
+
+- Objective :: Resolve =TODO(b1e3)= in =os/1.scm=: replace the current store trust approach with =guix-extension=.
+
+*** TODO Move certs/ under etc/
+:PROPERTIES:
+:OWNER: nobody
+:ID:       b50c0b23-277e-4a87-843e-348a041a0623
+:END:
+
+- Objective :: Resolve =TODO(a4a3)= in =doc.org=: relocate the =certs/= directory under =etc/= and update all references.
+
+*** TODO Move ssh/ under etc/
+:PROPERTIES:
+:OWNER: nobody
+:ID:       e45a3eb6-8ef5-4525-9c97-d2b5a79efd88
+:END:
+
+- Objective :: Resolve =TODO(6856)= in =doc.org=: relocate the =ssh/= directory under =etc/= and update all references.
+
+*** TODO Move vm/ under /run
+:PROPERTIES:
+:OWNER: nobody
+:ID:       17b0ea19-a100-46ba-9ec7-deedd68ee191
+:END:
+
+- Objective :: Resolve =TODO(7990)= in =doc.org=: relocate the =vm/= directory to somewhere under =/run= and update all references.
+
+*** TODO Remove TODO 0d40 comment in bin/actor
+:PROPERTIES:
+:OWNER: nobody
+:ID:       f9b74a3b-e391-450d-887a-22073811c979
+:END:
+
+- Objective :: Confirm that the hash-comparison logic in =bin/actor= (=image_mk= function) correctly skips copying when hashes are identical, then remove the stale =TODO 0d40= comment.
+
+*** TODO Handle frontend URL changes in ,frontend-fetch
+:PROPERTIES:
+:OWNER: nobody
+:ID:       f40aa992-5456-421b-ae0b-df8058b1a26d
+:END:
+
+- Objective :: Resolve =TODO(c783)= in =bin/actor=: make =,frontend-fetch= handle the case where the frontend git URL changes after the repository has already been cloned.
+
+*** TODO Add environment checks to bin/env-start
+:PROPERTIES:
+:OWNER: nobody
+:ID:       0d1f4f9e-4c0a-4224-b007-eb1339555ab5
+:END:
+
+- Objective :: Resolve =TODO(55c8)= in =bin/env-start=: add checks for KVM availability, QEMU, and any other prerequisites before starting the container.
+
+*** TODO Write specification for Backend.Generic.Path
+:PROPERTIES:
+:OWNER: nobody
+:ID:       186af674-889e-484f-b603-eb0da8a21c33
+:END:
+
+- Objective :: Resolve =TODO(409e)= in =backend/lib/backend/generic/path.ex=: write the specification that =Backend.Generic.Path= implements and link it in the =@moduledoc=.
+
+*** TODO Write specification for Backend.Generic.Nothing
+:PROPERTIES:
+:OWNER: nobody
+:ID:       2a7cff33-19c1-4275-84e9-8ecbc2b405e1
+:END:
+
+- Objective :: Resolve =TODO(ffbc)= in =backend/lib/backend/generic/nothing.ex=: write the specification that =Backend.Generic.Nothing= implements and link it in the =@moduledoc=.
+
+*** TODO Write specification for Backend.Generic.Sha256
+:PROPERTIES:
+:OWNER: nobody
+:ID:       4abacc8f-4bf3-40e6-b5c4-269932fe9375
+:END:
+
+- Objective :: Resolve =TODO(f7bb)= in =backend/lib/backend/generic/sha256.ex=: write the specification that =Backend.Generic.Sha256= implements and link it in the =@moduledoc=.
+
+*** TODO projectctl
+:PROPERTIES:
+:OWNER: nobody
+:ID:       67e45c70-590e-4b86-9ebc-8410d34a6a7d
+:END:
+
+**** Objective
+
+Implement the =projectctl= tool described in [[ref:18351049-22e2-4f4e-ab27-50de6c76ca66][Infrastructure]]: given =version : ℕ= and =server : Ip=, deploy the application at =version= on the =server=.
+
+*** TODO Complete on-boarding guide: Certificates section
+:PROPERTIES:
+:OWNER: nobody
+:ID:       b4f4a6b2-7e11-4a3a-b42c-ed9b6da6ad46
+:END:
+
+- Objective :: Resolve the =TODO Certificates= heading in =doc/team/architect/on-boarding.org=: replace the placeholder =mkcert= instructions with the correct Guix-native certificate setup procedure.
+
+*** TODO Complete on-boarding guide: Authenticated commits section
+:PROPERTIES:
+:OWNER: nobody
+:ID:       0f100a4f-9e3d-4b0e-afd1-4348e79754f3
+:END:
+
+- Objective :: Resolve the =TODO Authenticated commits= heading in =doc/team/architect/on-boarding.org=: review and finalize the GPG key generation and commit-signing instructions.
+
+*** TODO Complete on-boarding guide: Next steps section
+:PROPERTIES:
+:OWNER: nobody
+:ID:       77912569-3988-4846-a4fc-0923c83b0713
+:END:
+
+- Objective :: Resolve the =TODO Next steps= heading in =doc/team/architect/on-boarding.org=: review and finalize the next-steps links and ensure they are accurate.
+
+*** TODO Add references to contributing.org
+:PROPERTIES:
+:OWNER: nobody
+:ID:       ad0c1b63-7715-4558-9770-fbc331c19287
+:END:
+
+- Objective :: Resolve the =TODO References= heading in =doc/contributing.org=: add the reference to ZeroMQ (Pieter Hintjens) and any other relevant works.
+
+*** DONE Integrate TODO in the backlog
+:PROPERTIES:
+:OWNER: claude
+:ID:       1d057da5-9c88-4a44-95d0-3584376e9ba4
+:END:
+
+- Objective :: For all TODO in the project, add a matching Task.
+- Plan ::
+  1) Read [[ref:0c058809-3e1c-4963-8999-ba84b4c7f2d8][Todo]]
+  2) Read [[ref:3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc][Task]]
+  3) Use $ROOT/bin/,todos
+  4) For each todo found, write a matching Task in the [[ref:90abac79-d226-4de2-9174-9df6c48c25c0][backlog]]
+
 *** DONE Add Claude
+:PROPERTIES:
+:OWNER: phf
+:END:
 
 - Objective :: Having claude in its own container sending PRs.
 - Test :: add bin/,todos that lists todos in the project.
 
 *** DONE M-p ↦ Path of heading copied to clipboard
+:PROPERTIES:
+:OWNER: phf
+:END:
+
 **** Objective
 
 Helper to easy commit editing.
 
 *** DONE Refine the contributing guide
+:PROPERTIES:
+:OWNER: phf
+:END:
+
 *** DONE Fix ,synchronize-with-upstream
+:PROPERTIES:
+:OWNER: phf
+:END:
+
 **** Objective
 
 Fix [[ref:119d5773-63cc-4add-b4d2-d5001b367677][actor]] so that it implements: [[ref:c5d59ff9-cc78-4f98-a7f6-22d19c39caff][Specification]].
 
 *** DONE ,synchronize-with-upstream
+:PROPERTIES:
+:OWNER: phf
+:END:
+
 **** Objective
 
 Provide a script to automate the synchronization step of [[ref:5513764b-8595-4e2d-bcf9-8e8214ee901b][Contributing]].
 
 *** DONE Fix contributing cycle
+:PROPERTIES:
+:OWNER: phf
+:END:
+
 **** Objective
 
 Ensure that the history is linear
@@ -45,64 +259,9 @@ Test [[ref:5513764b-8595-4e2d-bcf9-8e8214ee901b][Contributing]]
 
 *** DONE Task
 :PROPERTIES:
-:ID:       3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc
 :OWNER: phf
+:ID:       c6e9d4de-2c6f-4e0b-9ff1-ddf7c014fe27
 :END:
 
-**** Objective
-
-Define what we mean by a =Task=.
-
-**** Structure
-
-An example of a Task is:
-
-#+begin_src org
-,* TODO Dark theme
-:PROPERTIES:
-:ID: 70b6d0d4-20b1-44bd-ba93-d793339d6a3d
-:OWNER: nobody
-:END:
-
-,** Objective
-
-Let the user activate a dark theme.
-
-,** Test
-
-Once logged in, the user may click on a dark them icon in the upper-right corner of his
-profile to activate it.
-#+end_src
-
-The =TODO= above is a =State=. A =State= may be one of:
-- TODO :: meaning that the task is not implemented and no-one is working on it.
-- DOING :: meaning that the task is not implemented and someone is working on it.
-- DONE :: meaning that the task is implemented.
-- FAILED :: meaning that the task is not implemented for some reason described within the task and no one is working on it.
-
-A task contains at least one section: =Objective= which describes what should be
-accomplished. Other sections may be added depending on the task at hand, maybe: =Plan=,
-=Test=, =Why=, =Discussion=, =Result=, and so on.
-
-A task may have an owner which is referenced by its identifier. =nobody= means that
-no-one is the owner.
-
-So, the structure of a Task may be viewed as follows:
-
-|-----------+---------+--------------------------------------|
-| Property  | Type    | Example                              |
-|-----------+---------+--------------------------------------|
-| name      | String  | Dark theme                           |
-| id        | UUIDv4  | 70b6d0d4-20b1-44bd-ba93-d793339d6a3d |
-| state     | State   | TODO                                 |
-| owner     | OwnerId | nobody                               |
-| Objective | Section | see above.                           |
-| …         | Section | …                                    |
-|-----------+---------+--------------------------------------|
-
-**** Assign a task to someone
-
-For Alice to assign Bob to a task, it is enough for Alice to fork the repository, set
-Bob as the owner of the task, /i.e./ set the property =:OWNER:= to =bob= or whatever
-identifier is used by Bob and its state to =DOING=, and send a PR. Most likely, Bob
-will assign himself to tasks.
+- Objective :: Define what we mean by a =Task=.
+- Result ::

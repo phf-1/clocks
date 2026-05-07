@@ -76,8 +76,7 @@ if [[ "$MSG" == ",install-node-binaries" ]]; then
   # [[ref:220179a9-aa3e-490d-ab6e-3ef02d759bee][Specification]]
 
   inside_container_check
-  npm install -g bash-language-server
-  npm install -g @anthropic-ai/claude-code
+  npm install -g
 
 elif [[ "$MSG" == ",frontend-fetch" ]]; then
   # [[ref:c6dfad7d-72df-4788-ac6f-97c297f6df94][Specification]]

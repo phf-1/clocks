@@ -1,0 +1,72 @@
+* Task
+:PROPERTIES:
+:ID:       3427d8a4-4fc0-4d98-a8f7-59ac1399a9dc
+:END:
+
+A =Task= describes what needs to be done and is used to track the associated work
+allowing to compare the result and its specification.
+
+** Example
+
+An example of a Task is:
+
+#+begin_src org
+,* TODO Dark theme
+:PROPERTIES:
+:ID: 70b6d0d4-20b1-44bd-ba93-d793339d6a3d
+:OWNER: nobody
+:END:
+
+,** Objective
+
+Let the user activate a dark theme.
+
+,** Test
+
+Once logged in, the user may click on a dark them icon in the upper-right corner of his
+profile to activate it.
+#+end_src
+
+** State
+
+The =TODO= above is a =State=. A =State= may be one of:
+- TODO :: meaning that the task is not implemented and no-one is working on it.
+- DOING :: meaning that the task is not implemented and someone is working on it.
+- DONE :: meaning that the task is implemented.
+- FAILED :: meaning that the task is not implemented for some reason described within the task and no one is working on it.
+
+** Objective
+
+A task specifies at least an =Objective= which describes what should be accomplished.
+
+** Additional content
+
+Other content may be added depending on the task at hand, maybe: =Plan=, =Test=, =Why=,
+=Discussion=, =Result=, and so on.
+
+** Owner
+
+A task may have an owner which is referenced by its identifier. =nobody= means that
+no-one is the owner.
+
+** Structure
+
+So, the structure of a Task may be viewed as follows:
+
+|-----------+---------+--------------------------------------|
+| Property  | Type    | Example                              |
+|-----------+---------+--------------------------------------|
+| name      | String  | Dark theme                           |
+| id        | UUIDv4  | 70b6d0d4-20b1-44bd-ba93-d793339d6a3d |
+| state     | State   | TODO                                 |
+| owner     | OwnerId | nobody                               |
+| Objective | Section | see above.                           |
+| …         | Section | …                                    |
+|-----------+---------+--------------------------------------|
+
+** Assign a task to someone
+
+For Alice to assign Bob to a task, it is enough for Alice to fork the repository, set
+Bob as the owner of the task, /i.e./ set the property =:OWNER:= to =bob= or whatever
+identifier is used by Bob and its state to =DOING=, and send a PR. Most likely, Bob
+will assign himself to tasks.
