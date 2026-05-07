@@ -25,3 +25,5 @@ phoenix/priv/static/
 /backend/priv/static/*
 
 /experiment
+
+node_modules

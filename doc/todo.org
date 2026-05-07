@@ -1,0 +1,22 @@
+* Todo
+:PROPERTIES:
+:ID:       0c058809-3e1c-4963-8999-ba84b4c7f2d8
+:END:
+
+- A =Todo= represents local pending modifications.
+
+- What needs to be done is usually infered from the context and may be refined using a
+  short description.
+
+- To build a =Todo=, it is enough to insert a string of the form form =TODO(<id>)= where
+  =<id>= is usually just 4 characters long where appropriate.
+
+- If specified, the description follows the Todo: =TODO(<id>): <description>=.
+
+#+begin_example
+TODO(9fb0)
+#+end_example
+
+#+begin_example
+TODO(4f15): provide a Todo example.
+#+end_example
